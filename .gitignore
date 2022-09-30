@@ -388,3 +388,4 @@ easy/media/
 /.idea/misc.xml
 /.idea/modules.xml
 /.idea/vcs.xml
+/.idea/django-api-framework.iml
