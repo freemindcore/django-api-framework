@@ -9,6 +9,7 @@
 
 _Note: this project is still in early stage, comments and advices are highly appreciated._
 
+
 ```
 Django-Ninja features :
 
@@ -56,3 +57,8 @@ api_admin_v1.auto_create_admin_controllers()
 ```
 
 Please check tests/demo_app for more.
+
+
+### Boilerplate Django project
+A boilerplate Django project for quickly getting started:
+https://github.com/freemindcore/django-easy-api
