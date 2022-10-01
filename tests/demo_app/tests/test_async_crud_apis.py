@@ -3,11 +3,8 @@ from datetime import datetime, timedelta
 import django
 import pytest
 
+from tests.demo_app.controllers import EventControllerTest2API, EventEasyControllerAPI
 from tests.demo_app.services import EventService
-from tests.demo_app.controllers import (
-    EventControllerTest2API,
-    EventEasyControllerAPI,
-)
 
 dummy_data = dict(
     title="AsyncAPIEvent",

@@ -1,3 +1,11 @@
+![Test](https://github.com/freemindcore/django-api-framework/workflows/Test/badge.svg)
+[![PyPI version](https://badge.fury.io/py/django-api-framework.svg)](https://badge.fury.io/py/django-api-framework)
+[![PyPI version](https://img.shields.io/pypi/v/django-api-framework.svg)](https://pypi.python.org/pypi/django-api-framework)
+[![PyPI version](https://img.shields.io/pypi/pyversions/django-api-framework.svg)](https://pypi.python.org/pypi/django-api-framework)
+[![PyPI version](https://img.shields.io/pypi/djversions/django-api-framework.svg)](https://pypi.python.org/pypi/django-api-framework)
+[![Codecov](https://img.shields.io/codecov/c/gh/freemindcore/django-api-framework)](https://codecov.io/gh/freemindcore/django-api-framework)
+[![Downloads](https://pepy.tech/badge/django-api-framework/month)](https://pepy.tech/project/django-api-framework)
+
 # Django Easy API Framework
 
 ###  Easy and Fast Django REST framework based on Django-ninja-extra
@@ -27,8 +35,8 @@ Plus Extra:
 
 ### Requirements
 - Python >= 3.6
-- Django >= 2.1 
-- pydantic >= 1.6 
+- Django >= 3.1
+- pydantic >= 1.6
 - Django-Ninja-extra >= 0.15.0
 
 ### Install

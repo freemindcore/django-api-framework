@@ -15,16 +15,16 @@ install: ## Install dependencies
 	flit install --deps develop --symlink
 
 lint: ## Run code linters
-	autoflake --remove-all-unused-imports --remove-unused-variables  --ignore-init-module-imports -r easy
-	black --check easy
-	isort --check easy
+	autoflake --remove-all-unused-imports --remove-unused-variables  --ignore-init-module-imports -r easy tests
+	black --check easy tests
+	isort --check easy tests
 	flake8
 	mypy easy
 
 fmt format: ## Run code formatters
-	autoflake --in-place --remove-all-unused-imports --remove-unused-variables --ignore-init-module-imports  -r easy
-	isort easy
-	black easy
+	autoflake --in-place --remove-all-unused-imports --remove-unused-variables --ignore-init-module-imports  -r easy tests
+	isort easy tests
+	black easy tests
 
 test: ## Run tests
 	pytest

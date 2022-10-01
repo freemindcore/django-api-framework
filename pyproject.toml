@@ -40,7 +40,7 @@ classifiers = [
 ]
 
 requires = [
-    "Django >= 2.1",
+    "Django >= 3.1",
     "django-ninja-extra >= 0.15.0",
 ]
 description-file = "README.md"
@@ -62,7 +62,10 @@ test = [
     "flake8",
     "mypy==0.931",
     "django-stubs",
-    "factory-boy==3.2.1 "
+    "factory-boy==3.2.1",
+    "django_coverage_plugin",
+    "django-ninja-jwt",
+    "Django >= 3.1",
 ]
 doc = [
     "mkdocs >=1.1.2,<2.0.0",

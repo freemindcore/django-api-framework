@@ -4,13 +4,13 @@ import django
 import pytest
 from asgiref.sync import sync_to_async
 
-from tests.demo_app.models import Event
-from tests.demo_app.schema import EventSchema
 from tests.demo_app.controllers import (
     EasyEventPermissionController,
     EventControllerAPI,
     EventPermissionController,
 )
+from tests.demo_app.models import Event
+from tests.demo_app.schema import EventSchema
 from tests.demo_app.tests.test_async_crud_apis import dummy_data
 
 
