@@ -6,7 +6,7 @@ from asgiref.sync import sync_to_async
 
 from tests.demo_app.controllers import (
     EasyEventPermissionController,
-    EventControllerAPI,
+    EventControllerAdminAPI,
     EventPermissionController,
 )
 from tests.demo_app.models import Event
@@ -95,7 +95,7 @@ class TestEventBasePermissionController:
     async def test_crud_default_get_delete(
         self, transactional_db, easy_admin_api_client
     ):
-        client = easy_admin_api_client(EventControllerAPI)
+        client = easy_admin_api_client(EventControllerAdminAPI)
 
         object_data = dummy_data.copy()
         object_data.update(title=f"{object_data['title']}_get")
@@ -113,7 +113,7 @@ class TestEventBasePermissionController:
         event_schema = json.loads(EventSchema.from_orm(event).json())
         assert event_schema["end_date"] == data["end_date"]
 
-        client = easy_admin_api_client(EventControllerAPI, is_superuser=True)
+        client = easy_admin_api_client(EventControllerAdminAPI, is_superuser=True)
 
         await client.delete(
             f"/?id={event.id}",

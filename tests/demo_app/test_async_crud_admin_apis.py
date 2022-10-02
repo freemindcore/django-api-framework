@@ -5,7 +5,7 @@ import django
 import pytest
 from asgiref.sync import sync_to_async
 
-from tests.demo_app.controllers import EventControllerAPI, EventSchema
+from tests.demo_app.controllers import EventControllerAdminAPI, EventSchema
 from tests.demo_app.models import Event
 
 dummy_data = dict(
@@ -24,7 +24,7 @@ class TestEventControllerBaseAdminAPI:
 
         event = await sync_to_async(Event.objects.create)(**object_data)
 
-        client = easy_admin_api_client(EventControllerAPI)
+        client = easy_admin_api_client(EventControllerAdminAPI)
 
         response = await client.get(
             "/crud_get_objs_all",
@@ -43,7 +43,7 @@ class TestEventControllerBaseAdminAPI:
 
         event = await sync_to_async(Event.objects.create)(**object_data)
 
-        client = easy_admin_api_client(EventControllerAPI)
+        client = easy_admin_api_client(EventControllerAdminAPI)
 
         response = await client.get(
             "/crud_filter",
@@ -62,7 +62,7 @@ class TestEventControllerBaseAdminAPI:
 
         event = await sync_to_async(Event.objects.create)(**object_data)
 
-        client = easy_admin_api_client(EventControllerAPI)
+        client = easy_admin_api_client(EventControllerAdminAPI)
 
         response = await client.get(
             "/crud_filter_exclude",
@@ -83,7 +83,7 @@ class TestEventControllerBaseAdminAPI:
 
         event = await sync_to_async(Event.objects.create)(**object_data)
 
-        client = easy_admin_api_client(EventControllerAPI)
+        client = easy_admin_api_client(EventControllerAdminAPI)
 
         response = await client.get(
             "/crud_filter_exclude_paginated",
@@ -101,7 +101,7 @@ class TestEventControllerBaseAdminAPI:
 @pytest.mark.django_db
 class TestEventControllerAdminAPI:
     async def test_crud_default_get_all(self, transactional_db, easy_admin_api_client):
-        client = easy_admin_api_client(EventControllerAPI)
+        client = easy_admin_api_client(EventControllerAdminAPI)
 
         object_data = dummy_data.copy()
         object_data.update(title=f"{object_data['title']}_get_all")
@@ -122,7 +122,7 @@ class TestEventControllerAdminAPI:
     async def test_crud_default_get_delete(
         self, transactional_db, easy_admin_api_client
     ):
-        client = easy_admin_api_client(EventControllerAPI)
+        client = easy_admin_api_client(EventControllerAdminAPI)
 
         object_data = dummy_data.copy()
         object_data.update(title=f"{object_data['title']}_get")
@@ -147,7 +147,7 @@ class TestEventControllerAdminAPI:
             "detail": "You do not have permission to perform this action."
         }
 
-        client = easy_admin_api_client(EventControllerAPI, is_superuser=True)
+        client = easy_admin_api_client(EventControllerAdminAPI, is_superuser=True)
         await client.delete(
             f"/?id={event.id}",
         )
@@ -159,7 +159,7 @@ class TestEventControllerAdminAPI:
         assert response.json().get("data") == {}
 
     async def test_crud_default_create(self, transactional_db, easy_admin_api_client):
-        client = easy_admin_api_client(EventControllerAPI)
+        client = easy_admin_api_client(EventControllerAdminAPI)
 
         object_data = dummy_data.copy()
         object_data.update(title=f"{object_data['title']}_create")
@@ -178,7 +178,7 @@ class TestEventControllerAdminAPI:
         assert response.json().get("data")["title"] == "AsyncAdminAPIEvent_create"
 
     async def test_crud_default_patch(self, transactional_db, easy_admin_api_client):
-        client = easy_admin_api_client(EventControllerAPI)
+        client = easy_admin_api_client(EventControllerAdminAPI)
 
         object_data = dummy_data.copy()
         event = await sync_to_async(Event.objects.create)(**object_data)

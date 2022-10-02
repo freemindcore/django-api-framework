@@ -95,7 +95,7 @@ class EasyEventPermissionController(CrudAPIController):
 
 
 @api_controller("events", permissions=[BaseApiPermission])
-class EventControllerAPI(BaseAdminAPIController):
+class EventControllerAdminAPI(BaseAdminAPIController):
     def __init__(self, service: EventService):
         super().__init__(service)
         self.service = service
