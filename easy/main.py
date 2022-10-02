@@ -27,7 +27,7 @@ class EasyAPI(NinjaExtraAPI):
             Can serialize queryset or model, and support pagination
         Easy_output: bool = True,
             If True, will be encapsulate in BaseAPIResponse
-    -renderer, default EasyJSONRenderer
+    -renderer, default to EasyJSONRenderer
     -API docs default to docs_permission_required，only logged in Staff users can visit
     -Auto generate AdminAPIs, it will read the following settings:
         AUTO_ADMIN_ENABLED_ALL_APPS

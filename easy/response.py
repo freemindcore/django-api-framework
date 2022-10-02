@@ -1,5 +1,4 @@
 import json
-import time
 
 from django.http.response import JsonResponse
 
@@ -26,7 +25,6 @@ class BaseApiResponse(JsonResponse):
             "code": errno,
             "message": message,
             "data": data if data is not None else {},
-            "now": int(time.time()),
         }
         super().__init__(data=_data, encoder=EasyJSONEncoder, *args, **kwargs)
 

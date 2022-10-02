@@ -19,7 +19,6 @@ def request_passes_test(
     def decorator(view_func):
         @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
-            # print(f"request --- {request.__dict__.items()}")
             if test_func(request):
                 return view_func(request, *args, **kwargs)
             path = request.build_absolute_uri()

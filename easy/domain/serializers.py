@@ -33,16 +33,7 @@ def is_paginated(data: Any) -> bool:
 
 def is_base_response(data: Any) -> bool:
     """Check if it is already good or a BaseApiResponse"""
-    return (
-        data
-        and isinstance(data, dict)
-        and data.get("now", None) is not None
-        and data.get("data", None) is not None
-    ) or (
-        isinstance(data, BaseApiResponse)
-        and data.get("now", None) is not None
-        and data.get("data", None) is not None
-    )
+    return isinstance(data, BaseApiResponse) and data.get("data", None) is not None
 
 
 def serialize_base_response(data: Any) -> BaseApiResponse:

@@ -3,8 +3,6 @@ from typing import Dict, List, Optional, Union
 from ninja_extra import status
 from ninja_extra.exceptions import APIException
 
-from easy.response import BaseApiResponse
-
 
 class BaseAPIException(APIException):
     """
@@ -28,23 +26,8 @@ class BaseAPIException(APIException):
 
 class APIAuthException(BaseAPIException):
     """
-    API权限异常
+    API Auth Exception
     """
 
     status_code = status.HTTP_401_UNAUTHORIZED
     default_detail = "Unauthorized"
-
-
-def http_error_handler(request, exc):
-    """
-    API异常处理函数
-    """
-    code = exc.status_code
-    msg = str(exc)
-    data = {
-        "status": code,
-        "message": msg,
-        "detail": msg,
-    }
-
-    return BaseApiResponse(status=code, data=data, errno=code, message=msg)
