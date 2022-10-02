@@ -12,7 +12,7 @@
 
 - Auto CRUD Async API generation for all django models, configurable
 - Domain/Service/Controller base structure for better code organization
-- Base Permission class and more to come
+- Base Permission/Response/Exception/Service classes and more to come
 - Pure class based Django-ninja APIs, based on Django-Ninja-extra
 
 _Note: this project is still in early stage, comments and advices are highly appreciated._

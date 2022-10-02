@@ -35,8 +35,8 @@ class CrudService(CrudModel):
     async def filter_exclude_objs(self, **payload: Any):
         return await sync_to_async(self._crud_filter_exclude)(**payload)
 
-    async def bulk_create_objs(self):
-        ...
-
-    async def recover_obj(self):
-        ...
+    # async def bulk_create_objs(self):
+    #     ...
+    #
+    # async def recover_obj(self):
+    #     ...

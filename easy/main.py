@@ -96,7 +96,7 @@ class EasyAPI(NinjaExtraAPI):
                             )
                         )
                 self.register_controllers(*final)
-            except ImportError as ex:
+            except ImportError as ex:  # pragma: no cover
                 raise ex
 
     @staticmethod
@@ -146,7 +146,7 @@ class EasyAPI(NinjaExtraAPI):
             data=data_to_render,
             status=status,
             temporal_response=temporal_response,
-        )
+        )  # pragma: no cover
 
 
 class EasyAdminAPI(EasyAPI):

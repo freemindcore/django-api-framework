@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 
 from easy.controller.base import BaseAdminAPIController, CrudAPIController
 from easy.main import EasyAdminAPI
-from easy.testing import EasyAsyncAPITestClient
+from easy.testing import EasyTestClient
 from tests.demo_app.auth import JWTAuthAsync, jwt_auth_async
 from tests.demo_app.factories import UserFactory
 
@@ -23,7 +23,7 @@ def user(db) -> User:
 
 
 @pytest.fixture
-def easy_async_client(user) -> EasyAsyncAPITestClient:
+def easy_api_client(user) -> EasyTestClient:
     orig_func = copy.deepcopy(JWTAuthAsync.__call__)
 
     async def mock_func(self, request):
@@ -39,7 +39,7 @@ def easy_async_client(user) -> EasyAsyncAPITestClient:
     ):
         setattr(user, "is_staff", is_staff)
         setattr(user, "is_superuser", is_superuser)
-        client = EasyAsyncAPITestClient(api, auth=jwt_auth_async)
+        client = EasyTestClient(api, auth=jwt_auth_async)
         return client
 
     yield create_client
@@ -47,7 +47,7 @@ def easy_async_client(user) -> EasyAsyncAPITestClient:
 
 
 @pytest.fixture
-def easy_admin_async_client(user) -> EasyAsyncAPITestClient:
+def easy_admin_api_client(user) -> EasyTestClient:
     """For EasyAdminAPIAuthASync testings"""
 
     orig_func = copy.deepcopy(JWTAuthAsync.__call__)
@@ -66,7 +66,7 @@ def easy_admin_async_client(user) -> EasyAsyncAPITestClient:
         setattr(user, "is_staff", is_staff)
         setattr(user, "is_superuser", is_superuser)
 
-        client = EasyAsyncAPITestClient(api, auth=jwt_auth_async, api_cls=EasyAdminAPI)
+        client = EasyTestClient(api, auth=jwt_auth_async, api_cls=EasyAdminAPI)
         return client
 
     yield create_client

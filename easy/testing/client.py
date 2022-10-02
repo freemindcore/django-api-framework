@@ -25,11 +25,6 @@ class EasyAPIClientBase(NinjaExtraClientBase):
         super(NinjaExtraClientBase, self).__init__(api)
 
 
-class EasyAPITestClient(EasyAPIClientBase):
-    def _call(self, func: Callable, request: Mock, kwargs: Dict) -> "NinjaResponse":
-        return NinjaResponse(func(request, **kwargs))
-
-
-class EasyAsyncAPITestClient(EasyAPIClientBase):
+class EasyTestClient(EasyAPIClientBase):
     async def _call(self, func: Callable, request: Mock, kwargs: Dict) -> NinjaResponse:
         return NinjaResponse(await func(request, **kwargs))

@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class CrudAPI(CrudModel):
     def __init__(self, service=None):
         if not service:
-            self.service = BaseService(model=self.model)
+            self.service = BaseService(model=self.model)  # pragma: no cover
         else:
             self.service = service
         super().__init__(model=self.model)
@@ -46,29 +46,29 @@ class CrudAPI(CrudModel):
         payload = dict(parse.parse_qsl(data))
         return await self.service.get_objs(maximum, **payload)
 
-    @paginate
-    async def filter_objs(self, data: str):
-        """
-        GET /filter/?data={data}
-        Filter Objects
-        """
-        payload = dict(parse.parse_qsl(data))
-        return await self.service.filter_objs(**payload)
-
-    @paginate
-    async def filter_exclude_objs(self, data: str):
-        """
-        GET /filter_exclude/?data={data}
-        Filter exclude Objects
-        """
-        payload = dict(parse.parse_qsl(data))
-        return await self.service.filter_exclude_objs(**payload)
-
-    async def patch_obj(self, request):
-        ...
-
-    async def add_obj(self, request):
-        ...
+    # @paginate
+    # async def filter_objs(self, data: str):
+    #     """
+    #     GET /filter/?data={data}
+    #     Filter Objects
+    #     """
+    #     payload = dict(parse.parse_qsl(data))
+    #     return await self.service.filter_objs(**payload)
+    #
+    # @paginate
+    # async def filter_exclude_objs(self, data: str):
+    #     """
+    #     GET /filter_exclude/?data={data}
+    #     Filter exclude Objects
+    #     """
+    #     payload = dict(parse.parse_qsl(data))
+    #     return await self.service.filter_exclude_objs(**payload)
+    #
+    # async def patch_obj(self, request):
+    #     ...
+    #
+    # async def add_obj(self, request):
+    #     ...
 
     # async def bulk_create_objs(self, request):
     #     """

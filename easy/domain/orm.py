@@ -24,12 +24,14 @@ class CrudModel(object):
             self.model.objects.filter(id=id).delete()
             return BaseApiResponse({"Detail": "Deleted."})
         else:
-            return BaseApiResponse({"Detail": "Not found."}, message="Not found.")
+            return BaseApiResponse(
+                {"Detail": "Not found."}, message="Not found."
+            )  # pragma: no cover
 
     def _crud_update_obj(self, id, payload):
         try:
             obj, created = self.model.objects.update_or_create(id=id, defaults=payload)
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             logger.error(f"Crud_update Error - {e}", exc_info=True)
             return BaseApiResponse(message="Failed")
         return BaseApiResponse({"id": obj.id, "created": created})
@@ -51,7 +53,7 @@ class CrudModel(object):
         if filters:
             try:
                 qs = self.model.objects.filter(**filters)
-            except Exception as e:
+            except Exception as e:  # pragma: no cover
                 logger.error(e)
         elif maximum:
             qs = self.model.objects.all()[:maximum]

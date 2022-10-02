@@ -14,7 +14,7 @@ def pytest_configure(config):
         SECRET_KEY="not very secret in tests",
         USE_I18N=True,
         STATIC_URL="/static/",
-        ROOT_URLCONF="tests.urls",
+        ROOT_URLCONF="tests.demo_app.urls",
         TEMPLATES=[
             {
                 "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -48,11 +48,15 @@ def pytest_configure(config):
             "django.contrib.staticfiles",
             "ninja_extra",
             "tests.demo_app",
+            "easy",
         ),
         PASSWORD_HASHERS=("django.contrib.auth.hashers.MD5PasswordHasher",),
         AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
         LANGUAGE_CODE="en-us",
         TIME_ZONE="UTC",
+        AUTO_ADMIN_ENABLED_ALL_APPS=True,
+        AUTO_ADMIN_INCLUDE_APPS=[],
+        AUTO_ADMIN_EXCLUDE_APPS=[],
     )
 
     django.setup()

@@ -11,11 +11,11 @@ class BaseAdminAPIController(ControllerBase, CrudAPI, metaclass=AdminApiMetaclas
     """For AdminAPI"""
 
     def __init__(self, service=None):
-        super().__init__(service=service)
+        super().__init__(service=service)  # pragma: no cover
 
 
 class CrudAPIController(ControllerBase, CrudAPI, metaclass=CrudApiMetaclass):
     """For Client facing APIs"""
 
     def __init__(self, service=None):
-        super().__init__(service=service)
+        super().__init__(service=service)  # pragma: no cover

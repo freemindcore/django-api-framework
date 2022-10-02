@@ -4,7 +4,6 @@ from urllib.parse import urlparse
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.shortcuts import resolve_url
-from ninja.compatibility import get_headers
 
 
 def request_passes_test(
@@ -48,16 +47,10 @@ def docs_permission_required(
     member, redirecting to the login page if necessary.
     """
     actual_decorator = request_passes_test(
-        lambda r: (
-            (r.user.is_active and r.user.is_staff)
-            or (
-                get_headers(r).get("api-docs-key")
-                and get_headers(r).get("api-docs-key") == settings.API_DOCS_KEY
-            )
-        ),
+        lambda r: ((r.user.is_active and r.user.is_staff)),
         login_url=login_url,
         redirect_field_name=redirect_field_name,
     )
     if view_func:
         return actual_decorator(view_func)
-    return actual_decorator
+    return actual_decorator  # pragma: no cover

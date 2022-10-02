@@ -64,8 +64,13 @@ test = [
     "django-stubs",
     "factory-boy==3.2.1",
     "django_coverage_plugin",
+    "django-ninja-extra >= 0.15.0",
     "django-ninja-jwt",
     "Django >= 3.1",
+]
+dev = [
+    "autoflake",
+    "pre_commit",
 ]
 doc = [
     "mkdocs >=1.1.2,<2.0.0",

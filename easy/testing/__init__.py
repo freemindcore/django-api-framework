@@ -1,3 +1,3 @@
-from easy.testing.client import EasyAPITestClient, EasyAsyncAPITestClient
+from easy.testing.client import EasyTestClient
 
-__all__ = ["EasyAPITestClient", "EasyAsyncAPITestClient"]
+__all__ = ["EasyTestClient"]
