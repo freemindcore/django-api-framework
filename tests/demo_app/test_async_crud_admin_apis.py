@@ -249,3 +249,22 @@ class TestAutoCrudAdminAPI:
 
         event_schema = json.loads(EventSchema.from_orm(event).json())
         assert event_schema["end_date"] == data[0]["end_date"]
+
+    async def test_get_list(self, transactional_db, easy_admin_api_client):
+        object_data = dummy_data.copy()
+        object_data.update(title=f"{object_data['title']}_get_qs")
+
+        event = await sync_to_async(Event.objects.create)(**object_data)
+
+        client = easy_admin_api_client(EasyAdminAPIController)
+
+        response = await client.get(
+            "/list",
+        )
+        assert response.status_code == 200
+
+        data = response.json().get("data")
+        assert data[0]["title"] == "AsyncAdminAPIEvent_get_qs"
+
+        event_schema = json.loads(EventSchema.from_orm(event).json())
+        assert event_schema["end_date"] == data[0]["end_date"]

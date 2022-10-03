@@ -100,3 +100,10 @@ class EasyAdminAPIController(BaseAdminAPIController):
         return await sync_to_async(list)(
             await self.service.filter_exclude_objs(id__lt=1)
         )
+
+    @http_get(
+        "/list",
+        response=List[EventSchema],
+    )
+    async def list_events(self):
+        return await sync_to_async(list)(Event.objects.all())
