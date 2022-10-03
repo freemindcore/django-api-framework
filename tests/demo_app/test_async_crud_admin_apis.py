@@ -18,88 +18,6 @@ dummy_data = dict(
 @pytest.mark.skipif(django.VERSION < (3, 1), reason="requires django 3.1 or higher")
 @pytest.mark.django_db
 class TestEventControllerBaseAdminAPI:
-    async def test_get_all(self, transactional_db, easy_admin_api_client):
-        object_data = dummy_data.copy()
-        object_data.update(title=f"{object_data['title']}_get_all")
-
-        event = await sync_to_async(Event.objects.create)(**object_data)
-
-        client = easy_admin_api_client(EventControllerAdminAPI)
-
-        response = await client.get(
-            "/crud_get_objs_all",
-        )
-        assert response.status_code == 200
-
-        data = response.json().get("data")
-        assert data[0]["title"] == "AsyncAdminAPIEvent_get_all"
-
-        event_schema = json.loads(EventSchema.from_orm(event).json())
-        assert event_schema["start_date"] == data[0]["start_date"]
-
-    async def test_get_objs_with_filters(self, transactional_db, easy_admin_api_client):
-        object_data = dummy_data.copy()
-        object_data.update(title=f"{object_data['title']}_get_objs")
-
-        event = await sync_to_async(Event.objects.create)(**object_data)
-
-        client = easy_admin_api_client(EventControllerAdminAPI)
-
-        response = await client.get(
-            "/crud_filter",
-        )
-        assert response.status_code == 200
-
-        data = response.json().get("data")
-        assert data[0]["title"] == "AsyncAdminAPIEvent_get_objs"
-
-        event_schema = json.loads(EventSchema.from_orm(event).json())
-        assert event_schema["end_date"] == data[0]["end_date"]
-
-    async def test_crud_filter_exclude(self, transactional_db, easy_admin_api_client):
-        object_data = dummy_data.copy()
-        object_data.update(title=f"{object_data['title']}_exclude")
-
-        event = await sync_to_async(Event.objects.create)(**object_data)
-
-        client = easy_admin_api_client(EventControllerAdminAPI)
-
-        response = await client.get(
-            "/crud_filter_exclude",
-        )
-        assert response.status_code == 200
-
-        data = response.json().get("data")
-        assert data[0]["title"] == "AsyncAdminAPIEvent_exclude"
-
-        event_schema = json.loads(EventSchema.from_orm(event).json())
-        assert event_schema["end_date"] == data[0]["end_date"]
-
-    async def test_crud_filter_exclude_paginated(
-        self, transactional_db, easy_admin_api_client
-    ):
-        object_data = dummy_data.copy()
-        object_data.update(title=f"{object_data['title']}_exclude_paginated")
-
-        event = await sync_to_async(Event.objects.create)(**object_data)
-
-        client = easy_admin_api_client(EventControllerAdminAPI)
-
-        response = await client.get(
-            "/crud_filter_exclude_paginated",
-        )
-        assert response.status_code == 200
-
-        data = response.json().get("data")
-        assert data[0]["title"] == "AsyncAdminAPIEvent_exclude_paginated"
-
-        event_schema = json.loads(EventSchema.from_orm(event).json())
-        assert event_schema["end_date"] == data[0]["end_date"]
-
-
-@pytest.mark.skipif(django.VERSION < (3, 1), reason="requires django 3.1 or higher")
-@pytest.mark.django_db
-class TestEventControllerAdminAPI:
     async def test_crud_default_get_all(self, transactional_db, easy_admin_api_client):
         client = easy_admin_api_client(EventControllerAdminAPI)
 
@@ -109,8 +27,31 @@ class TestEventControllerAdminAPI:
         event = await sync_to_async(Event.objects.create)(**object_data)
 
         response = await client.get(
-            "/get_all/",
+            "/get_all", query=dict(maximum=100, filters=json.dumps(dict(id__gte=1)))
         )
+        assert response.status_code == 200
+
+        data = response.json().get("data")
+        assert data[0]["title"] == "AsyncAdminAPIEvent_get_all"
+
+        event_schema = json.loads(EventSchema.from_orm(event).json())
+        assert event_schema["start_date"] == data[0]["start_date"]
+
+        response = await client.get(
+            "/get_all",
+            query=dict(
+                maximum=100,
+            ),
+        )
+        assert response.status_code == 200
+
+        data = response.json().get("data")
+        assert data[0]["title"] == "AsyncAdminAPIEvent_get_all"
+
+        event_schema = json.loads(EventSchema.from_orm(event).json())
+        assert event_schema["start_date"] == data[0]["start_date"]
+
+        response = await client.get("/get_all")
         assert response.status_code == 200
 
         data = response.json().get("data")
@@ -215,3 +156,62 @@ class TestEventControllerAdminAPI:
         assert response.json().get("data")["end_date"] == str(
             (datetime.now() + timedelta(days=20)).date()
         )
+
+    async def test_default_filter(self, transactional_db, easy_admin_api_client):
+        object_data = dummy_data.copy()
+        object_data.update(title=f"{object_data['title']}_filter")
+
+        event = await sync_to_async(Event.objects.create)(**object_data)
+
+        client = easy_admin_api_client(EventControllerAdminAPI)
+
+        response = await client.get(
+            "/filter", query=dict(filters=json.dumps(dict(id__gte=1)))
+        )
+        assert response.status_code == 200
+
+        data = response.json().get("data")
+        assert data[0]["title"] == "AsyncAdminAPIEvent_filter"
+
+        event_schema = json.loads(EventSchema.from_orm(event).json())
+        assert event_schema["end_date"] == data[0]["end_date"]
+
+    async def test_crud_filter_exclude(self, transactional_db, easy_admin_api_client):
+        object_data = dummy_data.copy()
+        object_data.update(title=f"{object_data['title']}_exclude")
+
+        event = await sync_to_async(Event.objects.create)(**object_data)
+
+        client = easy_admin_api_client(EventControllerAdminAPI)
+
+        response = await client.get(
+            "/filter_exclude", query=dict(filters=json.dumps(dict(id__lt=1)))
+        )
+        assert response.status_code == 200
+
+        data = response.json().get("data")
+        assert data[0]["title"] == "AsyncAdminAPIEvent_exclude"
+
+        event_schema = json.loads(EventSchema.from_orm(event).json())
+        assert event_schema["end_date"] == data[0]["end_date"]
+
+    async def test_crud_filter_exclude_paginated(
+        self, transactional_db, easy_admin_api_client
+    ):
+        object_data = dummy_data.copy()
+        object_data.update(title=f"{object_data['title']}_exclude_paginated")
+
+        event = await sync_to_async(Event.objects.create)(**object_data)
+
+        client = easy_admin_api_client(EventControllerAdminAPI)
+
+        response = await client.get(
+            "/crud_filter_exclude_paginated",
+        )
+        assert response.status_code == 200
+
+        data = response.json().get("data")
+        assert data[0]["title"] == "AsyncAdminAPIEvent_exclude_paginated"
+
+        event_schema = json.loads(EventSchema.from_orm(event).json())
+        assert event_schema["end_date"] == data[0]["end_date"]

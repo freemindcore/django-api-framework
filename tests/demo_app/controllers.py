@@ -1,8 +1,7 @@
 from typing import List
 
 from asgiref.sync import sync_to_async
-from django.shortcuts import get_object_or_404
-from ninja_extra import api_controller, http_get, http_post, paginate
+from ninja_extra import api_controller, http_get, paginate
 
 from easy.controller.base import BaseAdminAPIController, CrudAPIController
 from easy.permissions import (
@@ -12,7 +11,7 @@ from easy.permissions import (
     IsSuperUser,
 )
 from tests.demo_app.models import Event
-from tests.demo_app.schema import EventSchema, EventSchemaOut
+from tests.demo_app.schema import EventSchema
 from tests.demo_app.services import EventService
 
 
@@ -34,25 +33,19 @@ class EventEasyControllerAPI(CrudAPIController):
         await self.service.dummy_biz_logics()
         return {"data": 1}
 
+    @http_get(
+        "/list",
+    )
+    @paginate
+    async def list_api(self, request):
+        qs = await self.service.filter_objs(id__gte=1)
+        return qs
 
-@api_controller("unittest")
-class EventControllerTest2API(CrudAPIController):
-    def __init__(self, service: EventService):
-        super().__init__(service)
-        self.service = service
-
-    class Meta:
-        model = Event
-        exclude = [
-            "category",
-        ]
-        recursive = True
-
-    @http_get("/demo", summary="unit test only", auth=None)
+    @http_get("/get_objs", summary="unit test only", auth=None)
     @paginate
     async def demo_api(self, request):
         await self.service.dummy_biz_logics()
-        return await self.service.get_objs()
+        return await self.service.get_objs(maximum=10)
 
 
 @api_controller("unittest")
@@ -106,29 +99,8 @@ class EventControllerAdminAPI(BaseAdminAPIController):
             "category",
         ]
 
-    @http_get("/crud_get_objs_all", summary="crud_get_objs_all unittest")
-    @paginate
-    async def get_objs_all_with_filters(self, request, maximum: int = None, **filters):
-        await self.service.dummy_biz_logics()
-        await self.service.demo_action(data="running /get_objs_all_with_filters")
-        return await self.service.get_objs(maximum, **filters)
-
-    @http_get("/crud_filter", summary="crud_filter unittest")
-    @paginate
-    async def get_objs_with_filters(self, request):
-        await self.service.demo_action(data="running /get_objs_with_filters")
-        return await self.service.filter_objs(id__gte=1)
-
-    @http_get("/crud_filter_exclude", summary="crud_filter_exclude unittest")
-    @paginate
-    async def get_objs_with_crud_filter_exclude(self, request):
-        await self.service.demo_action(
-            data="running /get_objs_with_crud_filter_exclude"
-        )
-        return await self.service.filter_exclude_objs(id__lt=1)
-
     @http_get("/crud_filter_exclude_paginated", response=List[EventSchema])
-    async def get_objs_with_crud_filter_exclude_paginated(self, request):
+    async def get_objs_with_crud_filter_exclude(self, request):
         await self.service.demo_action(data="running /crud_filter_exclude_paginated")
         return await sync_to_async(list)(
             await self.service.filter_exclude_objs(id__lt=1)
@@ -149,32 +121,3 @@ class EventPermissionController:
     async def must_be_admin_user(self, word: str):
         await self.event_service.demo_action(word)
         return dict(says=word)
-
-
-@api_controller("events")
-class EventController:
-    @http_post("", url_name="event-create-url-name", response={201: EventSchemaOut})
-    def create_event(self, event: EventSchema):
-        event = Event.objects.create(**event.dict())
-        return 201, event
-
-    @http_get(
-        "",
-        response=List[EventSchema],
-        url_name="event-list",
-    )
-    def list_events(self):
-        return list(Event.objects.all())
-
-    @http_get(
-        "/list",
-        response=List[EventSchema],
-        url_name="event-list-2",
-    )
-    def list_events_example_2(self):
-        return list(Event.objects.all())
-
-    @http_get("/{int:id}", response=EventSchema)
-    def get_event(self, id: int):
-        event = get_object_or_404(Event, id=id)
-        return event

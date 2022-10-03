@@ -64,11 +64,8 @@ class CrudModel(object):
     def _crud_filter(self, **kwargs: Any):
         return self.model.objects.filter(**kwargs)
 
-    def _crud_filter_exclude(self, qs: QuerySet = None, **kwargs: Any):
-        if qs:
-            return qs.exclude(**kwargs)
-        else:
-            return self.model.objects.all().exclude(**kwargs)
+    def _crud_filter_exclude(self, **kwargs: Any):
+        return self.model.objects.all().exclude(**kwargs)
 
 
 class BaseOrm(CrudModel):

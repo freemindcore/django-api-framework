@@ -1,7 +1,7 @@
+import json
 import logging
 import uuid
 from abc import ABCMeta
-from urllib import parse
 
 from ninja import ModelSchema
 from ninja_extra import ControllerBase, http_delete, http_get, http_patch, http_put
@@ -38,32 +38,31 @@ class CrudAPI(CrudModel):
         return await self.service.del_obj(id)
 
     @paginate
-    async def get_objs(self, request, maximum: int = None, data: str = None):
+    async def get_objs(self, request, maximum: int = None, filters: str = None):
         """
-        GET /get_all/
+        GET /get_all
         Retrieve multiple Object
         """
-        payload = dict(parse.parse_qsl(data))
-        return await self.service.get_objs(maximum, **payload)
+        if filters:
+            return await self.service.get_objs(maximum, **json.loads(filters))
+        return await self.service.get_objs(maximum)
 
-    # @paginate
-    # async def filter_objs(self, data: str):
-    #     """
-    #     GET /filter/?data={data}
-    #     Filter Objects
-    #     """
-    #     payload = dict(parse.parse_qsl(data))
-    #     return await self.service.filter_objs(**payload)
-    #
-    # @paginate
-    # async def filter_exclude_objs(self, data: str):
-    #     """
-    #     GET /filter_exclude/?data={data}
-    #     Filter exclude Objects
-    #     """
-    #     payload = dict(parse.parse_qsl(data))
-    #     return await self.service.filter_exclude_objs(**payload)
-    #
+    @paginate
+    async def filter_objs(self, request, filters: str = None):
+        """
+        GET /filter/?filters={filters_dict}
+        Filter Objects
+        """
+        return await self.service.filter_objs(**json.loads(filters))
+
+    @paginate
+    async def filter_exclude_objs(self, filters: str = None):
+        """
+        GET /filter_exclude/?filters={filters_dict}
+        Filter exclude Objects
+        """
+        return await self.service.filter_exclude_objs(**json.loads(filters))
+
     # async def patch_obj(self, request):
     #     ...
     #
@@ -106,15 +105,15 @@ class CrudApiMetaclass(ABCMeta):
         base_cls_attrs = {
             "get_obj": http_get("/", summary="Get")(copy_func(CrudAPI.get_obj)),
             "del_obj": http_delete("/", summary="Delete")(copy_func(CrudAPI.del_obj)),
-            "get_all": http_get("/get_all/", summary="Get All")(
+            "get_all": http_get("/get_all", summary="Get All")(
                 copy_func(CrudAPI.get_objs)
             ),
-            # "filter_objs": http_get("/filter", summary="Filter")(
-            #     copy_func(CrudAPI.filter_objs)
-            # ),
-            # "filter_exclude_objs": http_get(
-            #     "/filter_exclude", summary="Filter exclude"
-            # )(copy_func(CrudAPI.filter_exclude_objs)),
+            "filter_objs": http_get("/filter", summary="Filter")(
+                copy_func(CrudAPI.filter_objs)
+            ),
+            "filter_exclude_objs": http_get(
+                "/filter_exclude", summary="Filter exclude"
+            )(copy_func(CrudAPI.filter_exclude_objs)),
         }
 
         if opts_model:

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import django
 import pytest
 
-from tests.demo_app.controllers import EventControllerTest2API, EventEasyControllerAPI
+from tests.demo_app.controllers import EventEasyControllerAPI
 from tests.demo_app.services import EventService
 
 dummy_data = dict(
@@ -34,7 +34,11 @@ class TestEventEasyControllerAPI:
         assert response.status_code == 200
         assert response.json().get("data")["title"] == "AsyncAPIEvent_create"
 
-    async def test_demo(self, transactional_db, easy_api_client):
+        response = await client.get("/list")
+        assert response.status_code == 200
+        assert response.json().get("data")[0]["title"] == "AsyncAPIEvent_create"
+
+    async def test_dummy(self, transactional_db, easy_api_client):
         client = easy_api_client(EventEasyControllerAPI)
 
         response = await client.get(
@@ -43,12 +47,8 @@ class TestEventEasyControllerAPI:
         assert response.status_code == 200
         assert response.json().get("data")["data"] == 1
 
-
-@pytest.mark.skipif(django.VERSION < (3, 1), reason="requires django 3.1 or higher")
-@pytest.mark.django_db
-class TestEventEasyControllerTest2API:
-    async def test_demo(self, transactional_db, easy_api_client):
-        client = easy_api_client(EventControllerTest2API)
+    async def test_get_objs(self, transactional_db, easy_api_client):
+        client = easy_api_client(EventEasyControllerAPI)
 
         object_data = await EventService.prepare_create_event_data(dummy_data)
 
@@ -60,7 +60,7 @@ class TestEventEasyControllerTest2API:
         event_id = response.json().get("data")["id"]
 
         response = await client.get(
-            "/demo",
+            "/get_objs",
         )
         assert response.status_code == 200
         assert response.json().get("data")[0]["id"] == event_id
