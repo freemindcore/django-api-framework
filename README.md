@@ -10,13 +10,10 @@
 
 ###  Easy and Fast Django REST framework based on Django-ninja-extra
 
-- Auto CRUD Async API generation for all django models, configurable
+- Auto CRUD Async API generation for all django models, configurable via Meta class
 - Domain/Service/Controller base structure for better code organization
-- Base Permission/Response/Exception/Service classes and more to come
+- Base Permission/Response/Exception classes and more to come
 - Pure class based Django-ninja APIs, based on Django-Ninja-extra
-
-_Note: this project is still in early stage, comments and advices are highly appreciated._
-
 
 ```
 Django-Ninja features :
@@ -73,3 +70,5 @@ https://github.com/freemindcore/django-easy-api
 
 ![Auto generated APIs List](https://github.com/freemindcore/django-api-framework/blob/fae8209a8d08c55daf75ac3a4619fe62b8ef3af6/docs/images/admin_apis_list.png)
 ![Auto generated APIs - Users](https://github.com/freemindcore/django-api-framework/blob/fae8209a8d08c55daf75ac3a4619fe62b8ef3af6/docs/images/user_admin_api.png)
+
+_Note: this project is still in early stage, comments and advices are highly appreciated._
