@@ -124,7 +124,10 @@ class CrudApiMetaclass(ABCMeta):
                     if opts_fields_exclude:
                         model_exclude = opts_fields_exclude
                     else:
-                        model_fields = opts_fields if opts_fields else "__all__"
+                        if opts_fields == ["__all__"]:
+                            model_fields = "__all__"
+                        else:
+                            model_fields = opts_fields if opts_fields else "__all__"
                     recursive = temp_opts.recursive
 
             async def add_obj(self, request, data: DataSchema):
