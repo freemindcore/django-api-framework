@@ -14,7 +14,7 @@ class CrudModel(object):
     def __init__(self, model):
         self.model = model
 
-    def __get_fieds(self, payload):
+    def __get_fields(self, payload):
         m2m_fields = {}
         local_fields = {}
         for field in payload.keys():
@@ -27,7 +27,7 @@ class CrudModel(object):
 
     # Define BASE CRUD
     def _crud_add_obj(self, **payload):
-        local_fields, m2m_fields = self.__get_fieds(payload)
+        local_fields, m2m_fields = self.__get_fields(payload)
         obj = self.model.objects.create(**local_fields)
         if m2m_fields:
             for field, value in m2m_fields.items():
@@ -47,7 +47,7 @@ class CrudModel(object):
             )  # pragma: no cover
 
     def _crud_update_obj(self, id, payload):
-        local_fields, m2m_fields = self.__get_fieds(payload)
+        local_fields, m2m_fields = self.__get_fields(payload)
         try:
             obj, created = self.model.objects.update_or_create(
                 id=id, defaults=local_fields
