@@ -4,6 +4,7 @@ from typing import Any
 from django.db.models.query import QuerySet
 from ninja_extra.shortcuts import get_object_or_none
 
+from easy.domain.serializers import is_many_relationship
 from easy.response import BaseApiResponse
 
 logger = logging.getLogger(__name__)
@@ -13,9 +14,26 @@ class CrudModel(object):
     def __init__(self, model):
         self.model = model
 
+    def __get_fieds(self, payload):
+        m2m_fields = {}
+        local_fields = {}
+        for field in payload.keys():
+            model_field = self.model._meta.get_field(field)
+            if is_many_relationship(model_field):
+                m2m_fields.update({field: payload[field]})
+            else:
+                local_fields.update({field: payload[field]})
+        return local_fields, m2m_fields
+
     # Define BASE CRUD
     def _crud_add_obj(self, **payload):
-        obj = self.model.objects.create(**payload)
+        local_fields, m2m_fields = self.__get_fieds(payload)
+        obj = self.model.objects.create(**local_fields)
+        if m2m_fields:
+            for field, value in m2m_fields.items():
+                if value and isinstance(value, list):
+                    m2m_f = getattr(obj, field)
+                    m2m_f.set(value)
         return obj
 
     def _crud_del_obj(self, id):
@@ -29,11 +47,19 @@ class CrudModel(object):
             )  # pragma: no cover
 
     def _crud_update_obj(self, id, payload):
+        local_fields, m2m_fields = self.__get_fieds(payload)
         try:
-            obj, created = self.model.objects.update_or_create(id=id, defaults=payload)
+            obj, created = self.model.objects.update_or_create(
+                id=id, defaults=local_fields
+            )
         except Exception as e:  # pragma: no cover
             logger.error(f"Crud_update Error - {e}", exc_info=True)
             return BaseApiResponse(message="Failed")
+        if m2m_fields:
+            for field, value in m2m_fields.items():
+                if value:
+                    m2m_f = getattr(obj, field)
+                    m2m_f.set(value)
         return BaseApiResponse({"id": obj.id, "created": created})
 
     def _crud_get_obj(self, id):

@@ -70,11 +70,11 @@ def serialize_foreign_key(
 ) -> Dict[Any, Any]:
     """Serializes foreign key field of Django model instance"""
     if not hasattr(obj, field.name):
-        return {field.name: None}
+        return {field.name: None}  # pragma: no cover
     related_instance = getattr(obj, field.name)
     if related_instance is None:
         return {field.name: None}
-    if related_instance in referrers:
+    if related_instance in referrers:  # pragma: no cover
         return {}
     return {field.name: getattr(related_instance, "pk")}
     # TODO: recursive
@@ -85,8 +85,7 @@ def serialize_many_relationship(
     obj: models.Model, referrers: Tuple[Any] = tuple()
 ) -> Dict[Any, Any]:
     """
-    Serializes many relationship (ManyToMany, ManyToOne)
-    of Django model instance
+    Serializes many relationship (ManyToMany, ManyToOne) of Django model instance
     """
     if not hasattr(obj, "_prefetched_objects_cache"):
         return {}
@@ -101,9 +100,7 @@ def serialize_many_relationship(
 
 
 def serialize_value_field(obj: models.Model, field: Any) -> Dict[Any, Any]:
-    """Serializes regular 'jsonable' field (Char, Int, etc.)
-    of Django model instance
-    """
+    """Serializes regular 'jsonable' field (Char, Int, etc.) of Django model instance"""
     if field.name in ["password"]:
-        return {}
+        return {}  # pragma: no cover
     return {field.name: getattr(obj, field.name)}

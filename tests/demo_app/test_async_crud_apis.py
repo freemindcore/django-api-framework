@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import django
 import pytest
 
-from tests.demo_app.controllers import EventEasyControllerAPI
+from tests.demo_app.controllers import EasyCrudAPIController
 from tests.demo_app.services import EventService
 
 dummy_data = dict(
@@ -17,7 +17,7 @@ dummy_data = dict(
 @pytest.mark.django_db
 class TestEventEasyControllerAPI:
     async def test_crud_default_create(self, transactional_db, easy_api_client):
-        client = easy_api_client(EventEasyControllerAPI)
+        client = easy_api_client(EasyCrudAPIController)
 
         object_data = await EventService.prepare_create_event_data(dummy_data)
 
@@ -39,7 +39,7 @@ class TestEventEasyControllerAPI:
         assert response.json().get("data")[0]["title"] == "AsyncAPIEvent_create"
 
     async def test_dummy(self, transactional_db, easy_api_client):
-        client = easy_api_client(EventEasyControllerAPI)
+        client = easy_api_client(EasyCrudAPIController)
 
         response = await client.get(
             "/dummy",
@@ -48,7 +48,7 @@ class TestEventEasyControllerAPI:
         assert response.json().get("data")["data"] == 1
 
     async def test_get_objs(self, transactional_db, easy_api_client):
-        client = easy_api_client(EventEasyControllerAPI)
+        client = easy_api_client(EasyCrudAPIController)
 
         object_data = await EventService.prepare_create_event_data(dummy_data)
 

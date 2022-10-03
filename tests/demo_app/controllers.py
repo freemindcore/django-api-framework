@@ -16,7 +16,7 @@ from tests.demo_app.services import EventService
 
 
 @api_controller("unittest")
-class EventEasyControllerAPI(CrudAPIController):
+class EasyCrudAPIController(CrudAPIController):
     def __init__(self, service: EventService):
         super().__init__(service)
 
@@ -49,16 +49,13 @@ class EventEasyControllerAPI(CrudAPIController):
 
 
 @api_controller("unittest")
-class EasyEventPermissionController(CrudAPIController):
+class EasyCrudBasePermissionAPIController(CrudAPIController):
     def __init__(self, service: EventService):
         super().__init__(service)
         self.service = service
 
     class Meta:
         model = Event
-        exclude = [
-            "category",
-        ]
 
     @http_get("/must_be_authenticated", permissions=[IsAuthenticated])
     async def must_be_authenticated(self, word: str):
@@ -88,16 +85,14 @@ class EasyEventPermissionController(CrudAPIController):
 
 
 @api_controller("events", permissions=[BaseApiPermission])
-class EventControllerAdminAPI(BaseAdminAPIController):
+class EasyAdminAPIController(BaseAdminAPIController):
     def __init__(self, service: EventService):
         super().__init__(service)
         self.service = service
 
     class Meta:
         model = Event
-        exclude = [
-            "category",
-        ]
+        fields = ["__all__"]
 
     @http_get("/crud_filter_exclude_paginated", response=List[EventSchema])
     async def get_objs_with_crud_filter_exclude(self, request):
@@ -105,19 +100,3 @@ class EventControllerAdminAPI(BaseAdminAPIController):
         return await sync_to_async(list)(
             await self.service.filter_exclude_objs(id__lt=1)
         )
-
-
-@api_controller("unittest", permissions=[IsAuthenticated])
-class EventPermissionController:
-    def __init__(self, event_service: EventService):
-        self.event_service = event_service
-
-    @http_get("/must_be_authenticated", permissions=[IsAuthenticated])
-    async def must_be_authenticated(self, word: str):
-        await self.event_service.demo_action(word)
-        return dict(says=word)
-
-    @http_get("/must_be_admin_user", permissions=[IsAdminUser])
-    async def must_be_admin_user(self, word: str):
-        await self.event_service.demo_action(word)
-        return dict(says=word)

@@ -12,7 +12,7 @@ class EasyJSONEncoder(NinjaJSONEncoder):
             try:
                 return o.path
             except NotImplementedError:
-                return o.url or o.name
+                return o.url or o.name  # pragma: no cover
             except ValueError:
                 return ""
 

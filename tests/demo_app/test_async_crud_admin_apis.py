@@ -5,8 +5,8 @@ import django
 import pytest
 from asgiref.sync import sync_to_async
 
-from tests.demo_app.controllers import EventControllerAdminAPI, EventSchema
-from tests.demo_app.models import Event
+from tests.demo_app.controllers import EasyAdminAPIController, EventSchema
+from tests.demo_app.models import Category, Client, Event, Type
 
 dummy_data = dict(
     title="AsyncAdminAPIEvent",
@@ -19,12 +19,26 @@ dummy_data = dict(
 @pytest.mark.django_db
 class TestAutoCrudAdminAPI:
     async def test_crud_default_get_all(self, transactional_db, easy_admin_api_client):
-        client = easy_admin_api_client(EventControllerAdminAPI)
+        client = easy_admin_api_client(EasyAdminAPIController)
 
         object_data = dummy_data.copy()
         object_data.update(title=f"{object_data['title']}_get_all")
 
         event = await sync_to_async(Event.objects.create)(**object_data)
+        type = await sync_to_async(Type.objects.create)(name="Type")
+        category = await sync_to_async(Category.objects.create)(
+            title="Category for Unit Testings"
+        )
+        client_a = await sync_to_async(Client.objects.create)(
+            name="Client A for Unit Testings", key="A"
+        )
+        client_b = await sync_to_async(Client.objects.create)(
+            name="Client B for Unit Testings", key="B"
+        )
+        event.category = category
+        event.type = type
+        await sync_to_async(event.save)()
+        await sync_to_async(event.owner.set)([client_a, client_b])
 
         response = await client.get(
             "/get_all", query=dict(maximum=100, filters=json.dumps(dict(id__gte=1)))
@@ -32,7 +46,9 @@ class TestAutoCrudAdminAPI:
         assert response.status_code == 200
 
         data = response.json().get("data")
+        print(f"XXXXXX  data ---> {data}")
         assert data[0]["title"] == "AsyncAdminAPIEvent_get_all"
+        assert data[0]["type"] == type.id
 
         event_schema = json.loads(EventSchema.from_orm(event).json())
         assert event_schema["start_date"] == data[0]["start_date"]
@@ -63,7 +79,7 @@ class TestAutoCrudAdminAPI:
     async def test_crud_default_get_delete(
         self, transactional_db, easy_admin_api_client
     ):
-        client = easy_admin_api_client(EventControllerAdminAPI)
+        client = easy_admin_api_client(EasyAdminAPIController)
 
         object_data = dummy_data.copy()
         object_data.update(title=f"{object_data['title']}_get")
@@ -88,7 +104,7 @@ class TestAutoCrudAdminAPI:
             "detail": "You do not have permission to perform this action."
         }
 
-        client = easy_admin_api_client(EventControllerAdminAPI, is_superuser=True)
+        client = easy_admin_api_client(EasyAdminAPIController, is_superuser=True)
         await client.delete(
             f"/?id={event.id}",
         )
@@ -100,10 +116,19 @@ class TestAutoCrudAdminAPI:
         assert response.json().get("data") == {}
 
     async def test_crud_default_create(self, transactional_db, easy_admin_api_client):
-        client = easy_admin_api_client(EventControllerAdminAPI)
+        client = easy_admin_api_client(EasyAdminAPIController)
+
+        client_c = await sync_to_async(Client.objects.create)(
+            name="Client D for Unit Testings", key="C"
+        )
+
+        client_d = await sync_to_async(Client.objects.create)(
+            name="Client D for Unit Testings", key="D"
+        )
 
         object_data = dummy_data.copy()
         object_data.update(title=f"{object_data['title']}_create")
+        object_data.update(owner=[client_c.id, client_d.id])
 
         response = await client.put(
             "/", json=object_data, content_type="application/json"
@@ -119,7 +144,7 @@ class TestAutoCrudAdminAPI:
         assert response.json().get("data")["title"] == "AsyncAdminAPIEvent_create"
 
     async def test_crud_default_patch(self, transactional_db, easy_admin_api_client):
-        client = easy_admin_api_client(EventControllerAdminAPI)
+        client = easy_admin_api_client(EasyAdminAPIController)
 
         object_data = dummy_data.copy()
         event = await sync_to_async(Event.objects.create)(**object_data)
@@ -130,11 +155,20 @@ class TestAutoCrudAdminAPI:
         assert response.status_code == 200
         assert response.json().get("data")["title"] == f"{object_data['title']}"
 
+        client_e = await sync_to_async(Client.objects.create)(
+            name="Client E for Unit Testings", key="E"
+        )
+
+        client_f = await sync_to_async(Client.objects.create)(
+            name="Client E for Unit Testings", key="F"
+        )
+
         new_data = dict(
             id=event.id,
             title=f"{object_data['title']}_patch",
             start_date=str((datetime.now() + timedelta(days=10)).date()),
             end_date=str((datetime.now() + timedelta(days=20)).date()),
+            owner=[client_e.id, client_f.id],
         )
 
         response = await client.patch(
@@ -163,7 +197,7 @@ class TestAutoCrudAdminAPI:
 
         event = await sync_to_async(Event.objects.create)(**object_data)
 
-        client = easy_admin_api_client(EventControllerAdminAPI)
+        client = easy_admin_api_client(EasyAdminAPIController)
 
         response = await client.get(
             "/filter", query=dict(filters=json.dumps(dict(id__gte=1)))
@@ -182,7 +216,7 @@ class TestAutoCrudAdminAPI:
 
         event = await sync_to_async(Event.objects.create)(**object_data)
 
-        client = easy_admin_api_client(EventControllerAdminAPI)
+        client = easy_admin_api_client(EasyAdminAPIController)
 
         response = await client.get(
             "/filter_exclude", query=dict(filters=json.dumps(dict(id__lt=1)))
@@ -203,7 +237,7 @@ class TestAutoCrudAdminAPI:
 
         event = await sync_to_async(Event.objects.create)(**object_data)
 
-        client = easy_admin_api_client(EventControllerAdminAPI)
+        client = easy_admin_api_client(EasyAdminAPIController)
 
         response = await client.get(
             "/crud_filter_exclude_paginated",
