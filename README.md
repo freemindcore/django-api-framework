@@ -70,3 +70,6 @@ Please check tests/demo_app for more.
 ### Boilerplate Django project
 A boilerplate Django project for quickly getting started:
 https://github.com/freemindcore/django-easy-api
+
+![Auto generated APIs List](https://github.com/freemindcore/django-api-framework/blob/fae8209a8d08c55daf75ac3a4619fe62b8ef3af6/docs/images/admin_apis_list.png)
+![Auto generated APIs - Users](https://github.com/freemindcore/django-api-framework/blob/fae8209a8d08c55daf75ac3a4619fe62b8ef3af6/docs/images/user_admin_api.png)
