@@ -1,10 +1,10 @@
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Union
 
-# from asgiref.sync import sync_to_async
 from django.http import HttpRequest
 
 if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractUser  # pragma: no cover
     from ninja_extra.controllers.base import ControllerBase  # pragma: no cover
 
 
@@ -18,8 +18,8 @@ class PermissionService(object):
         """
         Return `True` if permission is granted, `False` otherwise.
         """
-        user = request.user
-        has_perm = True
+        user: Union[AbstractUser] = request.user  # type: ignore
+        has_perm: bool = True
         if request.method == "DELETE":
             has_perm = bool(user.is_superuser)
         if request.method in ("PUT", "PATCH", "POST"):

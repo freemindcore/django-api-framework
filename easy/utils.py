@@ -2,7 +2,7 @@ import functools
 import types
 
 
-def copy_func(f):
+def copy_func(f):  # type: ignore
     n = types.FunctionType(
         f.__code__,
         f.__globals__,

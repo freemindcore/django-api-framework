@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 from ninja_extra import status
 from ninja_extra.exceptions import APIException
@@ -14,8 +14,8 @@ class BaseAPIException(APIException):
 
     def __init__(
         self,
-        detail: Optional[Union[List, Dict, "ErrorDetail", str]] = None,  # NOQA
-        code: Optional[Union[str, int]] = None,
+        detail: Optional[str] = None,
+        code: Optional[Union[int]] = None,
     ) -> None:
         super(BaseAPIException, self).__init__(detail, code)
         if detail:

@@ -1,6 +1,8 @@
 import logging
+from typing import Type, Union
 
-from ninja_extra import api_controller
+from django.db import models
+from ninja_extra import ControllerBase, api_controller
 
 from easy.controller.base import BaseAdminAPIController
 from easy.permissions import BaseApiPermission
@@ -12,9 +14,11 @@ class AdminClass(object):
     auto_import = True
 
 
-def create_admin_controller(model, app_name):
+def create_admin_controller(
+    model: models.Model, app_name: str
+) -> Union[Type[ControllerBase], Type]:
     """Create AdminAPI class dynamically"""
-    model_name = model.__name__
+    model_name = model.__name__  # type:ignore
     Meta = type(
         "Meta",
         (object,),

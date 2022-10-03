@@ -18,10 +18,10 @@ class BaseApiPermission(permissions.BasePermission):
         """
         Return `True` if permission is granted, `False` otherwise.
         """
-        base_check = True
+        has_perm: bool = True
         if hasattr(controller, "service"):
-            base_check = controller.service.check_permission(request, controller)
-        return base_check
+            has_perm = controller.service.check_permission(request, controller)  # type: ignore
+        return has_perm
 
     def has_object_permission(
         self, request: HttpRequest, controller: "ControllerBase", obj: Any
@@ -29,9 +29,9 @@ class BaseApiPermission(permissions.BasePermission):
         """
         Return `True` if permission is granted, `False` otherwise.
         """
-        base_check = True
+        has_perm: bool = True
         if hasattr(controller, "service"):
-            base_check = controller.service.check_object_permission(
+            has_perm = controller.service.check_object_permission(  # type: ignore
                 request, controller, obj
             )
-        return base_check
+        return has_perm

@@ -1,6 +1,7 @@
 import logging
-from typing import Any
+from typing import Any, Optional, Tuple
 
+from django.db import models
 from django.db.models.query import QuerySet
 from ninja_extra.shortcuts import get_object_or_none
 
@@ -11,10 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 class CrudModel(object):
-    def __init__(self, model):
+    def __init__(self, model: models.Model):
         self.model = model
 
-    def __get_fields(self, payload):
+    def __get_fields(self, payload: dict) -> Tuple[dict, dict]:
         m2m_fields = {}
         local_fields = {}
         for field in payload.keys():
@@ -26,7 +27,7 @@ class CrudModel(object):
         return local_fields, m2m_fields
 
     # Define BASE CRUD
-    def _crud_add_obj(self, **payload):
+    def _crud_add_obj(self, **payload: dict) -> Any:
         local_fields, m2m_fields = self.__get_fields(payload)
         obj = self.model.objects.create(**local_fields)
         if m2m_fields:
@@ -36,7 +37,7 @@ class CrudModel(object):
                     m2m_f.set(value)
         return obj
 
-    def _crud_del_obj(self, id):
+    def _crud_del_obj(self, id: int) -> "BaseApiResponse":
         obj = get_object_or_none(self.model, id=id)
         if obj:
             self.model.objects.filter(id=id).delete()
@@ -46,7 +47,7 @@ class CrudModel(object):
                 {"Detail": "Not found."}, message="Not found."
             )  # pragma: no cover
 
-    def _crud_update_obj(self, id, payload):
+    def _crud_update_obj(self, id: int, payload: dict) -> "BaseApiResponse":
         local_fields, m2m_fields = self.__get_fields(payload)
         try:
             obj, created = self.model.objects.update_or_create(
@@ -62,10 +63,12 @@ class CrudModel(object):
                     m2m_f.set(value)
         return BaseApiResponse({"id": obj.id, "created": created})
 
-    def _crud_get_obj(self, id):
+    def _crud_get_obj(self, id: int) -> Any:
         return get_object_or_none(self.model, id=id)
 
-    def _crud_get_objs_all(self, maximum: int = None, **filters) -> QuerySet:
+    def _crud_get_objs_all(
+        self, maximum: int = None, **filters: Any
+    ) -> Optional[QuerySet[Any]]:
         """
         CRUD: get maximum amount of records, with filters support
         Args:
@@ -87,10 +90,10 @@ class CrudModel(object):
             qs = self.model.objects.all()
         return qs
 
-    def _crud_filter(self, **kwargs: Any):
+    def _crud_filter(self, **kwargs: Any) -> QuerySet:
         return self.model.objects.filter(**kwargs)
 
-    def _crud_filter_exclude(self, **kwargs: Any):
+    def _crud_filter_exclude(self, **kwargs: Any) -> QuerySet:
         return self.model.objects.all().exclude(**kwargs)
 
 

@@ -20,4 +20,4 @@ class IsSuperUser(BaseApiPermission):
         Return `True` if permission is granted, `False` otherwise.
         """
         user = request.user or request.auth  # type: ignore
-        return bool(user and user.is_authenticated and user.is_superuser)
+        return bool(user and user.is_authenticated and user.is_superuser)  # type: ignore

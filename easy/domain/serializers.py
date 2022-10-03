@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, List, Tuple
 
 from django.db import models
 
@@ -41,7 +41,7 @@ def serialize_base_response(data: Any) -> BaseApiResponse:
 
 
 def serialize_model_instance(
-    obj: models.Model, referrers: Tuple[Any] = tuple()
+    obj: models.Model, referrers: Any = tuple()
 ) -> Dict[Any, Any]:
     """Serializes Django model instance to dictionary"""
     out = {}
@@ -59,14 +59,14 @@ def serialize_model_instance(
 
 
 def serialize_queryset(
-    data: models.query.QuerySet, referrers: Tuple[Any] = tuple()
-) -> Dict[Any, Any]:
+    data: models.query.QuerySet, referrers: Tuple[Any, ...] = tuple()
+) -> List[Dict[Any, Any]]:
     """Serializes Django Queryset to dictionary"""
     return [serialize_model_instance(obj, referrers) for obj in data]
 
 
 def serialize_foreign_key(
-    obj: models.Model, field: Any, referrers: Tuple[Any] = tuple()
+    obj: models.Model, field: Any, referrers: Any = tuple()
 ) -> Dict[Any, Any]:
     """Serializes foreign key field of Django model instance"""
     if not hasattr(obj, field.name):
@@ -82,7 +82,7 @@ def serialize_foreign_key(
 
 
 def serialize_many_relationship(
-    obj: models.Model, referrers: Tuple[Any] = tuple()
+    obj: models.Model, referrers: Any = tuple()
 ) -> Dict[Any, Any]:
     """
     Serializes many relationship (ManyToMany, ManyToOne) of Django model instance
@@ -90,7 +90,7 @@ def serialize_many_relationship(
     if not hasattr(obj, "_prefetched_objects_cache"):
         return {}
     out = {}
-    for k, v in obj._prefetched_objects_cache.items():
+    for k, v in obj._prefetched_objects_cache.items():  # type: ignore
         field_name = k if hasattr(obj, k) else k + "_set"
         if v:
             out[field_name] = serialize_queryset(v, referrers + (obj,))

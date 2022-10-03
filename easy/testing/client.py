@@ -1,7 +1,7 @@
-from typing import Callable, Dict, Type, Union
+from typing import Any, Callable, Dict, Sequence, Type, Union
 from unittest.mock import Mock
 
-from ninja.constants import NOT_SET
+from ninja.constants import NOT_SET, NOT_SET_TYPE
 from ninja.testing.client import NinjaResponse
 from ninja_extra import ControllerBase
 from ninja_extra.testing.client import NinjaExtraClientBase
@@ -13,8 +13,10 @@ class EasyAPIClientBase(NinjaExtraClientBase):
     def __init__(
         self,
         controller_class: Union[Type[ControllerBase], Type],
-        auth=NOT_SET,
-        api_cls=EasyAPI,
+        auth: Union[
+            Sequence[Callable[..., Any]], Callable[..., Any], NOT_SET_TYPE, None
+        ] = NOT_SET,
+        api_cls: Union[Type[EasyAPI], Type] = EasyAPI,
     ) -> None:
         api = api_cls(auth=auth)
         assert hasattr(controller_class, "get_api_controller"), "Not a valid object"
