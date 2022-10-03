@@ -27,3 +27,17 @@ def test_auto_generate_admin_api():
     assert "EventAdminAPIController" in controllers
     assert "ClientAdminAPIController" in controllers
     assert "TypeAdminAPIController" in controllers
+
+
+def test_auto_generation_settings(settings):
+    settings.AUTO_ADMIN_EXCLUDE_APPS = ["tests.demo_app"]
+    api_admin_v2 = EasyAdminAPI()
+    api_admin_v2.auto_create_admin_controllers()
+    assert len(api_admin_v2._routers) == 1
+
+    settings.AUTO_ADMIN_ENABLED_ALL_APPS = False
+    settings.AUTO_ADMIN_EXCLUDE_APPS = []
+    settings.AUTO_ADMIN_INCLUDE_APPS = ["tests.none_existing_app"]
+    api_admin_v3 = EasyAdminAPI()
+    api_admin_v3.auto_create_admin_controllers()
+    assert len(api_admin_v3._routers) == 1
