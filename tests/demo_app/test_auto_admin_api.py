@@ -6,7 +6,7 @@ api_admin_v1 = EasyAdminAPI()
 api_admin_v1.auto_create_admin_controllers()
 
 
-def test_api_instance():
+def test_auto_generate_admin_api():
     assert len(api_admin_v1._routers) == 4  # default + 3 models
     path_names = []
     controllers = []

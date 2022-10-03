@@ -17,7 +17,7 @@ dummy_data = dict(
 
 @pytest.mark.skipif(django.VERSION < (3, 1), reason="requires django 3.1 or higher")
 @pytest.mark.django_db
-class TestEventControllerBaseAdminAPI:
+class TestAutoCrudAdminAPI:
     async def test_crud_default_get_all(self, transactional_db, easy_admin_api_client):
         client = easy_admin_api_client(EventControllerAdminAPI)
 
