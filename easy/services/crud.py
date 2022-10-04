@@ -14,17 +14,17 @@ class CrudService(CrudModel):
         super().__init__(model)
         self.model = model
 
-    async def get_obj(self, id: int) -> Any:
-        return await sync_to_async(self._crud_get_obj)(id)
+    async def get_obj(self, pk: int) -> Any:
+        return await sync_to_async(self._crud_get_obj)(pk)
 
     async def get_objs(self, maximum: int = None, **filters: Any) -> Any:
         return await sync_to_async(self._crud_get_objs_all)(maximum, **filters)
 
-    async def patch_obj(self, id: int, payload: Any) -> Any:
-        return await sync_to_async(self._crud_update_obj)(id, payload)
+    async def patch_obj(self, pk: int, payload: Any) -> Any:
+        return await sync_to_async(self._crud_update_obj)(pk, payload)
 
-    async def del_obj(self, id: int) -> Any:
-        return await sync_to_async(self._crud_del_obj)(id)
+    async def del_obj(self, pk: int) -> Any:
+        return await sync_to_async(self._crud_del_obj)(pk)
 
     async def add_obj(self, **payload: Any) -> Any:
         return await sync_to_async(self._crud_add_obj)(**payload)

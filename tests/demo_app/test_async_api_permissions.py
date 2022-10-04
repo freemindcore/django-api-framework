@@ -109,12 +109,12 @@ class TestPermissionController:
         object_data.update(title=f"{object_data['title']}_get")
         event = await sync_to_async(Event.objects.create)(**object_data)
         response = await client.get(
-            f"/?id={event.id}",
+            f"/?pk={event.id}",
         )
         assert response.status_code == 200
 
         response = await client.delete(
-            f"/?id={event.id}",
+            f"/?pk={event.id}",
         )
         assert response.status_code == 200
         assert response.json().get("data") == {
@@ -124,11 +124,11 @@ class TestPermissionController:
         # Super users
         client = easy_api_client(AutoGenCrudAPIController, is_superuser=True)
         await client.delete(
-            f"/?id={event.id}",
+            f"/?pk={event.id}",
         )
 
         response = await client.get(
-            f"/?id={event.id}",
+            f"/?pk={event.id}",
         )
         assert response.status_code == 200
         assert response.json().get("data") == {}
@@ -140,7 +140,7 @@ class TestPermissionController:
         event = await sync_to_async(Event.objects.create)(**object_data)
 
         response = await client.get(
-            f"/?id={event.id}",
+            f"/?pk={event.id}",
         )
         assert response.status_code == 200
         assert response.json().get("data") == {
@@ -150,7 +150,7 @@ class TestPermissionController:
         # Staff users
         client = easy_api_client(AutoGenCrudAPIController, is_staff=True)
         response = await client.get(
-            f"/?id={event.id}",
+            f"/?pk={event.id}",
         )
         assert response.json().get("data")["title"] == f"{object_data['title']}"
 
@@ -172,7 +172,7 @@ class TestPermissionController:
 
         client = easy_api_client(AdminSitePermissionAPIController)
         response = await client.patch(
-            f"/?id={event.id}", json=new_data, content_type="application/json"
+            f"/?pk={event.id}", json=new_data, content_type="application/json"
         )
 
         assert response.status_code == 200
@@ -183,13 +183,13 @@ class TestPermissionController:
         # Super users
         client = easy_api_client(AutoGenCrudAPIController, is_superuser=True)
         response = await client.patch(
-            f"/?id={event.id}", json=new_data, content_type="application/json"
+            f"/?pk={event.id}", json=new_data, content_type="application/json"
         )
         assert response.json().get("data")["id"] == event.id
         assert response.json().get("data")["created"] is False
 
         response = await client.get(
-            f"/?id={event.id}",
+            f"/?pk={event.id}",
         )
         assert response.status_code == 200
         assert response.json().get("data")["title"] == "AsyncAPIEvent_patch"

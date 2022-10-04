@@ -33,7 +33,7 @@ class TestEasyCrudAPIController:
         event_id = response.json().get("data")["id"]
 
         response = await client.get(
-            f"/?id={event_id}",
+            f"/?pk={event_id}",
         )
         assert response.status_code == 200
         assert response.json().get("data")["title"] == "AsyncAPIEvent_create"
