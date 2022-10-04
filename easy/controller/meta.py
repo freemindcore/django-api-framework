@@ -18,9 +18,10 @@ logger = logging.getLogger(__name__)
 
 
 class CrudAPI(CrudModel):
-    def __init__(self, service: "BaseService" = None):
+    # Never add type note to service, it will cause injection error
+    def __init__(self, service=None):  # type: ignore
         if not service:
-            self.service = BaseService(model=self.model)  # pragma: no cover
+            self.service = BaseService(model=self.model)
         else:
             self.service = service
         super().__init__(model=self.model)
