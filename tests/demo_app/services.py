@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Any
 
 from django.http import HttpRequest
 
-from tests.demo_app.models import Event
+from tests.demo_app.domain import EventBiz
 
 if TYPE_CHECKING:
     from ninja_extra.controllers.base import ControllerBase  # pragma: no cover
@@ -11,8 +11,8 @@ from easy.services import BaseService
 
 
 class EventService(BaseService):
-    def __init__(self, model=Event):
-        super().__init__(model=model)
+    def __init__(self, biz=EventBiz()):
+        super().__init__(biz.model)
 
     @staticmethod
     async def prepare_create_event_data(data):
