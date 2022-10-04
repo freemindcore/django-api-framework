@@ -36,7 +36,7 @@ class CrudAPI(CrudModel):
 
     async def del_obj(self, request: HttpRequest, id: int) -> Any:
         """
-        DELETE /objects/{id}
+        DELETE /{id}
         Delete a single Object
         """
         return await self.service.del_obj(id)
@@ -59,7 +59,7 @@ class CrudAPI(CrudModel):
     ) -> Any:
         """
         GET /filter/?filters={filters_dict}
-        Filter Objects
+        Filter Objects with Django-ORM filter dict
         """
         return await self.service.filter_objs(**json.loads(filters))
 
@@ -67,7 +67,7 @@ class CrudAPI(CrudModel):
     async def filter_exclude_objs(self, filters: Union[str, bytes]) -> Any:
         """
         GET /filter_exclude/?filters={filters_dict}
-        Filter exclude Objects
+        Filter exclude Objects with Django-ORM filter dict
         """
         return await self.service.filter_exclude_objs(**json.loads(filters))
 
