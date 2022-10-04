@@ -27,19 +27,19 @@ class CrudAPI(CrudModel):
         super().__init__(model=self.model)
 
     # Define Controller APIs for auto generation
-    async def get_obj(self, request: HttpRequest, id: int) -> Any:
+    async def get_obj(self, request: HttpRequest, pk: int) -> Any:
         """
         GET /{id}
         Retrieve a single Object
         """
-        return await self.service.get_obj(id)
+        return await self.service.get_obj(pk)
 
-    async def del_obj(self, request: HttpRequest, id: int) -> Any:
+    async def del_obj(self, request: HttpRequest, pk: int) -> Any:
         """
         DELETE /{id}
         Delete a single Object
         """
-        return await self.service.del_obj(id)
+        return await self.service.del_obj(pk)
 
     @paginate
     async def get_objs(
@@ -143,13 +143,13 @@ class CrudApiMetaclass(ABCMeta):
                 return await self.service.add_obj(**data.dict())
 
             async def patch_obj(  # type: ignore
-                self, request: HttpRequest, id: int, data: DataSchema
+                self, request: HttpRequest, pk: int, data: DataSchema
             ) -> Any:
                 """
                 PATCH /?id={id}
                 Update a single field for a Object
                 """
-                return await self.service.patch_obj(id=id, payload=data.dict())
+                return await self.service.patch_obj(pk=pk, payload=data.dict())
 
             DataSchema.__name__ = (
                 f"{opts_model.__name__}__AutoSchema({str(uuid.uuid4())[:4]})"

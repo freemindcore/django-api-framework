@@ -43,9 +43,9 @@ class CrudModel(object):
         return obj
 
     def _crud_del_obj(self, id: int) -> "BaseApiResponse":
-        obj = get_object_or_none(self.model, id=id)
+        obj = get_object_or_none(self.model, pk=id)
         if obj:
-            self.model.objects.filter(id=id).delete()
+            self.model.objects.filter(pk=id).delete()
             return BaseApiResponse({"Detail": "Deleted."})
         else:
             return BaseApiResponse(
@@ -56,7 +56,7 @@ class CrudModel(object):
         local_fields, m2m_fields = self.__get_fields(payload)
         try:
             obj, created = self.model.objects.update_or_create(
-                id=id, defaults=local_fields
+                pk=id, defaults=local_fields
             )
         except Exception as e:  # pragma: no cover
             logger.error(f"Crud_update Error - {e}", exc_info=True)
@@ -70,13 +70,13 @@ class CrudModel(object):
 
     def _crud_get_obj(self, id: int) -> Any:
         if self.m2m_fields:
-            qs = self.model.objects.filter(id=id).prefetch_related(
+            qs = self.model.objects.filter(pk=id).prefetch_related(
                 self.m2m_fields[0].name
             )
             for f in self.m2m_fields[1:]:
                 qs = qs.prefetch_related(f.name)
         else:
-            qs = self.model.objects.filter(id=id)
+            qs = self.model.objects.filter(pk=id)
         if qs:
             return qs.first()
         return BaseApiResponse()

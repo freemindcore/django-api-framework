@@ -84,7 +84,7 @@ class TestAutoCrudAdminAPI:
         event = await sync_to_async(Event.objects.create)(**object_data)
 
         response = await client.get(
-            f"/?id={event.id}",
+            f"/?pk={event.id}",
         )
         assert response.status_code == 200
 
@@ -95,11 +95,11 @@ class TestAutoCrudAdminAPI:
         assert event_schema["end_date"] == data["end_date"]
 
         await client.delete(
-            f"/?id={event.id}",
+            f"/?pk={event.id}",
         )
 
         response = await client.get(
-            f"/?id={event.id}",
+            f"/?pk={event.id}",
         )
         assert response.status_code == 200
         assert response.json().get("data") == {}
@@ -118,6 +118,7 @@ class TestAutoCrudAdminAPI:
         object_data = dummy_data.copy()
         object_data.update(title=f"{object_data['title']}_create")
         object_data.update(owner=[client_c.id, client_d.id])
+        object_data.update(lead_owner=[client_d.id])
 
         response = await client.put(
             "/", json=object_data, content_type="application/json"
@@ -127,10 +128,11 @@ class TestAutoCrudAdminAPI:
         event_id = response.json().get("data")["id"]
 
         response = await client.get(
-            f"/?id={event_id}",
+            f"/?pk={event_id}",
         )
         assert response.status_code == 200
         assert response.json().get("data")["title"] == "AsyncAdminAPIEvent_create"
+        print(f"====================>>>>>>>>>{response.json().get('data')}")
 
     async def test_crud_default_patch(self, transactional_db, easy_api_client):
         client = easy_api_client(AutoGenCrudAPIController)
@@ -139,7 +141,7 @@ class TestAutoCrudAdminAPI:
         event = await sync_to_async(Event.objects.create)(**object_data)
 
         response = await client.get(
-            f"/?id={event.id}",
+            f"/?pk={event.id}",
         )
         assert response.status_code == 200
         assert response.json().get("data")["title"] == f"{object_data['title']}"
@@ -161,7 +163,7 @@ class TestAutoCrudAdminAPI:
         )
 
         response = await client.patch(
-            f"/?id={event.id}", json=new_data, content_type="application/json"
+            f"/?pk={event.id}", json=new_data, content_type="application/json"
         )
 
         assert response.status_code == 200
@@ -169,7 +171,7 @@ class TestAutoCrudAdminAPI:
         assert response.json().get("data")["created"] is False
 
         response = await client.get(
-            f"/?id={event.id}",
+            f"/?pk={event.id}",
         )
         assert response.status_code == 200
         assert response.json().get("data")["title"] == "AsyncAdminAPIEvent_patch"
