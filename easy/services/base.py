@@ -1,5 +1,5 @@
 import logging
-from typing import Type, Union
+from typing import Optional, Type
 
 from django.db import models
 
@@ -14,11 +14,11 @@ class BaseService(CrudService, PermissionService):
     def __init__(
         self,
         model: models.Model,
-        biz: Union[Type[BaseDomain], None] = None,
+        biz: Optional[Type[BaseDomain]] = None,
     ):
         self.biz = biz
         if self.biz:
-            self.model = self.biz.model  # pragma: no cover
+            self.model = self.biz.model
         else:
             self.model = model
         super().__init__(model=self.model)

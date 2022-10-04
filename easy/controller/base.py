@@ -1,5 +1,5 @@
 import logging
-from typing import Union
+from typing import Optional
 
 from ninja_extra import ControllerBase
 
@@ -12,5 +12,5 @@ logger = logging.getLogger(__name__)
 class CrudAPIController(ControllerBase, CrudAPI, metaclass=CrudApiMetaclass):
     """For Client facing APIs"""
 
-    def __init__(self, service: Union["BaseService", None] = None):
-        super().__init__(service=service)  # pragma: no cover
+    def __init__(self, service: Optional["BaseService"] = None):
+        super().__init__(service=service)  # type: ignore
