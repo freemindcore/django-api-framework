@@ -99,3 +99,21 @@ class TestEasyCrudAPIController:
             == data[4]["title"]
             == "AsyncAPIEvent_create_qs_list_88"
         )
+
+    async def test_qs_(self, transactional_db, easy_api_client):
+        client = easy_api_client(EasyCrudAPIController)
+
+        for i in range(4):
+            type = await sync_to_async(Type.objects.create)(name=f"Test-Type-{i}")
+            object_data = await EventService.prepare_create_event_data(dummy_data)
+            object_data.update(title=f"{object_data['title']}_qs_{i}", type=type.id)
+            await client.put("/", json=object_data)
+
+        response = await client.get(
+            "/qs",
+        )
+        assert response.status_code == 200
+
+        data = response.json().get("data")
+
+        assert data[0]["title"] == "AsyncAPIEvent_create_qs_0"
