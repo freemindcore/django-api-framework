@@ -28,7 +28,7 @@ fmt format: ## Run code formatters
 	black easy tests
 
 test: ## Run tests
-	pytest
+	pytest -s
 
 test-cov: ## Run tests with coverage
 	pytest --cov=easy --cov-report term
