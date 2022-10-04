@@ -1,4 +1,4 @@
-![Test](https://github.com/freemindcore/django-api-framework/workflows/Test/badge.svg)
+![Test](https://github.com/freemindcore/django-api-framework/actions/workflows/test_full.yml/badge.svg)
 [![PyPI version](https://badge.fury.io/py/django-api-framework.svg)](https://badge.fury.io/py/django-api-framework)
 [![PyPI version](https://img.shields.io/pypi/v/django-api-framework.svg)](https://pypi.python.org/pypi/django-api-framework)
 [![PyPI version](https://img.shields.io/pypi/pyversions/django-api-framework.svg)](https://pypi.python.org/pypi/django-api-framework)
