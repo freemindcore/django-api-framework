@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Tuple
+from typing import Any, Tuple, Type
 
 from django.db import models
 from django.db.models.query import QuerySet
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class CrudModel(object):
-    def __init__(self, model: models.Model):
+    def __init__(self, model: Type[models.Model]):
         self.model = model
 
     def __get_fields(self, payload: dict) -> Tuple[dict, dict]:

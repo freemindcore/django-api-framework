@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Type
 
 from asgiref.sync import sync_to_async
 from django.db import models
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class CrudService(CrudModel):
-    def __init__(self, model: models.Model):
+    def __init__(self, model: Type[models.Model]):
         super().__init__(model)
         self.model = model
 
