@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional, Tuple
+from typing import Any, Tuple
 
 from django.db import models
 from django.db.models.query import QuerySet
@@ -66,9 +66,7 @@ class CrudModel(object):
     def _crud_get_obj(self, id: int) -> Any:
         return get_object_or_none(self.model, id=id)
 
-    def _crud_get_objs_all(
-        self, maximum: int = None, **filters: Any
-    ) -> Optional[QuerySet[Any]]:
+    def _crud_get_objs_all(self, maximum: int = None, **filters: Any) -> Any:
         """
         CRUD: get maximum amount of records, with filters support
         Args:
