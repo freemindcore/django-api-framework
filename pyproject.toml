@@ -70,6 +70,7 @@ test = [
 dev = [
     "autoflake",
     "pre_commit",
+    "bumpversion==0.6.0",
 ]
 doc = [
     "mkdocs >=1.1.2,<2.0.0",

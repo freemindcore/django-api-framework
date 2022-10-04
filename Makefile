@@ -13,6 +13,7 @@ clean: ## Removing cached python compiled files
 install: ## Install dependencies
 	make clean
 	flit install --deps develop --symlink
+	pre-commit install
 
 lint: ## Run code linters
 	autoflake --remove-all-unused-imports --remove-unused-variables  --ignore-init-module-imports -r easy tests
@@ -47,6 +48,3 @@ bump-feat:
 
 bump-major:
 	bumpversion major
-
-bump-build:
-	bumpversion build
