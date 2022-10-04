@@ -68,10 +68,13 @@ class EasyCrudAPIController(CrudAPIController):
 
     @http_get(
         "/qs",
-        response=List[EventSchema],
     )
     async def list_events(self):
-        return await sync_to_async(list)(self.model.objects.all())
+        qs = await sync_to_async(self.model.objects.all)()
+        await sync_to_async(list)(qs)
+        if qs:
+            return qs
+        return BaseApiResponse()
 
 
 @api_controller("unittest")
