@@ -85,18 +85,8 @@ class CrudAPI(CrudModel):
     #     return await self.service.recover_obj()
 
 
-class AdminCrudAPI(CrudAPI):
-    ...
-
-
 class CrudApiMetaclass(ABCMeta):
     def __new__(mcs, name: str, bases: Tuple[Type[Any], ...], attrs: dict) -> Any:
-        return mcs.generate_cls(mcs, name, (ControllerBase, CrudAPI), attrs)
-
-    @staticmethod
-    def generate_cls(
-        mcs: Type[Any], name: str, bases: Tuple[Type[Any], ...], attrs: dict
-    ) -> Type[Any]:
         # Get configs from Meta
         temp_base: Type = type.__new__(type, "object", (), {})
         temp_cls: Type = super(CrudApiMetaclass, mcs).__new__(
@@ -177,7 +167,9 @@ class CrudApiMetaclass(ABCMeta):
                 }
             )
 
-        new_base: Type = type.__new__(type, name, bases, base_cls_attrs)
+        new_base: Type = type.__new__(
+            type, name, (ControllerBase, CrudAPI), base_cls_attrs
+        )
         new_cls: Type = super(CrudApiMetaclass, mcs).__new__(
             mcs, name, (new_base,), attrs
         )
@@ -188,11 +180,6 @@ class CrudApiMetaclass(ABCMeta):
         new_cls.recursive = opts_recursive
 
         return new_cls
-
-
-class AdminApiMetaclass(CrudApiMetaclass):
-    def __new__(mcs, name: str, bases: Union[Type], attrs: dict) -> Any:
-        return mcs.generate_cls(mcs, name, (ControllerBase, AdminCrudAPI), attrs)
 
 
 class ModelOptions:

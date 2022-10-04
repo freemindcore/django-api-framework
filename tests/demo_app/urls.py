@@ -3,15 +3,15 @@ from django.urls import path
 from ninja_extra import NinjaExtraAPI
 
 from .controllers import (
-    EasyAdminAPIController,
+    AutoGenCrudAPIController,
     EasyCrudAPIController,
-    EasyCrudBasePermissionAPIController,
+    PermissionAPIController,
 )
 
 api = NinjaExtraAPI()
 api.register_controllers(EasyCrudAPIController)
-api.register_controllers(EasyCrudBasePermissionAPIController)
-api.register_controllers(EasyAdminAPIController)
+api.register_controllers(PermissionAPIController)
+api.register_controllers(AutoGenCrudAPIController)
 
 
 urlpatterns = [

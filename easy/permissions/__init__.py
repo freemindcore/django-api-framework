@@ -5,14 +5,16 @@ from ninja_extra.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 
+from .adminsite import AdminSitePermission
 from .base import BaseApiPermission
 from .superuser import IsSuperUser
 
 __all__ = [
-    "BaseApiPermission",
-    "IsSuperUser",
     "AllowAny",
+    "AdminSitePermission",
+    "BaseApiPermission",
     "IsAuthenticated",
-    "IsAdminUser",
     "IsAuthenticatedOrReadOnly",
+    "IsAdminUser",
+    "IsSuperUser",
 ]

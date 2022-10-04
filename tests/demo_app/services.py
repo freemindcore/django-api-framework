@@ -37,10 +37,7 @@ class EventService(BaseService):
         """
         user = request.user
         return bool(
-            user
-            and user.is_authenticated
-            and user.is_active
-            and (user.is_staff or user.is_superuser)
+            user and user.is_authenticated and user.is_active
         ) and super().check_permission(request, controller)
 
     def check_object_permission(

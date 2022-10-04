@@ -3,8 +3,9 @@ from typing import List
 from asgiref.sync import sync_to_async
 from ninja_extra import api_controller, http_get, paginate
 
-from easy.controller.base import BaseAdminAPIController, CrudAPIController
+from easy.controller.base import CrudAPIController
 from easy.permissions import (
+    AdminSitePermission,
     BaseApiPermission,
     IsAdminUser,
     IsAuthenticated,
@@ -17,7 +18,7 @@ from tests.demo_app.services import EventService
 
 
 @api_controller("unittest", permissions=[BaseApiPermission])
-class EasyAdminAPIController(BaseAdminAPIController):
+class AutoGenCrudAPIController(CrudAPIController):
     """
     For unit testings of the following auto generated APIs:
         get/create/patch/delete/get_all/filter/filter_exclude
@@ -74,7 +75,7 @@ class EasyCrudAPIController(CrudAPIController):
 
 
 @api_controller("unittest")
-class EasyCrudBasePermissionAPIController(CrudAPIController):
+class PermissionAPIController(CrudAPIController):
     def __init__(self, service: EventService):
         super().__init__(service)
         self.service = service
@@ -94,12 +95,26 @@ class EasyCrudBasePermissionAPIController(CrudAPIController):
     async def must_be_super_user(self, word: str):
         return await self.service.get_identity_demo(word)
 
-    @http_get("/test_perm", permissions=[BaseApiPermission])
-    async def test_perm(self, request, word: str):
-        return await self.service.get_identity_demo(word)
-
     @http_get("/test_perm_only_super", permissions=[BaseApiPermission])
     async def test_perm_only_super(self, request):
         event = await self.service.add_obj(title="test_event_title")
         # return await self.service.get_obj(id=note.id)
         return await sync_to_async(self.get_object_or_none)(Event, id=event.id)
+
+    @http_get("/test_perm", permissions=[BaseApiPermission])
+    async def test_perm(self, request, word: str):
+        return await self.service.get_identity_demo(word)
+
+    @http_get("/test_perm_admin_site", permissions=[AdminSitePermission])
+    async def test_perm_admin_site(self, request, word: str):
+        return await self.service.get_identity_demo(word)
+
+
+@api_controller("unittest", permissions=[AdminSitePermission])
+class AdminSitePermissionAPIController(CrudAPIController):
+    def __init__(self, service: EventService):
+        super().__init__(service)
+        self.service = service
+
+    class Meta:
+        model = Event
