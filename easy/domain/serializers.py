@@ -46,7 +46,6 @@ def serialize_model_instance(
     """Serializes Django model instance to dictionary"""
     out = {}
     for field in obj._meta.get_fields():
-        # TODO: Add OneToOne relationship??
         if is_one_relationship(field):
             out.update(serialize_foreign_key(obj, field, referrers + (obj,)))
 

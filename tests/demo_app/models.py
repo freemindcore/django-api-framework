@@ -35,6 +35,10 @@ class Event(TestBaseModel):
 
     owner = models.ManyToManyField(to=Client, related_name="events", null=True)
 
+    lead_owner = models.ManyToManyField(to=Client, related_name="lead_owner", null=True)
+
+    boss_owner = models.ManyToManyField(to=Client, related_name="boss_owner", null=True)
+
     type = models.ForeignKey(Type, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
