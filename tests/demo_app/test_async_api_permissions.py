@@ -10,7 +10,7 @@ from tests.demo_app.controllers import (
 )
 from tests.demo_app.models import Event
 from tests.demo_app.schema import EventSchema
-from tests.demo_app.test_async_crud_apis import dummy_data
+from tests.demo_app.test_async_other_apis import dummy_data
 
 
 @pytest.mark.skipif(django.VERSION < (3, 1), reason="requires django 3.1 or higher")

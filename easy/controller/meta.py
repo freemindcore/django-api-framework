@@ -70,12 +70,6 @@ class CrudAPI(CrudModel):
         """
         return await self.service.filter_exclude_objs(**json.loads(filters))
 
-    async def patch_obj(self, request: HttpRequest) -> Any:
-        ...
-
-    async def add_obj(self, request: HttpRequest) -> Any:
-        ...
-
     # async def bulk_create_objs(self, request):
     #     """
     #     POST /bulk_create

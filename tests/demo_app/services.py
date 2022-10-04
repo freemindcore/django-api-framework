@@ -12,21 +12,22 @@ from easy.services import BaseService
 
 class EventService(BaseService):
     def __init__(self, model=Event):
-        super(EventService, self).__init__(model=model)
+        super().__init__(model=model)
 
     @staticmethod
     async def prepare_create_event_data(data):
+        """Helper func for unit testing"""
         object_data = data.copy()
         object_data.update(title=f"{object_data['title']}_create")
         return object_data
 
-    async def dummy_biz_logics(self):
-        print("DEMO DUMMY BIZ LOGICS")
-        return {}
+    async def get_event_objs_demo(self):
+        """Demo API for unit testing"""
+        return await self.get_objs(maximum=10)
 
-    async def demo_action(self, data):
-        print(f"DEMO ACTION HERE - {data}")
-        ...
+    async def get_identity_demo(self, word):
+        """Demo API for unit testing"""
+        return dict(says=word)
 
     def check_permission(
         self, request: HttpRequest, controller: "ControllerBase"

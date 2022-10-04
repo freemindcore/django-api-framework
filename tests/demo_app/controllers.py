@@ -10,15 +10,37 @@ from easy.permissions import (
     IsAuthenticated,
     IsSuperUser,
 )
+from easy.response import BaseApiResponse
 from tests.demo_app.models import Event
 from tests.demo_app.schema import EventSchema
 from tests.demo_app.services import EventService
 
 
-@api_controller("unittest")
-class EasyCrudAPIController(CrudAPIController):
+@api_controller("unittest", permissions=[BaseApiPermission])
+class EasyAdminAPIController(BaseAdminAPIController):
+    """
+    For unit testings of the following auto generated APIs:
+        get/create/patch/delete/get_all/filter/filter_exclude
+    """
+
     def __init__(self, service: EventService):
         super().__init__(service)
+        self.service = service
+
+    class Meta:
+        model = Event
+        fields = ["__all__"]
+
+
+@api_controller("unittest")
+class EasyCrudAPIController(CrudAPIController):
+    """
+    For unit testings of demo APIs
+    """
+
+    def __init__(self, service: EventService):
+        super().__init__(service)
+        self.service = service
 
     class Meta:
         model = Event
@@ -26,26 +48,29 @@ class EasyCrudAPIController(CrudAPIController):
             "category",
         ]
 
-    @http_get(
-        "/dummy",
-    )
-    async def dummy_api(self, request):
-        await self.service.dummy_biz_logics()
-        return {"data": 1}
+    @http_get("/base_response")
+    async def generate_base_response(self, request):
+        return BaseApiResponse({"data": "This is a BaseApiResponse."})
+
+    @http_get("/qs_paginated", auth=None)
+    @paginate
+    async def qs_paginated(self, request):
+        return await self.service.get_event_objs_demo()
+
+    @http_get("/qs_list", response=List[EventSchema])
+    async def get_objs_list_with_filter_exclude(self, request):
+        return await sync_to_async(list)(
+            await self.service.filter_exclude_objs(
+                title__endswith="qs_list",
+            )
+        )
 
     @http_get(
-        "/list",
+        "/qs",
+        response=List[EventSchema],
     )
-    @paginate
-    async def list_api(self, request):
-        qs = await self.service.filter_objs(id__gte=1)
-        return qs
-
-    @http_get("/get_objs", summary="unit test only", auth=None)
-    @paginate
-    async def demo_api(self, request):
-        await self.service.dummy_biz_logics()
-        return await self.service.get_objs(maximum=10)
+    async def list_events(self):
+        return await sync_to_async(list)(self.model.objects.all())
 
 
 @api_controller("unittest")
@@ -59,51 +84,22 @@ class EasyCrudBasePermissionAPIController(CrudAPIController):
 
     @http_get("/must_be_authenticated", permissions=[IsAuthenticated])
     async def must_be_authenticated(self, word: str):
-        await self.service.demo_action(word)
-        return dict(says=word)
+        return await self.service.get_identity_demo(word)
 
     @http_get("/must_be_admin_user", permissions=[IsAdminUser])
     async def must_be_admin_user(self, word: str):
-        await self.service.demo_action(word)
-        return dict(says=word)
+        return await self.service.get_identity_demo(word)
 
     @http_get("/must_be_super_user", permissions=[IsSuperUser])
     async def must_be_super_user(self, word: str):
-        await self.service.demo_action(word)
-        return dict(says=word)
+        return await self.service.get_identity_demo(word)
 
     @http_get("/test_perm", permissions=[BaseApiPermission])
     async def test_perm(self, request, word: str):
-        await self.service.demo_action(word)
-        return dict(says=word)
+        return await self.service.get_identity_demo(word)
 
     @http_get("/test_perm_only_super", permissions=[BaseApiPermission])
     async def test_perm_only_super(self, request):
         event = await self.service.add_obj(title="test_event_title")
         # return await self.service.get_obj(id=note.id)
         return await sync_to_async(self.get_object_or_none)(Event, id=event.id)
-
-
-@api_controller("events", permissions=[BaseApiPermission])
-class EasyAdminAPIController(BaseAdminAPIController):
-    def __init__(self, service: EventService):
-        super().__init__(service)
-        self.service = service
-
-    class Meta:
-        model = Event
-        fields = ["__all__"]
-
-    @http_get("/crud_filter_exclude_paginated", response=List[EventSchema])
-    async def get_objs_with_crud_filter_exclude(self, request):
-        await self.service.demo_action(data="running /crud_filter_exclude_paginated")
-        return await sync_to_async(list)(
-            await self.service.filter_exclude_objs(id__lt=1)
-        )
-
-    @http_get(
-        "/list",
-        response=List[EventSchema],
-    )
-    async def list_events(self):
-        return await sync_to_async(list)(Event.objects.all())
