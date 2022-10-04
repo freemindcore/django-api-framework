@@ -46,7 +46,6 @@ class TestAutoCrudAdminAPI:
         assert response.status_code == 200
 
         data = response.json().get("data")
-        print(f"XXXXXX  data ---> {data}")
         assert data[0]["title"] == "AsyncAdminAPIEvent_get_all"
         assert data[0]["type"] == type.id
 
@@ -119,7 +118,7 @@ class TestAutoCrudAdminAPI:
         client = easy_admin_api_client(EasyAdminAPIController)
 
         client_c = await sync_to_async(Client.objects.create)(
-            name="Client D for Unit Testings", key="C"
+            name="Client C for Unit Testings", key="C"
         )
 
         client_d = await sync_to_async(Client.objects.create)(
@@ -160,7 +159,7 @@ class TestAutoCrudAdminAPI:
         )
 
         client_f = await sync_to_async(Client.objects.create)(
-            name="Client E for Unit Testings", key="F"
+            name="Client F for Unit Testings", key="F"
         )
 
         new_data = dict(

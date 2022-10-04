@@ -1,5 +1,4 @@
 import logging
-from abc import ABC
 from typing import Union
 
 from ninja_extra import ControllerBase
@@ -10,14 +9,14 @@ from easy.services import BaseService
 logger = logging.getLogger(__name__)
 
 
-class BaseAdminAPIController(ControllerBase, CrudAPI, ABC, metaclass=AdminApiMetaclass):
+class BaseAdminAPIController(ControllerBase, CrudAPI, metaclass=AdminApiMetaclass):
     """For AdminAPI"""
 
     def __init__(self, service: Union["BaseService", None] = None):
         super().__init__(service=service)  # pragma: no cover
 
 
-class CrudAPIController(ControllerBase, CrudAPI, ABC, metaclass=CrudApiMetaclass):
+class CrudAPIController(ControllerBase, CrudAPI, metaclass=CrudApiMetaclass):
     """For Client facing APIs"""
 
     def __init__(self, service: Union["BaseService", None] = None):

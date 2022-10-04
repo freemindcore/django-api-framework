@@ -1,7 +1,7 @@
 import json
 import logging
 import uuid
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 from typing import Any, Optional, Tuple, Type, Union
 
 from django.db import models
@@ -70,11 +70,9 @@ class CrudAPI(CrudModel):
         """
         return await self.service.filter_exclude_objs(**json.loads(filters))
 
-    @abstractmethod
     async def patch_obj(self, request: HttpRequest) -> Any:
         ...
 
-    @abstractmethod
     async def add_obj(self, request: HttpRequest) -> Any:
         ...
 
@@ -185,7 +183,7 @@ class CrudApiMetaclass(ABCMeta):
                 }
             )
 
-        new_base = type.__new__(type, name, bases, base_cls_attrs)
+        new_base: Type = type.__new__(type, name, bases, base_cls_attrs)
         new_cls: Type = super(CrudApiMetaclass, mcs).__new__(
             mcs, name, (new_base,), attrs
         )
