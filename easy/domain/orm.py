@@ -39,7 +39,11 @@ class CrudModel(object):
     def _crud_add_obj(self, **payload: Dict) -> Any:
         local_f_payload, m2m_f_payload = self.__separate_payload(payload)
         # Create obj with local_fields payload
-        obj = self.model.objects.create(**local_f_payload)
+        try:
+            obj = self.model.objects.create(**local_f_payload)
+        except Exception as e:  # pragma: no cover
+            logger.error(f"Crud_add Error - {e}", exc_info=True)
+            return BaseApiResponse(str(e), message="Add failed", errno=500)
         # Save obj with m2m_fields payload
         if m2m_f_payload:
             for _field, _value in m2m_f_payload.items():
@@ -58,19 +62,26 @@ class CrudModel(object):
 
     def _crud_update_obj(self, pk: int, payload: Dict) -> "BaseApiResponse":
         local_fields, m2m_fields = self.__separate_payload(payload)
+        obj = get_object_or_none(self.model, pk=pk)
+        if not obj:
+            return BaseApiResponse({"Detail": "Not found."}, message="Not found.")
         try:
-            obj, created = self.model.objects.update_or_create(
-                pk=pk, defaults=local_fields
-            )
+            obj, _ = self.model.objects.update_or_create(pk=pk, defaults=local_fields)
         except Exception as e:  # pragma: no cover
             logger.error(f"Crud_update Error - {e}", exc_info=True)
-            return BaseApiResponse(message="Failed")
-        if m2m_fields:
+            return BaseApiResponse(str(e), message="Update failed", errno=500)
+        if obj and m2m_fields:
             for _field, _value in m2m_fields.items():
                 if _value:
                     m2m_f = getattr(obj, _field)
-                    m2m_f.set(_value)
-        return BaseApiResponse({"id": obj.id, "created": created})
+                    try:
+                        m2m_f.set(_value)
+                    except Exception as e:  # pragma: no cover
+                        logger.error(f"Crud_update Error - {e}", exc_info=True)
+                        return BaseApiResponse(
+                            str(e), message="Update failed", errno=500
+                        )
+        return BaseApiResponse({"pk": pk}, message="Updated.")
 
     def _crud_get_obj(self, pk: int) -> Any:
         if self.m2m_fields_list:

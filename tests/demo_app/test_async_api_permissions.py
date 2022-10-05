@@ -185,8 +185,7 @@ class TestPermissionController:
         response = await client.patch(
             f"/?pk={event.id}", json=new_data, content_type="application/json"
         )
-        assert response.json().get("data")["id"] == event.id
-        assert response.json().get("data")["created"] is False
+        assert response.json().get("data")["pk"] == event.id
 
         response = await client.get(
             f"/?pk={event.id}",
