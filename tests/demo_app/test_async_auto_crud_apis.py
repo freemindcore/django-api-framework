@@ -119,10 +119,13 @@ class TestAutoCrudAdminAPI:
             name="Client D for Unit Testings", key="D"
         )
 
+        type = await sync_to_async(Type.objects.create)(name="TypeForCreating")
+
         object_data = dummy_data.copy()
         object_data.update(title=f"{object_data['title']}_create")
         object_data.update(owner=[client_c.id, client_d.id])
         object_data.update(lead_owner=[client_d.id])
+        object_data.update(type_id=type.id)
 
         response = await client.put(
             "/", json=object_data, content_type="application/json"

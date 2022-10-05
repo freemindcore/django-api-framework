@@ -94,10 +94,10 @@ class CrudApiMetaclass(ABCMeta):
             mcs, name, (temp_base,), attrs
         )
         temp_opts: ModelOptions = ModelOptions(getattr(temp_cls, "Meta", None))
-        opts_fields_exclude: Optional[Union[str]] = temp_opts.exclude
-        opts_fields: Optional[Union[str]] = temp_opts.fields
+        opts_fields_exclude: Optional[str] = temp_opts.model_exclude
+        opts_fields: Optional[str] = temp_opts.model_fields
         opts_model: Optional[Type[models.Model]] = temp_opts.model
-        opts_recursive: Optional[Union[bool]] = temp_opts.recursive
+        opts_recursive: Optional[bool] = temp_opts.model_recursive
 
         base_cls_attrs = {
             "get_obj": http_get("/", summary="Get")(
@@ -127,11 +127,11 @@ class CrudApiMetaclass(ABCMeta):
                     if opts_fields_exclude:
                         model_exclude = opts_fields_exclude
                     else:
-                        if opts_fields == ["__all__"]:
+                        if opts_fields == "__all__":
                             model_fields = "__all__"
                         else:
                             model_fields = opts_fields if opts_fields else "__all__"
-                    recursive = temp_opts.recursive
+                    model_recursive = opts_recursive
 
             async def add_obj(  # type: ignore
                 self, request: HttpRequest, data: DataSchema
@@ -146,7 +146,7 @@ class CrudApiMetaclass(ABCMeta):
                 self, request: HttpRequest, pk: int, data: DataSchema
             ) -> Any:
                 """
-                PATCH /?id={id}
+                PATCH /?pk={id}
                 Update a single field for a Object
                 """
                 return await self.service.patch_obj(pk=pk, payload=data.dict())
@@ -157,6 +157,7 @@ class CrudApiMetaclass(ABCMeta):
 
             setattr(CrudAPI, "add_obj", classmethod(add_obj))
             setattr(CrudAPI, "patch_obj", classmethod(patch_obj))
+
             base_cls_attrs.update(
                 {
                     "patch_obj": http_patch("/", summary="Patch/Update")(
@@ -176,9 +177,9 @@ class CrudApiMetaclass(ABCMeta):
         )
 
         new_cls.model = opts_model
-        new_cls.fields_exclude = opts_fields_exclude
-        new_cls.fields = opts_fields
-        new_cls.recursive = opts_recursive
+        new_cls.model_exclude = opts_fields_exclude
+        new_cls.model_fields = opts_fields
+        new_cls.model_recursive = opts_recursive
 
         return new_cls
 
@@ -186,7 +187,10 @@ class CrudApiMetaclass(ABCMeta):
 class ModelOptions:
     def __init__(self, options: object = None):
         self.model: Optional[Type[models.Model]] = getattr(options, "model", None)
-        self.service: Optional[Any] = getattr(options, "service", None)
-        self.fields: Optional[Union[str]] = getattr(options, "fields", None)
-        self.exclude: Optional[Union[str]] = getattr(options, "exclude", None)
-        self.recursive: Optional[Union[bool]] = getattr(options, "recursive", False)
+        self.model_fields: Optional[Union[str]] = getattr(options, "model_fields", None)
+        self.model_exclude: Optional[Union[str]] = getattr(
+            options, "model_exclude", None
+        )
+        self.model_recursive: Optional[Union[bool]] = getattr(
+            options, "model_recursive", False
+        )

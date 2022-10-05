@@ -30,7 +30,7 @@ class AutoGenCrudAPIController(CrudAPIController):
 
     class Meta:
         model = Event
-        fields = ["__all__"]
+        model_fields = "__all__"
 
 
 @api_controller("unittest", permissions=[BaseApiPermission])
@@ -55,7 +55,7 @@ class EasyCrudAPIController(CrudAPIController):
 
     class Meta:
         model = Event
-        exclude = [
+        model_exclude = [
             "category",
         ]
 

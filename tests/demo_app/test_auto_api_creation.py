@@ -48,7 +48,6 @@ async def test_auto_apis(transactional_db, easy_api_client):
 
         response = await client.delete("/", query=dict(pk=200))
         assert response.status_code == 200
-        print(f"{response.json()}")
         assert response.json()["data"] == {"Detail": "Not found."}
 
 
