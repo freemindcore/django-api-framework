@@ -187,12 +187,18 @@ class TestAutoCrudAdminAPI:
         )
 
         response = await client.patch(
+            "/?pk=20000", json=new_data, content_type="application/json"
+        )
+
+        assert response.status_code == 200
+        assert response.json()["data"] == {"Detail": "Not found."}
+
+        response = await client.patch(
             f"/?pk={event.pk}", json=new_data, content_type="application/json"
         )
 
         assert response.status_code == 200
         assert response.json().get("data")["pk"] == event.pk
-        assert response.json().get("data")["created"] is False
 
         response = await client.get(
             f"/?pk={event.pk}",
