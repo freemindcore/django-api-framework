@@ -29,14 +29,14 @@ class CrudAPI(CrudModel):
     # Define Controller APIs for auto generation
     async def get_obj(self, request: HttpRequest, pk: int) -> Any:
         """
-        GET /{id}
+        GET /?pk={id}
         Retrieve a single Object
         """
         return await self.service.get_obj(pk)
 
     async def del_obj(self, request: HttpRequest, pk: int) -> Any:
         """
-        DELETE /{id}
+        DELETE /?pk={id}
         Delete a single Object
         """
         return await self.service.del_obj(pk)
