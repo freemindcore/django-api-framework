@@ -29,7 +29,8 @@ class CrudModel(object):
             else:
                 # Handling FK fields ( append _id in the end)
                 if self.model._meta.get_field(_field).is_relation:
-                    local_fields.update({f"{_field}_id": payload[_field]})
+                    if not f"{_field}".endswith("_id"):
+                        local_fields.update({f"{_field}_id": payload[_field]})
                 else:
                     local_fields.update({_field: payload[_field]})
         return local_fields, m2m_fields
