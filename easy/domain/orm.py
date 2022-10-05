@@ -62,8 +62,7 @@ class CrudModel(object):
 
     def _crud_update_obj(self, pk: int, payload: Dict) -> "BaseApiResponse":
         local_fields, m2m_fields = self.__separate_payload(payload)
-        obj = get_object_or_none(self.model, pk=pk)
-        if not obj:
+        if not self.model.objects.filter(pk=pk).exists():
             return BaseApiResponse({"Detail": "Not found."}, message="Not found.")
         try:
             obj, _ = self.model.objects.update_or_create(pk=pk, defaults=local_fields)
