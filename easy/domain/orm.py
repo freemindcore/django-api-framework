@@ -80,7 +80,7 @@ class CrudModel(object):
                         return BaseApiResponse(
                             str(e), message="Update failed", errno=500
                         )
-        return BaseApiResponse({"id": obj.id, "created": created})
+        return BaseApiResponse({"pk": obj.pk, "created": created})
 
     def _crud_get_obj(self, pk: int) -> Any:
         if self.m2m_fields_list:

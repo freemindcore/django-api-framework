@@ -165,7 +165,7 @@ class TestAutoCrudAdminAPI:
         event = await sync_to_async(Event.objects.create)(**object_data)
 
         response = await client.get(
-            f"/?pk={event.id}",
+            f"/?pk={event.pk}",
         )
         assert response.status_code == 200
         assert response.json().get("data")["title"] == f"{object_data['title']}"
@@ -179,23 +179,23 @@ class TestAutoCrudAdminAPI:
         )
 
         new_data = dict(
-            id=event.id,
+            id=event.pk,
             title=f"{object_data['title']}_patch",
             start_date=str((datetime.now() + timedelta(days=10)).date()),
             end_date=str((datetime.now() + timedelta(days=20)).date()),
-            owner=[client_e.id, client_f.id],
+            owner=[client_e.pk, client_f.pk],
         )
 
         response = await client.patch(
-            f"/?pk={event.id}", json=new_data, content_type="application/json"
+            f"/?pk={event.pk}", json=new_data, content_type="application/json"
         )
 
         assert response.status_code == 200
-        assert response.json().get("data")["id"] == event.id
+        assert response.json().get("data")["pk"] == event.pk
         assert response.json().get("data")["created"] is False
 
         response = await client.get(
-            f"/?pk={event.id}",
+            f"/?pk={event.pk}",
         )
         assert response.status_code == 200
         assert response.json().get("data")["title"] == "AsyncAdminAPIEvent_patch"
