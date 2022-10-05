@@ -46,6 +46,11 @@ async def test_auto_apis(transactional_db, easy_api_client):
         assert response.status_code == 200
         assert response.json()["data"] == []
 
+        response = await client.delete("/", query=dict(pk=200))
+        assert response.status_code == 200
+        print(f"{response.json()}")
+        assert response.json()["data"] == {"Detail": "Not found."}
+
 
 async def test_auto_generation_settings(settings):
     settings.AUTO_ADMIN_EXCLUDE_APPS = ["tests.demo_app"]
