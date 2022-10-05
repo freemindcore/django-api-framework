@@ -92,6 +92,7 @@ def serialize_many_relationship(
     for k, v in obj._prefetched_objects_cache.items():  # type: ignore
         field_name = k if hasattr(obj, k) else k + "_set"
         if v:
+            # TODO: configurable recursive for m2m output
             out[field_name] = serialize_queryset(v, referrers + (obj,))
         else:
             out[field_name] = []
@@ -100,6 +101,7 @@ def serialize_many_relationship(
 
 def serialize_value_field(obj: models.Model, field: Any) -> Dict[Any, Any]:
     """Serializes regular 'jsonable' field (Char, Int, etc.) of Django model instance"""
+    # TODO: configurable sensitive fields
     if field.name in ["password"]:
         return {}
     return {field.name: getattr(obj, field.name)}

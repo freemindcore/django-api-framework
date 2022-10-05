@@ -34,7 +34,7 @@ def test_auto_generate_admin_api():
 
 async def test_auto_apis(transactional_db, easy_api_client):
     for controller_class in controllers:
-        if not str(controller_class).endswith("AdminAPIController"):
+        if not str(controller_class).endswith("ClientAdminAPIController"):
             continue
         client = easy_api_client(controller_class)
         response = await client.get(
@@ -45,6 +45,11 @@ async def test_auto_apis(transactional_db, easy_api_client):
         )
         assert response.status_code == 200
         assert response.json()["data"] == []
+
+        response = await client.delete("/", query=dict(pk=200))
+        assert response.status_code == 200
+        print(f"{response.json()}")
+        assert response.json()["data"] == {"Detail": "Not found."}
 
 
 async def test_auto_generation_settings(settings):
