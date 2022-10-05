@@ -15,20 +15,20 @@ class CrudModel(object):
     def __init__(self, model: Type[models.Model]):
         self.model = model
         self.m2m_fields = [
-            f
-            for f in self.model._meta.get_fields(include_hidden=True)
-            if isinstance(f, models.ManyToManyField)
+            _field
+            for _field in self.model._meta.get_fields(include_hidden=True)
+            if isinstance(_field, models.ManyToManyField)
         ]
 
     def __get_fields(self, payload: Dict) -> Tuple[Dict, Dict]:
         m2m_fields = {}
         local_fields = {}
-        for field in payload.keys():
-            model_field = self.model._meta.get_field(field)
+        for _field in payload.keys():
+            model_field = self.model._meta.get_field(_field)
             if is_many_relationship(model_field):
-                m2m_fields.update({field: payload[field]})
+                m2m_fields.update({_field: payload[_field]})
             else:
-                local_fields.update({field: payload[field]})
+                local_fields.update({_field: payload[_field]})
         return local_fields, m2m_fields
 
     # Define BASE CRUD
@@ -36,47 +36,47 @@ class CrudModel(object):
         local_fields, m2m_fields = self.__get_fields(payload)
         obj = self.model.objects.create(**local_fields)
         if m2m_fields:
-            for field, value in m2m_fields.items():
-                if value and isinstance(value, List):
-                    m2m_f = getattr(obj, field)
-                    m2m_f.set(value)
+            for _field, _value in m2m_fields.items():
+                if _value and isinstance(_value, List):
+                    m2m_f = getattr(obj, _field)
+                    m2m_f.set(_value)
         return obj
 
-    def _crud_del_obj(self, id: int) -> "BaseApiResponse":
-        obj = get_object_or_none(self.model, pk=id)
+    def _crud_del_obj(self, pk: int) -> "BaseApiResponse":
+        obj = get_object_or_none(self.model, pk=pk)
         if obj:
-            self.model.objects.filter(pk=id).delete()
+            self.model.objects.filter(pk=pk).delete()
             return BaseApiResponse({"Detail": "Deleted."})
         else:
             return BaseApiResponse(
                 {"Detail": "Not found."}, message="Not found."
             )  # pragma: no cover
 
-    def _crud_update_obj(self, id: int, payload: Dict) -> "BaseApiResponse":
+    def _crud_update_obj(self, pk: int, payload: Dict) -> "BaseApiResponse":
         local_fields, m2m_fields = self.__get_fields(payload)
         try:
             obj, created = self.model.objects.update_or_create(
-                pk=id, defaults=local_fields
+                pk=pk, defaults=local_fields
             )
         except Exception as e:  # pragma: no cover
             logger.error(f"Crud_update Error - {e}", exc_info=True)
             return BaseApiResponse(message="Failed")
         if m2m_fields:
-            for field, value in m2m_fields.items():
-                if value:
-                    m2m_f = getattr(obj, field)
-                    m2m_f.set(value)
+            for _field, _value in m2m_fields.items():
+                if _value:
+                    m2m_f = getattr(obj, _field)
+                    m2m_f.set(_value)
         return BaseApiResponse({"id": obj.id, "created": created})
 
-    def _crud_get_obj(self, id: int) -> Any:
+    def _crud_get_obj(self, pk: int) -> Any:
         if self.m2m_fields:
-            qs = self.model.objects.filter(pk=id).prefetch_related(
+            qs = self.model.objects.filter(pk=pk).prefetch_related(
                 self.m2m_fields[0].name
             )
             for f in self.m2m_fields[1:]:
                 qs = qs.prefetch_related(f.name)
         else:
-            qs = self.model.objects.filter(pk=id)
+            qs = self.model.objects.filter(pk=pk)
         if qs:
             return qs.first()
         return BaseApiResponse()
