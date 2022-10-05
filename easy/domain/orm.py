@@ -39,7 +39,11 @@ class CrudModel(object):
     def _crud_add_obj(self, **payload: Dict) -> Any:
         local_f_payload, m2m_f_payload = self.__separate_payload(payload)
         # Create obj with local_fields payload
-        obj = self.model.objects.create(**local_f_payload)
+        try:
+            obj = self.model.objects.create(**local_f_payload)
+        except Exception as e:  # pragma: no cover
+            logger.error(f"Crud_add Error - {e}", exc_info=True)
+            return BaseApiResponse(str(e), message="Add failed", errno=500)
         # Save obj with m2m_fields payload
         if m2m_f_payload:
             for _field, _value in m2m_f_payload.items():
@@ -64,12 +68,18 @@ class CrudModel(object):
             )
         except Exception as e:  # pragma: no cover
             logger.error(f"Crud_update Error - {e}", exc_info=True)
-            return BaseApiResponse(message="Failed")
+            return BaseApiResponse(str(e), message="Update failed", errno=500)
         if m2m_fields:
             for _field, _value in m2m_fields.items():
                 if _value:
                     m2m_f = getattr(obj, _field)
-                    m2m_f.set(_value)
+                    try:
+                        m2m_f.set(_value)
+                    except Exception as e:  # pragma: no cover
+                        logger.error(f"Crud_update Error - {e}", exc_info=True)
+                        return BaseApiResponse(
+                            str(e), message="Update failed", errno=500
+                        )
         return BaseApiResponse({"id": obj.id, "created": created})
 
     def _crud_get_obj(self, pk: int) -> Any:
