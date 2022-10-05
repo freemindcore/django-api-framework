@@ -83,14 +83,18 @@ class CrudModel(object):
         return BaseApiResponse({"pk": pk}, message="Updated.")
 
     def _crud_get_obj(self, pk: int) -> Any:
-        if self.m2m_fields_list:
-            qs = self.model.objects.filter(pk=pk).prefetch_related(
-                self.m2m_fields_list[0].name
-            )
-            for f in self.m2m_fields_list[1:]:
-                qs = qs.prefetch_related(f.name)
-        else:
-            qs = self.model.objects.filter(pk=pk)
+        try:
+            if self.m2m_fields_list:
+                qs = self.model.objects.filter(pk=pk).prefetch_related(
+                    self.m2m_fields_list[0].name
+                )
+                for f in self.m2m_fields_list[1:]:
+                    qs = qs.prefetch_related(f.name)
+            else:
+                qs = self.model.objects.filter(pk=pk)
+        except Exception as e:  # pragma: no cover
+            logger.error(f"Get Error - {e}", exc_info=True)
+            return BaseApiResponse(str(e), message="Get failed", errno=500)
         if qs:
             return qs.first()
         return BaseApiResponse()
