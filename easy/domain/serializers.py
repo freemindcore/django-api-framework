@@ -69,12 +69,12 @@ def serialize_foreign_key(
 ) -> Dict[Any, Any]:
     """Serializes foreign key field of Django model instance"""
     if not hasattr(obj, field.name):
-        return {field.name: None}
+        return {field.name: None}  # pragma: no cover
     related_instance = getattr(obj, field.name)
     if related_instance is None:
         return {field.name: None}
     if related_instance in referrers:
-        return {}
+        return {}  # pragma: no cover
     return {field.name: getattr(related_instance, "pk")}
     # TODO: recursive
     # return {field.name: serialize_model_instance(related_instance, referrers)}

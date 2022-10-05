@@ -143,7 +143,10 @@ class TestAutoCrudAdminAPI:
         client = easy_api_client(AutoGenCrudSomeFieldsAPIController)
 
         client_type = await sync_to_async(Client.objects.create)(
-            name="Client for Unit Testings", key="Type"
+            name="Client for Unit Testings",
+            key="Type",
+            category=None,
+            password="DUMMY_PASSWORD",
         )
 
         response = await client.get(
