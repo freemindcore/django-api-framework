@@ -12,7 +12,7 @@ from easy.permissions import (
     IsSuperUser,
 )
 from easy.response import BaseApiResponse
-from tests.demo_app.models import Event
+from tests.demo_app.models import Client, Event
 from tests.demo_app.schema import EventSchema
 from tests.demo_app.services import EventService
 
@@ -31,6 +31,16 @@ class AutoGenCrudAPIController(CrudAPIController):
     class Meta:
         model = Event
         fields = ["__all__"]
+
+
+@api_controller("unittest", permissions=[BaseApiPermission])
+class AutoGenCrudSomeFieldsAPIController(CrudAPIController):
+    """
+    For unit testings of the no-m2m-fields model
+    """
+
+    class Meta:
+        model = Client
 
 
 @api_controller("unittest")

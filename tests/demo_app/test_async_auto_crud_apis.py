@@ -5,7 +5,11 @@ import django
 import pytest
 from asgiref.sync import sync_to_async
 
-from tests.demo_app.controllers import AutoGenCrudAPIController, EventSchema
+from tests.demo_app.controllers import (
+    AutoGenCrudAPIController,
+    AutoGenCrudSomeFieldsAPIController,
+    EventSchema,
+)
 from tests.demo_app.models import Category, Client, Event, Type
 
 dummy_data = dict(
@@ -132,7 +136,21 @@ class TestAutoCrudAdminAPI:
         )
         assert response.status_code == 200
         assert response.json().get("data")["title"] == "AsyncAdminAPIEvent_create"
-        print(f"====================>>>>>>>>>{response.json().get('data')}")
+
+    async def test_crud_default_create_some_fields(
+        self, transactional_db, easy_api_client
+    ):
+        client = easy_api_client(AutoGenCrudSomeFieldsAPIController)
+
+        client_type = await sync_to_async(Client.objects.create)(
+            name="Client for Unit Testings", key="Type"
+        )
+
+        response = await client.get(
+            f"/?pk={client_type.id}",
+        )
+        assert response.status_code == 200
+        assert response.json()["data"]["key"] == "Type"
 
     async def test_crud_default_patch(self, transactional_db, easy_api_client):
         client = easy_api_client(AutoGenCrudAPIController)
