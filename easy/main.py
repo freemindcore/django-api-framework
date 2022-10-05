@@ -142,7 +142,11 @@ class EasyAPI(NinjaExtraAPI):
         status: int = None,
         temporal_response: HttpResponse = None,
     ) -> HttpResponse:
-        data_to_render = self.process_data(data)
+        try:
+            data_to_render = self.process_data(data)
+        except Exception as e:  # pragma: no cover
+            logger.error(f"Creat Response Error - {e}", exc_info=True)
+            return BaseApiResponse(str(e), message="System error", errno=500)
 
         if isinstance(data_to_render, BaseApiResponse):
             return data_to_render
