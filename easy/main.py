@@ -116,21 +116,16 @@ class EasyAPI(NinjaExtraAPI):
 
     def process_data(self, data: Any) -> Any:
         data_to_render = data
-        if self.easy_extra:
-            # TODO: need to protect sensitive fields
-            # Queryset
-            if serializers.is_queryset(data):
-                data_to_render = serializers.serialize_queryset(data)
-            # Model
-            elif serializers.is_model_instance(data):
-                data_to_render = serializers.serialize_model_instance(data)
-            # Add limit_off pagination support
-            elif serializers.is_paginated(data):
-                data_to_render = serializers.serialize_queryset(data.get("items"))
-
-        if self.easy_output:
-            if not serializers.is_base_response(data_to_render):
-                data_to_render = serializers.serialize_base_response(data_to_render)
+        # TODO: need to protect sensitive fields
+        # Queryset
+        if serializers.is_queryset(data):
+            data_to_render = serializers.serialize_queryset(data)
+        # Model
+        elif serializers.is_model_instance(data):
+            data_to_render = serializers.serialize_model_instance(data)
+        # Add limit_off pagination support
+        elif serializers.is_paginated(data):
+            data_to_render = serializers.serialize_queryset(data.get("items"))
 
         return data_to_render
 
@@ -142,17 +137,22 @@ class EasyAPI(NinjaExtraAPI):
         status: int = None,
         temporal_response: HttpResponse = None,
     ) -> HttpResponse:
-        try:
-            data_to_render = self.process_data(data)
-        except Exception as e:  # pragma: no cover
-            logger.error(f"Creat Response Error - {e}", exc_info=True)
-            return BaseApiResponse(str(e), message="System error", errno=500)
+        data_to_render = data
+        if self.easy_extra:
+            try:
+                data_to_render = self.process_data(data)
+            except Exception as e:  # pragma: no cover
+                logger.error(f"Creat Response Error - {e}", exc_info=True)
+                return BaseApiResponse(str(e), message="System error", errno=500)
 
-        if isinstance(data_to_render, BaseApiResponse):
-            return data_to_render
-        return super(EasyAPI, self).create_response(
-            request=request,
-            data=data_to_render,
-            status=status,
-            temporal_response=temporal_response,
-        )  # pragma: no cover
+        if self.easy_output:
+            return BaseApiResponse(
+                data_to_render, status=status, content_type=self.get_content_type()
+            )
+        else:
+            return super(EasyAPI, self).create_response(
+                request=request,
+                data=data_to_render,
+                status=status,
+                temporal_response=temporal_response,
+            )

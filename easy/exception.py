@@ -1,5 +1,3 @@
-from typing import Optional, Union
-
 from ninja_extra import status
 from ninja_extra.exceptions import APIException
 
@@ -10,18 +8,10 @@ class BaseAPIException(APIException):
     """
 
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-    default_detail = "There is an exception, please try again later."
-
-    def __init__(
-        self,
-        detail: Optional[str] = None,
-        code: Optional[Union[int]] = None,
-    ) -> None:
-        super(BaseAPIException, self).__init__(detail, code)
-        if detail:
-            self.default_detail = detail
-        if code:
-            self.status_code = code
+    default_detail = (
+        "There is an unexpected error, please try again later, if the problem "
+        "persists, please contact customer support team for further support."
+    )
 
 
 class APIAuthException(BaseAPIException):

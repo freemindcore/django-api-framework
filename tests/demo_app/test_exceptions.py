@@ -1,14 +1,15 @@
 from django.test import RequestFactory
 from django.utils.translation import gettext_lazy as _
-from ninja_extra import NinjaExtraAPI, exceptions, testing
+from ninja_extra import exceptions
 
+from easy import EasyAPI, testing
 from easy.exception import APIAuthException, BaseAPIException
 
-api = NinjaExtraAPI(urls_namespace="exception")
+api = EasyAPI(urls_namespace="exception")
 
 
 @api.get("/list_exception")
-def list_exception(request):
+async def list_exception(request):
     raise BaseAPIException(
         [
             "some error 1",
@@ -18,7 +19,7 @@ def list_exception(request):
 
 
 @api.get("/list_exception_full_detail")
-def list_exception_full(request):
+async def list_exception_full(request):
     exception = BaseAPIException(
         [
             "some error 1",
@@ -29,33 +30,33 @@ def list_exception_full(request):
 
 
 @api.get("/dict_exception")
-def dict_exception(request):
+async def dict_exception(request):
     raise BaseAPIException(dict(error="error 1"))
 
 
 @api.get("/dict_exception_full_detail")
-def dict_exception_full_detail(request):
+async def dict_exception_full_detail(request):
     exception = BaseAPIException(dict(error="error 1"))
     return exception.get_full_details()
 
 
 @api.get("/dict_exception_code_detail")
-def dict_exception_code_detail(request):
+async def dict_exception_code_detail(request):
     exception = BaseAPIException(dict(error="error 1"))
     return exception.get_codes()
 
 
 @api.get("/list_exception_code_detail")
-def list_exception_code_detail(request):
+async def list_exception_code_detail(request):
     exception = BaseAPIException(["some error"])
     return exception.get_codes()
 
 
-client = testing.TestClient(api)
+client = testing.EasyTestClient(api)
 
 
 class TestException:
-    def test_get_error_details(self):
+    async def test_get_error_details(self):
         example = "string"
         lazy_example = _(example)
 
@@ -83,7 +84,7 @@ class TestException:
 
 
 class TestErrorDetail:
-    def test_eq(self):
+    async def test_eq(self):
         assert exceptions.ErrorDetail("msg") == exceptions.ErrorDetail("msg")
         assert exceptions.ErrorDetail("msg", "code") == exceptions.ErrorDetail(
             "msg", code="code"
@@ -92,7 +93,7 @@ class TestErrorDetail:
         assert exceptions.ErrorDetail("msg") == "msg"
         assert exceptions.ErrorDetail("msg", "code") == "msg"
 
-    def test_ne(self):
+    async def test_ne(self):
         assert exceptions.ErrorDetail("msg1") != exceptions.ErrorDetail("msg2")
         assert exceptions.ErrorDetail("msg") != exceptions.ErrorDetail(
             "msg", code="invalid"
@@ -101,7 +102,7 @@ class TestErrorDetail:
         assert exceptions.ErrorDetail("msg1") != "msg2"
         assert exceptions.ErrorDetail("msg1", "code") != "msg2"
 
-    def test_repr(self):
+    async def test_repr(self):
         assert repr(
             exceptions.ErrorDetail("msg1")
         ) == "ErrorDetail(string={!r}, code=None)".format("msg1")
@@ -109,23 +110,23 @@ class TestErrorDetail:
             exceptions.ErrorDetail("msg1", "code")
         ) == "ErrorDetail(string={!r}, code={!r})".format("msg1", "code")
 
-    def test_str(self):
+    async def test_str(self):
         assert str(exceptions.ErrorDetail("msg1")) == "msg1"
         assert str(exceptions.ErrorDetail("msg1", "code")) == "msg1"
 
-    def test_hash(self):
+    async def test_hash(self):
         assert hash(exceptions.ErrorDetail("msg")) == hash("msg")
         assert hash(exceptions.ErrorDetail("msg", "code")) == hash("msg")
 
 
-def test_server_error():
+async def test_server_error():
     request = RequestFactory().get("/")
     response = exceptions.server_error(request)
     assert response.status_code == 500
     assert response["content-type"] == "application/json"
 
 
-def test_bad_request():
+async def test_bad_request():
     request = RequestFactory().get("/")
     exception = Exception("Something went wrong — Not used")
     response = exceptions.bad_request(request, exception)
@@ -133,43 +134,48 @@ def test_bad_request():
     assert response["content-type"] == "application/json"
 
 
-def test_exception_with_list_details():
-    res = client.get("list_exception")
+async def test_exception_with_list_details():
+    res = await client.get("list_exception")
     assert res.status_code == 500
-    assert res.json() == ["some error 1", "some error 2"]
+    assert res.json()["data"] == {
+        "detail": "[ErrorDetail(string='some error 1', code='error'), "
+        "ErrorDetail(string='some error 2', code='error')]",
+    }
 
 
-def test_exception_with_list_full_details():
-    res = client.get("list_exception_full_detail")
+async def test_exception_with_list_full_details():
+    res = await client.get("list_exception_full_detail")
     assert res.status_code == 200
-    assert res.json() == [
+    assert res.json()["data"] == [
         {"message": "some error 1", "code": "error"},
         {"message": "some error 2", "code": "error"},
     ]
 
 
-def test_exception_with_dict_details():
-    res = client.get("dict_exception")
+async def test_exception_with_dict_details():
+    res = await client.get("dict_exception")
     assert res.status_code == 500
-    assert res.json() == dict(error="error 1")
+    assert res.json()["data"] == {
+        "detail": "{'error': ErrorDetail(string='error 1', code='error')}"
+    }
 
 
-def test_exception_with_full_details():
-    res = client.get("dict_exception_full_detail")
+async def test_exception_with_full_details():
+    res = await client.get("dict_exception_full_detail")
     assert res.status_code == 200
-    assert res.json() == {"error": {"message": "error 1", "code": "error"}}
+    assert res.json()["data"] == {"error": {"message": "error 1", "code": "error"}}
 
 
-def test_exception_dict_exception_code_detail():
-    res = client.get("dict_exception_code_detail")
+async def test_exception_dict_exception_code_detail():
+    res = await client.get("dict_exception_code_detail")
     assert res.status_code == 200
-    assert res.json() == {"error": "error"}
+    assert res.json()["data"] == {"error": "error"}
 
 
-def test_exception_with_list_exception_code_detail():
-    res = client.get("list_exception_code_detail")
+async def test_exception_with_list_exception_code_detail():
+    res = await client.get("list_exception_code_detail")
     assert res.status_code == 200
-    assert res.json() == ["error"]
+    assert res.json()["data"] == ["error"]
 
 
 def test_validation_error():
@@ -197,7 +203,7 @@ def test_method_not_allowed_error():
     assert exception.detail == ["errors"]
 
 
-def test_method_not_allowed_accepted_error():
+async def test_method_not_allowed_accepted_error():
     exception = exceptions.NotAcceptable()
     assert exception.detail == exceptions.NotAcceptable.default_detail
     assert exception.get_codes() == exceptions.NotAcceptable.default_code
@@ -206,7 +212,7 @@ def test_method_not_allowed_accepted_error():
     assert exception.detail == ["errors"]
 
 
-def test_unsupported_media_type_allowed_error():
+async def test_unsupported_media_type_allowed_error():
     exception = exceptions.UnsupportedMediaType("whatever/type")
     assert exception.detail == exceptions.UnsupportedMediaType.default_detail.format(
         media_type="whatever/type"
@@ -217,7 +223,32 @@ def test_unsupported_media_type_allowed_error():
     assert exception.detail == ["errors"]
 
 
-def test_api_exception_code():
-    exception = APIAuthException("Unexpected error", code=503)
+async def test_api_exception_code():
+    exception = APIAuthException("Unexpected error")
     assert exception.detail == "Unexpected error"
-    assert exception.status_code == 503
+    assert exception.status_code == 401
+
+
+api_default = EasyAPI(urls_namespace="exception_default", easy_output=False)
+
+
+@api_default.get("/list_exception")
+async def list_exception_default(request):
+    raise BaseAPIException(
+        [
+            "some error 1",
+            "some error 2",
+        ]
+    )
+
+
+client_default = testing.EasyTestClient(api_default)
+
+
+async def test_exception_with_list_details_default():
+    res = await client_default.get("list_exception")
+    assert res.status_code == 500
+    assert res.json() == {
+        "detail": "[ErrorDetail(string='some error 1', code='error'), "
+        "ErrorDetail(string='some error 2', code='error')]",
+    }

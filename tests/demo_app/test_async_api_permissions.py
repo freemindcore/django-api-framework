@@ -29,7 +29,7 @@ class TestPermissionController:
         response = await client.get(
             "/must_be_admin_user?word=admin",
         )
-        assert response.status_code == 200
+        assert response.status_code == 403
         with pytest.raises(KeyError):
             assert response.json().get("data")["says"] == "admin"
 
@@ -44,7 +44,7 @@ class TestPermissionController:
         response = await client.get(
             "/must_be_super_user?word=superuser",
         )
-        assert response.status_code == 200
+        assert response.status_code == 403
         with pytest.raises(KeyError):
             assert response.json().get("data")["says"] == "superuser"
 
@@ -68,14 +68,14 @@ class TestPermissionController:
     async def test_perm_only_super(self, transactional_db, easy_api_client):
         client = easy_api_client(PermissionAPIController)
         response = await client.get("/test_perm_only_super")
-        assert response.status_code == 200
+        assert response.status_code == 403
         assert response.json().get("data") == {
             "detail": "You do not have permission to perform this action."
         }
 
         client = easy_api_client(PermissionAPIController)
         response = await client.get("/test_perm_only_super")
-        assert response.status_code == 200
+        assert response.status_code == 403
         assert response.json().get("data") == {
             "detail": "You do not have permission to perform this action."
         }
@@ -91,7 +91,7 @@ class TestPermissionController:
         response = await client.get(
             "/test_perm_admin_site", query=dict(word="non-admin")
         )
-        assert response.status_code == 200
+        assert response.status_code == 403
         assert response.json().get("data") == {
             "detail": "You do not have permission to perform this action."
         }
@@ -100,7 +100,7 @@ class TestPermissionController:
         client = easy_api_client(PermissionAPIController, is_staff=True)
         response = await client.get("/test_perm_admin_site", query=dict(word="staff"))
         assert response.status_code == 200
-        assert response.json().get("data")["says"] == "staff"
+        assert response.json()["data"]["says"] == "staff"
 
     async def test_perm_auto_apis_delete(self, transactional_db, easy_api_client):
         client = easy_api_client(AdminSitePermissionAPIController)
@@ -111,12 +111,12 @@ class TestPermissionController:
         response = await client.get(
             f"/?pk={event.id}",
         )
-        assert response.status_code == 200
+        assert response.status_code == 403
 
         response = await client.delete(
             f"/?pk={event.id}",
         )
-        assert response.status_code == 200
+        assert response.status_code == 403
         assert response.json().get("data") == {
             "detail": "You do not have permission to perform this action."
         }
@@ -142,7 +142,7 @@ class TestPermissionController:
         response = await client.get(
             f"/?pk={event.id}",
         )
-        assert response.status_code == 200
+        assert response.status_code == 403
         assert response.json().get("data") == {
             "detail": "You do not have permission to perform this action."
         }
@@ -175,7 +175,7 @@ class TestPermissionController:
             f"/?pk={event.id}", json=new_data, content_type="application/json"
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 403
         assert response.json().get("data") == {
             "detail": "You do not have permission to perform this action."
         }

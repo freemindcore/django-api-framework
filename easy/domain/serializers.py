@@ -2,8 +2,6 @@ from typing import Any, Dict, List, Tuple
 
 from django.db import models
 
-from easy.response import BaseApiResponse
-
 
 def is_model_instance(data: Any) -> bool:
     return isinstance(data, models.Model)
@@ -29,15 +27,6 @@ def is_paginated(data: Any) -> bool:
     return isinstance(data, dict) and isinstance(
         data.get("items", None), models.query.QuerySet
     )
-
-
-def is_base_response(data: Any) -> bool:
-    """Check if it is already good or a BaseApiResponse"""
-    return isinstance(data, BaseApiResponse) and data.get("data", None) is not None
-
-
-def serialize_base_response(data: Any) -> BaseApiResponse:
-    return BaseApiResponse(data=data, message=None)
 
 
 def serialize_model_instance(
