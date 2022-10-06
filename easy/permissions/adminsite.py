@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class AdminSitePermission(IsAdminUser):
     """
-    Allows access only to super user.
+    Allows delete only to super user, and change to only staff/super users.
     """
 
     def has_permission(
