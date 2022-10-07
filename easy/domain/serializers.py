@@ -1,6 +1,9 @@
+import logging
 from typing import Any, Dict, List, Tuple
 
 from django.db import models
+
+logger = logging.getLogger(__name__)
 
 
 def is_model_instance(data: Any) -> bool:
@@ -57,14 +60,19 @@ def serialize_foreign_key(
     obj: models.Model, field: Any, referrers: Any = tuple()
 ) -> Dict[Any, Any]:
     """Serializes foreign key field of Django model instance"""
-    if not hasattr(obj, field.name):
-        return {field.name: None}  # pragma: no cover
-    related_instance = getattr(obj, field.name)
-    if related_instance is None:
+    try:
+        if not hasattr(obj, field.name):
+            return {field.name: None}  # pragma: no cover
+        related_instance = getattr(obj, field.name)
+        if related_instance is None:
+            return {field.name: None}
+        if related_instance in referrers:
+            return {}  # pragma: no cover
+        field_value = getattr(related_instance, "pk")
+    except Exception as exc:  # pragma: no cover
+        logger.error(f"serialize_foreign_key error - {obj}", exc_info=exc)
         return {field.name: None}
-    if related_instance in referrers:
-        return {}  # pragma: no cover
-    return {field.name: getattr(related_instance, "pk")}
+    return {field.name: field_value}
     # TODO: recursive
     # return {field.name: serialize_model_instance(related_instance, referrers)}
 
@@ -78,13 +86,16 @@ def serialize_many_relationship(
     if not hasattr(obj, "_prefetched_objects_cache"):
         return {}
     out = {}
-    for k, v in obj._prefetched_objects_cache.items():  # type: ignore
-        field_name = k if hasattr(obj, k) else k + "_set"
-        if v:
-            # TODO: configurable recursive for m2m output
-            out[field_name] = serialize_queryset(v, referrers + (obj,))
-        else:
-            out[field_name] = []
+    try:
+        for k, v in obj._prefetched_objects_cache.items():  # type: ignore
+            field_name = k if hasattr(obj, k) else k + "_set"
+            if v:
+                # TODO: configurable recursive for m2m output
+                out[field_name] = serialize_queryset(v, referrers + (obj,))
+            else:
+                out[field_name] = []
+    except Exception as exc:  # pragma: no cover
+        logger.error(f"serialize_many_relationship error - {obj}", exc_info=exc)
     return out
 
 
