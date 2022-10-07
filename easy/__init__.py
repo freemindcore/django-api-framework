@@ -1,6 +1,6 @@
 """Django Easy API - Easy and Fast Django REST framework based on Django-ninja-extra"""
 
-__version__ = "0.1.15"
+__version__ = "0.1.16"
 
 from easy.main import EasyAPI
 
