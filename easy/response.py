@@ -1,5 +1,5 @@
 import json
-from typing import Any, Type, Union
+from typing import Any, Dict, Union
 
 from django.http.response import JsonResponse
 
@@ -17,7 +17,7 @@ class BaseApiResponse(JsonResponse):
 
     def __init__(
         self,
-        data: Union[dict, str] = None,
+        data: Union[Dict, str] = None,
         errno: int = None,
         message: str = None,
         **kwargs: Any
@@ -28,13 +28,13 @@ class BaseApiResponse(JsonResponse):
             message = SUCCESS_MESSAGE
             errno = ERRNO_SUCCESS
 
-        _data: Union[dict, str] = {
+        _data: Union[Dict, str] = {
             "code": errno,
             "message": message,
             "data": data if data is not None else {},
         }
-        _encoder: Type[json.JSONEncoder] = EasyJSONEncoder
-        super().__init__(data=_data, encoder=_encoder, **kwargs)
+
+        super().__init__(data=_data, encoder=EasyJSONEncoder, **kwargs)
 
     @property
     def json_data(self) -> Any:
@@ -43,7 +43,7 @@ class BaseApiResponse(JsonResponse):
         """
         return json.loads(self.content)
 
-    def update_content(self, data: dict) -> None:
+    def update_content(self, data: Dict) -> None:
         """
         Update content with new data
         """

@@ -12,7 +12,7 @@ from ninja.types import TCallable
 from ninja_extra import NinjaExtraAPI
 
 from easy.controller.admin_auto_api import create_admin_controller
-from easy.domain import serializers
+from easy.domain.serializers import serialize_django_native_data
 from easy.renderer.json import EasyJSONRenderer
 from easy.response import BaseApiResponse
 
@@ -114,21 +114,6 @@ class EasyAPI(NinjaExtraAPI):
             if not v.name.startswith("django.") and (not v.name == "easy.api")
         ]
 
-    def process_data(self, data: Any) -> Any:
-        data_to_render = data
-        # TODO: need to protect sensitive fields
-        # Queryset
-        if serializers.is_queryset(data):
-            data_to_render = serializers.serialize_queryset(data)
-        # Model
-        elif serializers.is_model_instance(data):
-            data_to_render = serializers.serialize_model_instance(data)
-        # Add limit_off pagination support
-        elif serializers.is_paginated(data):
-            data_to_render = serializers.serialize_queryset(data.get("items"))
-
-        return data_to_render
-
     def create_response(
         self,
         request: HttpRequest,
@@ -137,22 +122,35 @@ class EasyAPI(NinjaExtraAPI):
         status: int = None,
         temporal_response: HttpResponse = None,
     ) -> HttpResponse:
-        data_to_render = data
         if self.easy_extra:
-            try:
-                data_to_render = self.process_data(data)
-            except Exception as e:  # pragma: no cover
-                logger.error(f"Creat Response Error - {e}", exc_info=True)
-                return BaseApiResponse(str(e), message="System error", errno=500)
+            data = serialize_django_native_data(data)
 
         if self.easy_output:
-            return BaseApiResponse(
-                data_to_render, status=status, content_type=self.get_content_type()
+            if temporal_response:
+                status = temporal_response.status_code
+            assert status
+
+            _temp = BaseApiResponse(
+                data, status=status, content_type=self.get_content_type()
             )
+
+            if temporal_response:
+                response = temporal_response
+                response.content = _temp.content
+            else:
+                response = _temp
+
         else:
-            return super(EasyAPI, self).create_response(
-                request=request,
-                data=data_to_render,
+            response = super().create_response(
+                request,
+                data,
                 status=status,
                 temporal_response=temporal_response,
             )
+        return response
+
+    def create_temporal_response(self, request: HttpRequest) -> HttpResponse:
+        if self.easy_output:
+            return BaseApiResponse("", content_type=self.get_content_type())
+        else:
+            return super().create_temporal_response(request)

@@ -94,3 +94,18 @@ def serialize_value_field(obj: models.Model, field: Any) -> Dict[Any, Any]:
     if field.name in ["password"]:
         return {}
     return {field.name: getattr(obj, field.name)}
+
+
+def serialize_django_native_data(data: Any) -> Any:
+    out = data
+    # TODO: need to protect sensitive fields
+    # Queryset
+    if is_queryset(data):
+        out = serialize_queryset(data)
+    # Model
+    elif is_model_instance(data):
+        out = serialize_model_instance(data)
+    # Add limit_off pagination support
+    elif is_paginated(data):
+        out = serialize_queryset(data.get("items"))
+    return out
