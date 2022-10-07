@@ -106,7 +106,7 @@ class TestAutoCrudAdminAPI:
             f"/?pk={event.id}",
         )
         assert response.status_code == 200
-        assert response.json().get("data") == {}
+        assert response.json().get("code") == 404
 
     async def test_crud_default_create(self, transactional_db, easy_api_client):
         client = easy_api_client(AutoGenCrudAPIController)
@@ -132,6 +132,7 @@ class TestAutoCrudAdminAPI:
         )
         assert response.status_code == 200
 
+        assert response.json().get("code") == 201
         event_id = response.json().get("data")["id"]
 
         response = await client.get(
@@ -191,7 +192,7 @@ class TestAutoCrudAdminAPI:
         )
 
         assert response.status_code == 200
-        assert response.json()["data"] == {"Detail": "Not found."}
+        assert response.json()["code"] == 404
 
         response = await client.patch(
             f"/?pk={event.pk}", json=new_data, content_type="application/json"

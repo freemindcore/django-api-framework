@@ -131,7 +131,7 @@ class TestPermissionController:
             f"/?pk={event.id}",
         )
         assert response.status_code == 200
-        assert response.json().get("data") == {}
+        assert response.json().get("code") == 404
 
     async def test_perm_auto_apis_patch(self, transactional_db, easy_api_client):
         client = easy_api_client(AdminSitePermissionAPIController)

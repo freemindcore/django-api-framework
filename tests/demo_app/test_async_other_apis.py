@@ -30,6 +30,7 @@ class TestEasyCrudAPIController:
         )
         assert response.status_code == 200
 
+        assert response.json().get("code") == 201
         event_id = response.json().get("data")["id"]
 
         response = await client.get(
@@ -60,7 +61,7 @@ class TestEasyCrudAPIController:
             "/", json=object_data, content_type="application/json"
         )
         assert response.status_code == 200
-
+        assert response.json().get("code") == 201
         event_id = response.json().get("data")["id"]
         response = await client.get(
             "/qs_paginated",

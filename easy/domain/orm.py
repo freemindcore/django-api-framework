@@ -50,25 +50,25 @@ class CrudModel(object):
                 if _value and isinstance(_value, List):
                     m2m_f = getattr(obj, _field)
                     m2m_f.set(_value)
-        return obj
+        return BaseApiResponse({"id": obj.pk}, errno=201)
 
     def _crud_del_obj(self, pk: int) -> "BaseApiResponse":
         obj = get_object_or_none(self.model, pk=pk)
         if obj:
             self.model.objects.filter(pk=pk).delete()
-            return BaseApiResponse({"Detail": "Deleted."})
+            return BaseApiResponse("Deleted.", errno=204)
         else:
-            return BaseApiResponse({"Detail": "Not found."}, message="Not found.")
+            return BaseApiResponse("Not Found.", errno=404)
 
     def _crud_update_obj(self, pk: int, payload: Dict) -> "BaseApiResponse":
         local_fields, m2m_fields = self.__separate_payload(payload)
         if not self.model.objects.filter(pk=pk).exists():
-            return BaseApiResponse({"Detail": "Not found."}, message="Not found.")
+            return BaseApiResponse("Not Found.", errno=404)
         try:
             obj, _ = self.model.objects.update_or_create(pk=pk, defaults=local_fields)
         except Exception as e:  # pragma: no cover
             logger.error(f"Crud_update Error - {e}", exc_info=True)
-            return BaseApiResponse(str(e), message="Update failed", errno=500)
+            return BaseApiResponse(str(e), message="Update Failed", errno=500)
         if obj and m2m_fields:
             for _field, _value in m2m_fields.items():
                 if _value:
@@ -78,7 +78,7 @@ class CrudModel(object):
                     except Exception as e:  # pragma: no cover
                         logger.error(f"Crud_update Error - {e}", exc_info=True)
                         return BaseApiResponse(
-                            str(e), message="Update failed", errno=500
+                            str(e), message="Update Failed", errno=500
                         )
         return BaseApiResponse({"pk": pk}, message="Updated.")
 
@@ -94,11 +94,11 @@ class CrudModel(object):
                 qs = self.model.objects.filter(pk=pk)
         except Exception as e:  # pragma: no cover
             logger.error(f"Get Error - {e}", exc_info=True)
-            return BaseApiResponse(str(e), message="Get failed", errno=500)
+            return BaseApiResponse(str(e), message="Get Failed", errno=500)
         if qs:
             return qs.first()
         else:
-            return BaseApiResponse("Nothing found.", message="Get failed", errno=201)
+            return BaseApiResponse(message="Not Found", errno=404)
 
     def _crud_get_objs_all(self, maximum: int = None, **filters: Any) -> Any:
         """
