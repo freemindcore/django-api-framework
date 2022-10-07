@@ -115,6 +115,4 @@ class TestEasyCrudAPIController:
         )
         assert response.status_code == 200
 
-        data = response.json().get("data")
-
-        assert data[0]["title"] == "AsyncAPIEvent_create_qs_0"
+        assert response.json().get("data")[0]["title"] == "AsyncAPIEvent_create_qs_0"
