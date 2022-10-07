@@ -123,7 +123,11 @@ class EasyAPI(NinjaExtraAPI):
         temporal_response: HttpResponse = None,
     ) -> HttpResponse:
         if self.easy_extra:
-            data = serialize_django_native_data(data)
+            try:
+                data = serialize_django_native_data(data)
+            except Exception as e:  # pragma: no cover
+                logger.error(f"Creat Response Error - {e}", exc_info=True)
+                return BaseApiResponse(str(e), errno=500)
 
         if self.easy_output:
             if temporal_response:
