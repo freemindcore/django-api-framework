@@ -97,7 +97,8 @@ class CrudModel(object):
             return BaseApiResponse(str(e), message="Get failed", errno=500)
         if qs:
             return qs.first()
-        return BaseApiResponse()
+        else:
+            return BaseApiResponse("Nothing found.", message="Get failed", errno=201)
 
     def _crud_get_objs_all(self, maximum: int = None, **filters: Any) -> Any:
         """
