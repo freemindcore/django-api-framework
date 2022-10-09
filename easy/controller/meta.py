@@ -11,6 +11,7 @@ from ninja_extra import ControllerBase, http_delete, http_get, http_patch, http_
 from ninja_extra.pagination import paginate
 
 from easy.domain.orm import CrudModel
+from easy.response import BaseApiResponse
 from easy.services import BaseService
 from easy.utils import copy_func
 
@@ -32,14 +33,25 @@ class CrudAPI(CrudModel):
         GET /{id}
         Retrieve a single Object
         """
-        return await self.service.get_obj(id)
+        try:
+            qs = await self.service.get_obj(id)
+        except Exception as e:  # pragma: no cover
+            logger.error(f"Get Error - {e}", exc_info=True)
+            return BaseApiResponse(str(e), message="Get Failed", errno=500)
+        if qs:
+            return qs
+        else:
+            return BaseApiResponse(message="Not Found", errno=404)
 
     async def del_obj(self, request: HttpRequest, id: int) -> Any:
         """
         DELETE /{id}
         Delete a single Object
         """
-        return await self.service.del_obj(id)
+        if await self.service.del_obj(id):
+            return BaseApiResponse("Deleted.", errno=204)
+        else:
+            return BaseApiResponse("Not Found.", errno=404)
 
     @paginate
     async def get_objs(
@@ -140,7 +152,11 @@ class CrudApiMetaclass(ABCMeta):
                 PUT /
                 Create a single Object
                 """
-                return await self.service.add_obj(**data.dict())
+                obj_id = await self.service.add_obj(**data.dict())
+                if obj_id:
+                    return BaseApiResponse({"id": obj_id}, errno=201)
+                else:
+                    return BaseApiResponse("Add failed", errno=204)  # pragma: no cover
 
             async def patch_obj(  # type: ignore
                 self, request: HttpRequest, id: int, data: DataSchema
@@ -149,7 +165,10 @@ class CrudApiMetaclass(ABCMeta):
                 PATCH /{id}
                 Update a single field for a Object
                 """
-                return await self.service.patch_obj(id=id, payload=data.dict())
+                if await self.service.patch_obj(id=id, payload=data.dict()):
+                    return BaseApiResponse("Updated.")
+                else:
+                    return BaseApiResponse("Update Failed", errno=400)
 
             DataSchema.__name__ = (
                 f"{opts_model.__name__}__AutoSchema({str(uuid.uuid4())[:4]})"
