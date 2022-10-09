@@ -176,11 +176,12 @@ class CrudApiMetaclass(ABCMeta):
         )
 
         if opts_model:
-            setattr(opts_model.Meta, "model_exclude", opts_fields_exclude)
-            setattr(opts_model.Meta, "model_fields", opts_fields)
-            setattr(opts_model.Meta, "model_recursive", opts_recursive)
-            setattr(opts_model.Meta, "model_join", opts_join)
-            setattr(opts_model.Meta, "sensitive_fields", opts_sensitive_fields)
+            if hasattr(opts_model, "Meta"):
+                setattr(opts_model.Meta, "model_exclude", opts_fields_exclude)
+                setattr(opts_model.Meta, "model_fields", opts_fields)
+                setattr(opts_model.Meta, "model_recursive", opts_recursive)
+                setattr(opts_model.Meta, "model_join", opts_join)
+                setattr(opts_model.Meta, "sensitive_fields", opts_sensitive_fields)
             setattr(new_cls, "model", opts_model)
         return new_cls
 
