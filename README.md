@@ -69,6 +69,7 @@ A boilerplate Django project for quickly getting started:
 https://github.com/freemindcore/django-easy-api
 
 ![Auto generated APIs List](https://github.com/freemindcore/django-api-framework/blob/fae8209a8d08c55daf75ac3a4619fe62b8ef3af6/docs/images/admin_apis_list.png)
-![Auto generated APIs - Users](https://github.com/freemindcore/django-api-framework/blob/fae8209a8d08c55daf75ac3a4619fe62b8ef3af6/docs/images/user_admin_api.png)
+![Auto generated APIs - Users](https://github.com/freemindcore/django-api-framework/blob/9aa26e92b6fd79f4d9db422ec450fe62d4cd97b9/docs/images/user_admin_api.png)
+![Auto generated APIs - Schema](https://github.com/freemindcore/django-api-framework/blob/9aa26e92b6fd79f4d9db422ec450fe62d4cd97b9/docs/images/auto_api_demo_2.png)
 
 _Note: this project is still in early stage, comments and advices are highly appreciated._
