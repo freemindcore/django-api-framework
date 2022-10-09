@@ -228,8 +228,7 @@ class TestAutoCrudAdminAPI:
         )
         assert response.status_code == 200
         data = response.json().get("data")
-        print("======> Auto join - data/ data owner /data lead_owner")
-        print(data)
+
         assert len(data["owner"]) == 2
         assert len(data["lead_owner"]) == 0
         assert data["owner"][0]["name"] == "Client E for Unit Testings"
@@ -246,8 +245,5 @@ class TestAutoCrudAdminAPI:
             f"/{event.pk}",
         )
         assert response.status_code == 200
-        print("======> data/ data owner /data lead_owner")
         data = response.json().get("data")
-        print(data)
-        print(data["owner"])
         assert data["owner"] == [8, 9]

@@ -29,8 +29,8 @@ class CrudService(CrudModel):
     async def add_obj(self, **payload: Any) -> Any:
         return await sync_to_async(self._crud_add_obj)(**payload)
 
-    # async def filter_objs(self, **payload: Any) -> Any:
-    #     return await sync_to_async(self._crud_filter)(**payload)
+    async def filter_objs(self, **payload: Any) -> Any:
+        return await sync_to_async(self._crud_filter)(**payload)  # pragma: no cover
 
     async def filter_exclude_objs(self, **payload: Any) -> Any:
         return await sync_to_async(self._crud_filter_exclude)(**payload)
