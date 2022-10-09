@@ -26,7 +26,13 @@ def create_api_controller(
     Meta = type(
         "Meta",
         (object,),
-        {"model": model, "fields": "__all__"},
+        {
+            "model": model,
+            "model_fields": "__all__",
+            "model_recursive": False,
+            "model_join": True,
+            "sensitive_fields": ["password"],
+        },
     )
 
     class_name = f"{model_name}{controller_name_prefix}APIController"
