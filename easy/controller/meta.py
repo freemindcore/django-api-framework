@@ -11,6 +11,7 @@ from ninja_extra import ControllerBase, http_delete, http_get, http_patch, http_
 from ninja_extra.pagination import paginate
 
 from easy.domain.orm import CrudModel
+from easy.response import BaseApiResponse
 from easy.services import BaseService
 from easy.utils import copy_func
 
@@ -32,7 +33,15 @@ class CrudAPI(CrudModel):
         GET /{id}
         Retrieve a single Object
         """
-        return await self.service.get_obj(id)
+        try:
+            qs = await self.service.get_obj(id)
+        except Exception as e:  # pragma: no cover
+            logger.error(f"Get Error - {e}", exc_info=True)
+            return BaseApiResponse(str(e), message="Get Failed", errno=500)
+        if qs:
+            return qs
+        else:
+            return BaseApiResponse(message="Not Found", errno=404)
 
     async def del_obj(self, request: HttpRequest, id: int) -> Any:
         """
