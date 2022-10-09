@@ -193,8 +193,9 @@ class ModelOptions:
             model:              django model
             model_fields:       fields to be included in Schema, default to "__all__"
             model_exclude:      fields to be excluded in Schema
-            model_join:         retrieve all m2m/FK fields, default to True
-            model_recursive:    recursively retrieve FK models, default to False
+            model_join:         retrieve all m2m fields, default to True
+            model_recursive:    recursively retrieve FK/OneToOne models, default to False
+            sensitive_fields:   fields to be ignored
         """
         self.model: Optional[Type[models.Model]] = getattr(options, "model", None)
         self.model_fields: Optional[Union[str]] = getattr(options, "model_fields", None)
