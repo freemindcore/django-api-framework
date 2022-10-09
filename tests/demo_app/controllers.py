@@ -110,8 +110,7 @@ class PermissionAPIController(CrudAPIController):
 
     @http_get("/test_perm_only_super/", permissions=[BaseApiPermission])
     async def test_perm_only_super(self, request):
-        response = await self.service.add_obj(title="test_event_title")
-        event_id = response.json_data.get("data")["id"]
+        event_id = await self.service.add_obj(title="test_event_title")
         # return await self.service.get_obj(id=note.id)
         return await sync_to_async(self.get_object_or_none)(Event, id=event_id)
 

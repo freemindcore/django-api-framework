@@ -1,10 +1,11 @@
 import logging
 from typing import Any, Dict, List, Tuple, Type
 
-from django.db import models
+from django.db import models, transaction
 from django.db.models.query import QuerySet
 from ninja_extra.shortcuts import get_object_or_none
 
+from easy.exception import BaseAPIException
 from easy.response import BaseApiResponse
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,7 @@ class CrudModel(object):
             if isinstance(_field, models.ManyToManyField)
         )
 
-    def __separate_payload(self, payload: Dict) -> Tuple[Dict, Dict]:
+    def _separate_payload(self, payload: Dict) -> Tuple[Dict, Dict]:
         m2m_fields = {}
         local_fields = {}
         for _field in payload.keys():
@@ -35,22 +36,30 @@ class CrudModel(object):
                     local_fields.update({_field: payload[_field]})
         return local_fields, m2m_fields
 
-    # Define BASE CRUD
-    def _crud_add_obj(self, **payload: Dict) -> Any:
-        local_f_payload, m2m_f_payload = self.__separate_payload(payload)
-        # Create obj with local_fields payload
-        try:
-            obj = self.model.objects.create(**local_f_payload)
-        except Exception as e:  # pragma: no cover
-            logger.error(f"Crud_add Error - {e}", exc_info=True)
-            return BaseApiResponse(str(e), message="Add failed", errno=500)
-        # Save obj with m2m_fields payload
-        if m2m_f_payload:
-            for _field, _value in m2m_f_payload.items():
+    @staticmethod
+    def _crud_set_m2m_obj(obj: models.Model, m2m_fields: Dict) -> bool:
+        if obj and m2m_fields:
+            for _field, _value in m2m_fields.items():
                 if _value and isinstance(_value, List):
                     m2m_f = getattr(obj, _field)
                     m2m_f.set(_value)
-        return BaseApiResponse({"id": obj.pk}, errno=201)
+        return True
+
+    # Define BASE CRUD
+    @transaction.atomic()
+    def _crud_add_obj(self, **payload: Dict) -> Any:
+        local_f_payload, m2m_f_payload = self._separate_payload(payload)
+
+        # Create obj with local_fields payload
+        obj = self.model.objects.create(**local_f_payload)
+
+        # Save obj with m2m_fields payload
+        set_m2m_status = self._crud_set_m2m_obj(obj, m2m_f_payload)
+
+        if obj and set_m2m_status:
+            return obj.id
+        else:
+            return None
 
     def _crud_del_obj(self, pk: int) -> "BaseApiResponse":
         obj = get_object_or_none(self.model, pk=pk)
@@ -60,27 +69,18 @@ class CrudModel(object):
         else:
             return BaseApiResponse("Not Found.", errno=404)
 
-    def _crud_update_obj(self, pk: int, payload: Dict) -> "BaseApiResponse":
-        local_fields, m2m_fields = self.__separate_payload(payload)
+    @transaction.atomic()
+    def _crud_update_obj(self, pk: int, payload: Dict) -> bool:
+        local_fields, m2m_fields = self._separate_payload(payload)
         if not self.model.objects.filter(pk=pk).exists():
-            return BaseApiResponse("Not Found.", errno=404)
+            return False
         try:
             obj, _ = self.model.objects.update_or_create(pk=pk, defaults=local_fields)
         except Exception as e:  # pragma: no cover
-            logger.error(f"Crud_update Error - {e}", exc_info=True)
-            return BaseApiResponse(str(e), message="Update Failed", errno=500)
-        if obj and m2m_fields:
-            for _field, _value in m2m_fields.items():
-                if _value:
-                    m2m_f = getattr(obj, _field)
-                    try:
-                        m2m_f.set(_value)
-                    except Exception as e:  # pragma: no cover
-                        logger.error(f"Crud_update Error - {e}", exc_info=True)
-                        return BaseApiResponse(
-                            str(e), message="Update Failed", errno=500
-                        )
-        return BaseApiResponse({"pk": pk}, message="Updated.")
+            raise BaseAPIException(f"Update Error - {e}")
+
+        set_m2m_status = self._crud_set_m2m_obj(obj, m2m_fields)
+        return bool(set_m2m_status and obj)
 
     def _crud_get_obj(self, pk: int) -> Any:
         if self.m2m_fields_list:

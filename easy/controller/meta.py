@@ -149,7 +149,11 @@ class CrudApiMetaclass(ABCMeta):
                 PUT /
                 Create a single Object
                 """
-                return await self.service.add_obj(**data.dict())
+                obj_id = await self.service.add_obj(**data.dict())
+                if obj_id:
+                    return BaseApiResponse({"id": obj_id}, errno=201)
+                else:
+                    return BaseApiResponse("Update failed", errno=204)
 
             async def patch_obj(  # type: ignore
                 self, request: HttpRequest, id: int, data: DataSchema
@@ -158,7 +162,10 @@ class CrudApiMetaclass(ABCMeta):
                 PATCH /{id}
                 Update a single field for a Object
                 """
-                return await self.service.patch_obj(id=id, payload=data.dict())
+                if await self.service.patch_obj(id=id, payload=data.dict()):
+                    return BaseApiResponse("Updated.")
+                else:
+                    return BaseApiResponse("Update Failed", errno=400)
 
             DataSchema.__name__ = (
                 f"{opts_model.__name__}__AutoSchema({str(uuid.uuid4())[:4]})"
