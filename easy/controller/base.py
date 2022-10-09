@@ -29,7 +29,8 @@ class CrudAPIController(ControllerBase, CrudAPI, metaclass=CrudApiMetaclass):
         model_fields:       fields to be included in Schema, default to "__all__"
         model_exclude:      fields to be excluded in Schema
         model_join:         retrieve all m2m/FK fields, default to True
-        model_recursive:    recursively retrieve FK models, defaul to False
+        model_recursive:    recursively retrieve FK models, default to False
+        sensitive_fields:   fields to be ignored
     """
 
     ...
