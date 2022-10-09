@@ -34,12 +34,12 @@ class TestEasyCrudAPIController:
         event_id = response.json().get("data")["id"]
 
         response = await client.get(
-            f"/?pk={event_id}",
+            f"/{event_id}",
         )
         assert response.status_code == 200
         assert response.json().get("data")["title"] == "AsyncAPIEvent_create"
 
-        response = await client.get("/get_all")
+        response = await client.get("/")
         assert response.status_code == 200
         assert response.json().get("data")[0]["title"] == "AsyncAPIEvent_create"
 
@@ -47,7 +47,7 @@ class TestEasyCrudAPIController:
         client = easy_api_client(EasyCrudAPIController)
 
         response = await client.get(
-            "/base_response",
+            "/base_response/",
         )
         assert response.status_code == 200
         assert response.json().get("data")["data"] == "This is a BaseApiResponse."
@@ -64,7 +64,7 @@ class TestEasyCrudAPIController:
         assert response.json().get("code") == 201
         event_id = response.json().get("data")["id"]
         response = await client.get(
-            "/qs_paginated",
+            "/qs_paginated/",
         )
         assert response.status_code == 200
         assert response.json().get("data")[0]["id"] == event_id
@@ -86,7 +86,7 @@ class TestEasyCrudAPIController:
         event = await sync_to_async(Event.objects.create)(**object_data)
 
         response = await client.get(
-            "/qs_list",
+            "/qs_list/",
         )
         assert response.status_code == 200
 
@@ -111,7 +111,7 @@ class TestEasyCrudAPIController:
             await client.put("/", json=object_data)
 
         response = await client.get(
-            "/qs",
+            "/qs/",
         )
         assert response.status_code == 200
 

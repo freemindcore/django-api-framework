@@ -21,7 +21,7 @@ from tests.demo_app.services import EventService
 class AutoGenCrudAPIController(CrudAPIController):
     """
     For unit testings of the following auto generated APIs:
-        get/create/patch/delete/get_all/filter/filter_exclude
+        get/create/patch/delete/filter/filter_exclude
     """
 
     def __init__(self, service: EventService):
@@ -59,16 +59,16 @@ class EasyCrudAPIController(CrudAPIController):
             "category",
         ]
 
-    @http_get("/base_response")
+    @http_get("/base_response/")
     async def generate_base_response(self, request):
         return BaseApiResponse({"data": "This is a BaseApiResponse."})
 
-    @http_get("/qs_paginated", auth=None)
+    @http_get("/qs_paginated/", auth=None)
     @paginate
     async def qs_paginated(self, request):
         return await self.service.get_event_objs_demo()
 
-    @http_get("/qs_list", response=List[EventSchema])
+    @http_get("/qs_list/", response=List[EventSchema])
     async def get_objs_list_with_filter_exclude(self, request):
         return await sync_to_async(list)(
             await self.service.filter_exclude_objs(
@@ -77,7 +77,7 @@ class EasyCrudAPIController(CrudAPIController):
         )
 
     @http_get(
-        "/qs",
+        "/qs/",
     )
     async def list_events(self):
         qs = await sync_to_async(self.model.objects.all)()
@@ -96,30 +96,30 @@ class PermissionAPIController(CrudAPIController):
     class Meta:
         model = Event
 
-    @http_get("/must_be_authenticated", permissions=[IsAuthenticated])
+    @http_get("/must_be_authenticated/", permissions=[IsAuthenticated])
     async def must_be_authenticated(self, word: str):
         return await self.service.get_identity_demo(word)
 
-    @http_get("/must_be_admin_user", permissions=[IsAdminUser])
+    @http_get("/must_be_admin_user/", permissions=[IsAdminUser])
     async def must_be_admin_user(self, word: str):
         return await self.service.get_identity_demo(word)
 
-    @http_get("/must_be_super_user", permissions=[IsSuperUser])
+    @http_get("/must_be_super_user/", permissions=[IsSuperUser])
     async def must_be_super_user(self, word: str):
         return await self.service.get_identity_demo(word)
 
-    @http_get("/test_perm_only_super", permissions=[BaseApiPermission])
+    @http_get("/test_perm_only_super/", permissions=[BaseApiPermission])
     async def test_perm_only_super(self, request):
         response = await self.service.add_obj(title="test_event_title")
         event_id = response.json_data.get("data")["id"]
         # return await self.service.get_obj(id=note.id)
         return await sync_to_async(self.get_object_or_none)(Event, id=event_id)
 
-    @http_get("/test_perm", permissions=[BaseApiPermission])
+    @http_get("/test_perm/", permissions=[BaseApiPermission])
     async def test_perm(self, request, word: str):
         return await self.service.get_identity_demo(word)
 
-    @http_get("/test_perm_admin_site", permissions=[AdminSitePermission])
+    @http_get("/test_perm_admin_site/", permissions=[AdminSitePermission])
     async def test_perm_admin_site(self, request, word: str):
         return await self.service.get_identity_demo(word)
 

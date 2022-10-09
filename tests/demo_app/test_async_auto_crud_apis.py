@@ -45,7 +45,7 @@ class TestAutoCrudAdminAPI:
         await sync_to_async(event.owner.set)([client_a, client_b])
 
         response = await client.get(
-            "/get_all", query=dict(maximum=100, filters=json.dumps(dict(id__gte=1)))
+            "/", query=dict(maximum=100, filters=json.dumps(dict(id__gte=1)))
         )
         assert response.status_code == 200
 
@@ -57,7 +57,7 @@ class TestAutoCrudAdminAPI:
         assert event_schema["start_date"] == data[0]["start_date"]
 
         response = await client.get(
-            "/get_all",
+            "/",
             query=dict(
                 maximum=100,
             ),
@@ -70,7 +70,7 @@ class TestAutoCrudAdminAPI:
         event_schema = json.loads(EventSchema.from_orm(event).json())
         assert event_schema["start_date"] == data[0]["start_date"]
 
-        response = await client.get("/get_all")
+        response = await client.get("/")
         assert response.status_code == 200
 
         data = response.json().get("data")
@@ -88,7 +88,7 @@ class TestAutoCrudAdminAPI:
         event = await sync_to_async(Event.objects.create)(**object_data)
 
         response = await client.get(
-            f"/?pk={event.id}",
+            f"/{event.id}",
         )
         assert response.status_code == 200
 
@@ -99,11 +99,11 @@ class TestAutoCrudAdminAPI:
         assert event_schema["end_date"] == data["end_date"]
 
         await client.delete(
-            f"/?pk={event.id}",
+            f"/{event.id}",
         )
 
         response = await client.get(
-            f"/?pk={event.id}",
+            f"/{event.id}",
         )
         assert response.status_code == 200
         assert response.json().get("code") == 404
@@ -136,7 +136,7 @@ class TestAutoCrudAdminAPI:
         event_id = response.json().get("data")["id"]
 
         response = await client.get(
-            f"/?pk={event_id}",
+            f"/{event_id}",
         )
         assert response.status_code == 200
         assert response.json().get("data")["title"] == "AsyncAdminAPIEvent_create"
@@ -154,7 +154,7 @@ class TestAutoCrudAdminAPI:
         )
 
         response = await client.get(
-            f"/?pk={client_type.id}",
+            f"/{client_type.id}",
         )
         assert response.status_code == 200
         assert response.json()["data"]["key"] == "Type"
@@ -166,7 +166,7 @@ class TestAutoCrudAdminAPI:
         event = await sync_to_async(Event.objects.create)(**object_data)
 
         response = await client.get(
-            f"/?pk={event.pk}",
+            f"/{event.pk}",
         )
         assert response.status_code == 200
         assert response.json().get("data")["title"] == f"{object_data['title']}"
@@ -188,21 +188,21 @@ class TestAutoCrudAdminAPI:
         )
 
         response = await client.patch(
-            "/?pk=20000", json=new_data, content_type="application/json"
+            "/20000", json=new_data, content_type="application/json"
         )
 
         assert response.status_code == 200
         assert response.json()["code"] == 404
 
         response = await client.patch(
-            f"/?pk={event.pk}", json=new_data, content_type="application/json"
+            f"/{event.pk}", json=new_data, content_type="application/json"
         )
 
         assert response.status_code == 200
         assert response.json().get("data")["pk"] == event.pk
 
         response = await client.get(
-            f"/?pk={event.pk}",
+            f"/{event.pk}",
         )
         assert response.status_code == 200
         assert response.json().get("data")["title"] == "AsyncAdminAPIEvent_patch"
@@ -222,7 +222,7 @@ class TestAutoCrudAdminAPI:
         client = easy_api_client(AutoGenCrudAPIController)
 
         response = await client.get(
-            "/filter", query=dict(filters=json.dumps(dict(id__gte=1)))
+            "/filter/", query=dict(filters=json.dumps(dict(id__gte=1)))
         )
         assert response.status_code == 200
 
@@ -241,7 +241,7 @@ class TestAutoCrudAdminAPI:
         client = easy_api_client(AutoGenCrudAPIController)
 
         response = await client.get(
-            "/filter_exclude", query=dict(filters=json.dumps(dict(id__lt=1)))
+            "/filter_exclude/", query=dict(filters=json.dumps(dict(id__lt=1)))
         )
         assert response.status_code == 200
 

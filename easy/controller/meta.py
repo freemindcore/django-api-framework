@@ -27,27 +27,27 @@ class CrudAPI(CrudModel):
         super().__init__(model=self.model)
 
     # Define Controller APIs for auto generation
-    async def get_obj(self, request: HttpRequest, pk: int) -> Any:
+    async def get_obj(self, request: HttpRequest, id: int) -> Any:
         """
-        GET /?pk={id}
+        GET /{id}
         Retrieve a single Object
         """
-        return await self.service.get_obj(pk)
+        return await self.service.get_obj(id)
 
-    async def del_obj(self, request: HttpRequest, pk: int) -> Any:
+    async def del_obj(self, request: HttpRequest, id: int) -> Any:
         """
-        DELETE /?pk={id}
+        DELETE /{id}
         Delete a single Object
         """
-        return await self.service.del_obj(pk)
+        return await self.service.del_obj(id)
 
     @paginate
     async def get_objs(
         self, request: HttpRequest, maximum: int = None, filters: str = None
     ) -> Any:
         """
-        GET /get_all
-        Retrieve multiple Object
+        GET /?maximum={int}&filters={filters_dict}
+        Retrieve multiple Object (optional: maximum # and filters)
         """
         if filters:
             return await self.service.get_objs(maximum, **json.loads(filters))
@@ -100,20 +100,20 @@ class CrudApiMetaclass(ABCMeta):
         opts_recursive: Optional[bool] = temp_opts.model_recursive
 
         base_cls_attrs = {
-            "get_obj": http_get("/", summary="Get")(
+            "get_obj": http_get("/{id}", summary="Get a single object")(
                 copy_func(CrudAPI.get_obj)  # type: ignore
             ),
-            "del_obj": http_delete("/", summary="Delete")(
+            "del_obj": http_delete("/{id}", summary="Delete a single object")(
                 copy_func(CrudAPI.del_obj)  # type: ignore
             ),
-            "get_all": http_get("/get_all", summary="Get All")(
+            "get_all": http_get("/", summary="Get multiple objects")(
                 copy_func(CrudAPI.get_objs)  # type: ignore
             ),
-            "filter_objs": http_get("/filter", summary="Filter")(
+            "filter_objs": http_get("/filter/", summary="Filter")(
                 copy_func(CrudAPI.filter_objs)  # type: ignore
             ),
             "filter_exclude_objs": http_get(
-                "/filter_exclude", summary="Filter exclude"
+                "/filter_exclude/", summary="Filter exclude"
             )(
                 copy_func(CrudAPI.filter_exclude_objs)  # type: ignore
             ),
@@ -143,13 +143,13 @@ class CrudApiMetaclass(ABCMeta):
                 return await self.service.add_obj(**data.dict())
 
             async def patch_obj(  # type: ignore
-                self, request: HttpRequest, pk: int, data: DataSchema
+                self, request: HttpRequest, id: int, data: DataSchema
             ) -> Any:
                 """
-                PATCH /?pk={id}
+                PATCH /{id}
                 Update a single field for a Object
                 """
-                return await self.service.patch_obj(pk=pk, payload=data.dict())
+                return await self.service.patch_obj(id=id, payload=data.dict())
 
             DataSchema.__name__ = (
                 f"{opts_model.__name__}__AutoSchema({str(uuid.uuid4())[:4]})"
@@ -160,7 +160,7 @@ class CrudApiMetaclass(ABCMeta):
 
             base_cls_attrs.update(
                 {
-                    "patch_obj": http_patch("/", summary="Patch/Update")(
+                    "patch_obj": http_patch("/{id}", summary="Patch a single object")(
                         copy_func(CrudAPI.patch_obj)  # type: ignore
                     ),
                     "add_obj": http_put("/", summary="Create")(

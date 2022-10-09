@@ -28,7 +28,6 @@ class EasyAPI(NinjaExtraAPI):
         Easy_output: bool = True,
             If True, will be encapsulated in BaseAPIResponse
     -renderer, default to EasyJSONRenderer
-    -API docs default to docs_permission_required，only logged in Staff users can visit
     -Auto generate AdminAPIs, it will read the following settings:
         AUTO_ADMIN_ENABLED_ALL_APPS
         AUTO_ADMIN_EXCLUDE_APPS

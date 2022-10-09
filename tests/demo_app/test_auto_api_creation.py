@@ -38,7 +38,7 @@ async def test_auto_apis(transactional_db, easy_api_client):
             continue
         client = easy_api_client(controller_class)
         response = await client.get(
-            "/get_all",
+            "/",
             query=dict(
                 maximum=100,
             ),
@@ -46,7 +46,7 @@ async def test_auto_apis(transactional_db, easy_api_client):
         assert response.status_code == 200
         assert response.json()["data"] == []
 
-        response = await client.delete("/", query=dict(pk=200))
+        response = await client.delete("/20000")
         assert response.status_code == 200
         assert response.json()["code"] == 404
 

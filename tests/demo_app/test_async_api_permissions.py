@@ -20,14 +20,16 @@ class TestPermissionController:
         client = easy_api_client(PermissionAPIController)
 
         response = await client.get(
-            "/must_be_authenticated?word=authenticated", content_type="application/json"
+            "/must_be_authenticated/?word=authenticated",
+            content_type="application/json",
         )
+        print(f"{response.__dict__.items()}")
         assert response.status_code == 200
         assert response.json().get("data")["says"] == "authenticated"
 
         client = easy_api_client(PermissionAPIController)
         response = await client.get(
-            "/must_be_admin_user?word=admin",
+            "/must_be_admin_user/?word=admin",
         )
         assert response.status_code == 403
         with pytest.raises(KeyError):
@@ -35,14 +37,14 @@ class TestPermissionController:
 
         client = easy_api_client(PermissionAPIController, is_staff=True)
         response = await client.get(
-            "/must_be_admin_user?word=admin",
+            "/must_be_admin_user/?word=admin",
         )
         assert response.status_code == 200
         assert response.json().get("data")["says"] == "admin"
 
         client = easy_api_client(PermissionAPIController)
         response = await client.get(
-            "/must_be_super_user?word=superuser",
+            "/must_be_super_user/?word=superuser",
         )
         assert response.status_code == 403
         with pytest.raises(KeyError):
@@ -50,38 +52,38 @@ class TestPermissionController:
 
         client = easy_api_client(PermissionAPIController, is_superuser=True)
         response = await client.get(
-            "/must_be_super_user?word=superuser",
+            "/must_be_super_user/?word=superuser",
         )
         assert response.status_code == 200
         assert response.json().get("data")["says"] == "superuser"
 
     async def test_perm(self, transactional_db, easy_api_client):
         client = easy_api_client(PermissionAPIController)
-        response = await client.get("/test_perm", query=dict(word="normal"))
+        response = await client.get("/test_perm/", query=dict(word="normal"))
         assert response.status_code == 200
         assert response.json().get("data")["says"] == "normal"
         client = easy_api_client(PermissionAPIController, is_staff=True)
-        response = await client.get("/test_perm", query=dict(word="staff"))
+        response = await client.get("/test_perm/", query=dict(word="staff"))
         assert response.status_code == 200
         assert response.json().get("data")["says"] == "staff"
 
     async def test_perm_only_super(self, transactional_db, easy_api_client):
         client = easy_api_client(PermissionAPIController)
-        response = await client.get("/test_perm_only_super")
+        response = await client.get("/test_perm_only_super/")
         assert response.status_code == 403
         assert response.json().get("data") == {
             "detail": "You do not have permission to perform this action."
         }
 
         client = easy_api_client(PermissionAPIController)
-        response = await client.get("/test_perm_only_super")
+        response = await client.get("/test_perm_only_super/")
         assert response.status_code == 403
         assert response.json().get("data") == {
             "detail": "You do not have permission to perform this action."
         }
 
         client = easy_api_client(PermissionAPIController, is_superuser=True)
-        response = await client.get("/test_perm_only_super")
+        response = await client.get("/test_perm_only_super/")
         assert response.status_code == 200
         assert response.json().get("data")["title"] == "test_event_title"
 
@@ -89,7 +91,7 @@ class TestPermissionController:
         # None-admin users
         client = easy_api_client(PermissionAPIController)
         response = await client.get(
-            "/test_perm_admin_site", query=dict(word="non-admin")
+            "/test_perm_admin_site/", query=dict(word="non-admin")
         )
         assert response.status_code == 403
         assert response.json().get("data") == {
@@ -98,7 +100,7 @@ class TestPermissionController:
 
         # Staff users
         client = easy_api_client(PermissionAPIController, is_staff=True)
-        response = await client.get("/test_perm_admin_site", query=dict(word="staff"))
+        response = await client.get("/test_perm_admin_site/", query=dict(word="staff"))
         assert response.status_code == 200
         assert response.json()["data"]["says"] == "staff"
 
@@ -109,12 +111,12 @@ class TestPermissionController:
         object_data.update(title=f"{object_data['title']}_get")
         event = await sync_to_async(Event.objects.create)(**object_data)
         response = await client.get(
-            f"/?pk={event.id}",
+            f"/{event.id}",
         )
         assert response.status_code == 403
 
         response = await client.delete(
-            f"/?pk={event.id}",
+            f"/{event.id}",
         )
         assert response.status_code == 403
         assert response.json().get("data") == {
@@ -124,11 +126,11 @@ class TestPermissionController:
         # Super users
         client = easy_api_client(AutoGenCrudAPIController, is_superuser=True)
         await client.delete(
-            f"/?pk={event.id}",
+            f"/{event.id}",
         )
 
         response = await client.get(
-            f"/?pk={event.id}",
+            f"/{event.id}",
         )
         assert response.status_code == 200
         assert response.json().get("code") == 404
@@ -140,7 +142,7 @@ class TestPermissionController:
         event = await sync_to_async(Event.objects.create)(**object_data)
 
         response = await client.get(
-            f"/?pk={event.id}",
+            f"/{event.id}",
         )
         assert response.status_code == 403
         assert response.json().get("data") == {
@@ -150,7 +152,7 @@ class TestPermissionController:
         # Staff users
         client = easy_api_client(AutoGenCrudAPIController, is_staff=True)
         response = await client.get(
-            f"/?pk={event.id}",
+            f"/{event.id}",
         )
         assert response.json().get("data")["title"] == f"{object_data['title']}"
 
@@ -172,7 +174,7 @@ class TestPermissionController:
 
         client = easy_api_client(AdminSitePermissionAPIController)
         response = await client.patch(
-            f"/?pk={event.id}", json=new_data, content_type="application/json"
+            f"/{event.id}", json=new_data, content_type="application/json"
         )
 
         assert response.status_code == 403
@@ -183,12 +185,12 @@ class TestPermissionController:
         # Super users
         client = easy_api_client(AutoGenCrudAPIController, is_superuser=True)
         response = await client.patch(
-            f"/?pk={event.id}", json=new_data, content_type="application/json"
+            f"/{event.id}", json=new_data, content_type="application/json"
         )
         assert response.json().get("data")["pk"] == event.id
 
         response = await client.get(
-            f"/?pk={event.id}",
+            f"/{event.id}",
         )
         assert response.status_code == 200
         assert response.json().get("data")["title"] == "AsyncAPIEvent_patch"
