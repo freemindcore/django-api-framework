@@ -9,6 +9,7 @@ class TestBaseModel(models.Model):
 
 class Category(TestBaseModel):
     title = models.CharField(max_length=100)
+    status = models.PositiveSmallIntegerField(default=1, null=True)
 
 
 class Client(TestBaseModel):
@@ -20,6 +21,7 @@ class Client(TestBaseModel):
 
 class Type(TestBaseModel):
     name = models.CharField(max_length=50, null=True)
+    status = models.PositiveSmallIntegerField(default=1, null=True)
 
 
 class Event(TestBaseModel):
@@ -40,6 +42,8 @@ class Event(TestBaseModel):
     lead_owner = models.ManyToManyField(to=Client, related_name="lead_owner", null=True)
 
     type = models.ForeignKey(Type, on_delete=models.CASCADE, null=True)
+
+    sensitive_info = models.CharField(max_length=100, null=True)
 
     def __str__(self):
         return self.title

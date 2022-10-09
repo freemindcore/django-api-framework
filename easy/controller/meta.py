@@ -2,7 +2,7 @@ import json
 import logging
 import uuid
 from abc import ABCMeta
-from typing import Any, Optional, Tuple, Type, Union
+from typing import Any, List, Optional, Tuple, Type, Union
 
 from django.db import models
 from django.http import HttpRequest
@@ -26,6 +26,10 @@ class CrudAPI(CrudModel):
         else:
             self.service = service
         super().__init__(model=self.model)
+
+        # Critical to set Meta
+        if hasattr(self, "Meta"):
+            self.model.Meta = self.Meta  # type: ignore
 
     # Define Controller APIs for auto generation
     async def get_obj(self, request: HttpRequest, id: int) -> Any:
@@ -65,24 +69,6 @@ class CrudAPI(CrudModel):
             return await self.service.get_objs(maximum, **json.loads(filters))
         return await self.service.get_objs(maximum)
 
-    @paginate
-    async def filter_objs(
-        self, request: HttpRequest, filters: Union[str, bytes]
-    ) -> Any:
-        """
-        GET /filter/?filters={filters_dict}
-        Filter Objects with Django-ORM filter dict
-        """
-        return await self.service.filter_objs(**json.loads(filters))
-
-    @paginate
-    async def filter_exclude_objs(self, filters: Union[str, bytes]) -> Any:
-        """
-        GET /filter_exclude/?filters={filters_dict}
-        Filter exclude Objects with Django-ORM filter dict
-        """
-        return await self.service.filter_exclude_objs(**json.loads(filters))
-
     # async def bulk_create_objs(self, request):
     #     """
     #     POST /bulk_create
@@ -101,15 +87,18 @@ class CrudAPI(CrudModel):
 class CrudApiMetaclass(ABCMeta):
     def __new__(mcs, name: str, bases: Tuple[Type[Any], ...], attrs: dict) -> Any:
         # Get configs from Meta
-        temp_base: Type = type.__new__(type, "object", (), {})
         temp_cls: Type = super(CrudApiMetaclass, mcs).__new__(
-            mcs, name, (temp_base,), attrs
+            mcs, name, (object,), attrs
         )
         temp_opts: ModelOptions = ModelOptions(getattr(temp_cls, "Meta", None))
+        opts_model: Optional[Type[models.Model]] = temp_opts.model
         opts_fields_exclude: Optional[str] = temp_opts.model_exclude
         opts_fields: Optional[str] = temp_opts.model_fields
-        opts_model: Optional[Type[models.Model]] = temp_opts.model
         opts_recursive: Optional[bool] = temp_opts.model_recursive
+        opts_join: Optional[bool] = temp_opts.model_join
+        opts_sensitive_fields: Optional[
+            Union[str, List[str]]
+        ] = temp_opts.sensitive_fields
 
         base_cls_attrs = {
             "get_obj": http_get("/{id}", summary="Get a single object")(
@@ -120,14 +109,6 @@ class CrudApiMetaclass(ABCMeta):
             ),
             "get_all": http_get("/", summary="Get multiple objects")(
                 copy_func(CrudAPI.get_objs)  # type: ignore
-            ),
-            "filter_objs": http_get("/filter/", summary="Filter")(
-                copy_func(CrudAPI.filter_objs)  # type: ignore
-            ),
-            "filter_exclude_objs": http_get(
-                "/filter_exclude/", summary="Filter exclude"
-            )(
-                copy_func(CrudAPI.filter_exclude_objs)  # type: ignore
             ),
         }
 
@@ -143,7 +124,6 @@ class CrudApiMetaclass(ABCMeta):
                             model_fields = "__all__"
                         else:
                             model_fields = opts_fields if opts_fields else "__all__"
-                    model_recursive = opts_recursive
 
             async def add_obj(  # type: ignore
                 self, request: HttpRequest, data: DataSchema
@@ -163,7 +143,7 @@ class CrudApiMetaclass(ABCMeta):
             ) -> Any:
                 """
                 PATCH /{id}
-                Update a single field for a Object
+                Update a single object
                 """
                 if await self.service.patch_obj(id=id, payload=data.dict()):
                     return BaseApiResponse("Updated.")
@@ -195,21 +175,35 @@ class CrudApiMetaclass(ABCMeta):
             mcs, name, (new_base,), attrs
         )
 
-        new_cls.model = opts_model
-        new_cls.model_exclude = opts_fields_exclude
-        new_cls.model_fields = opts_fields
-        new_cls.model_recursive = opts_recursive
-
+        if opts_model:
+            setattr(opts_model.Meta, "model_exclude", opts_fields_exclude)
+            setattr(opts_model.Meta, "model_fields", opts_fields)
+            setattr(opts_model.Meta, "model_recursive", opts_recursive)
+            setattr(opts_model.Meta, "model_join", opts_join)
+            setattr(opts_model.Meta, "sensitive_fields", opts_sensitive_fields)
+            setattr(new_cls, "model", opts_model)
         return new_cls
 
 
 class ModelOptions:
     def __init__(self, options: object = None):
+        """
+        Configuration:
+            model:              django model
+            model_fields:       fields to be included in Schema, default to "__all__"
+            model_exclude:      fields to be excluded in Schema
+            model_join:         retrieve all m2m/FK fields, default to True
+            model_recursive:    recursively retrieve FK models, default to False
+        """
         self.model: Optional[Type[models.Model]] = getattr(options, "model", None)
         self.model_fields: Optional[Union[str]] = getattr(options, "model_fields", None)
         self.model_exclude: Optional[Union[str]] = getattr(
             options, "model_exclude", None
         )
+        self.model_join: Optional[Union[bool]] = getattr(options, "model_join", True)
         self.model_recursive: Optional[Union[bool]] = getattr(
             options, "model_recursive", False
+        )
+        self.sensitive_fields: Optional[Union[str, List[str]]] = getattr(
+            options, "sensitive_fields", ["token", "password"]
         )

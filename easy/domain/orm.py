@@ -19,6 +19,14 @@ class CrudModel(object):
             if isinstance(_field, models.ManyToManyField)
         )
 
+    # @property
+    # def model_join(self):
+    #     """If configured to retrieve m2m by join"""
+    #     if hasattr(self.model, "Meta"):
+    #         return getattr(self.model.Meta, "model_join", True)
+    #     else:
+    #         return True
+
     def _separate_payload(self, payload: Dict) -> Tuple[Dict, Dict]:
         m2m_fields = {}
         local_fields = {}
@@ -118,7 +126,7 @@ class CrudModel(object):
         return qs
 
     def _crud_filter(self, **kwargs: Any) -> QuerySet:
-        return self.model.objects.filter(**kwargs)
+        return self.model.objects.filter(**kwargs)  # pragma: no cover
 
     def _crud_filter_exclude(self, **kwargs: Any) -> QuerySet:
         return self.model.objects.all().exclude(**kwargs)

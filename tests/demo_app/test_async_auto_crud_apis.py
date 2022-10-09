@@ -7,8 +7,10 @@ from asgiref.sync import sync_to_async
 
 from tests.demo_app.controllers import (
     AutoGenCrudAPIController,
+    AutoGenCrudNoJoinAPIController,
     AutoGenCrudSomeFieldsAPIController,
     EventSchema,
+    RecursiveAPIController,
 )
 from tests.demo_app.models import Category, Client, Event, Type
 
@@ -55,6 +57,21 @@ class TestAutoCrudAdminAPI:
 
         event_schema = json.loads(EventSchema.from_orm(event).json())
         assert event_schema["start_date"] == data[0]["start_date"]
+
+        # Recursive = False
+        client = easy_api_client(RecursiveAPIController)
+        response = await client.get(
+            "/", query=dict(maximum=100, filters=json.dumps(dict(id__gte=1)))
+        )
+        assert response.status_code == 200
+
+        data = response.json().get("data")
+        assert data[0]["title"] == "AsyncAdminAPIEvent_get_all"
+        assert data[0]["type"]["id"] == type.id
+        assert data[0]["category"]["status"] == 1
+
+        # Back to AutoGenCrudAPIController
+        client = easy_api_client(AutoGenCrudAPIController)
 
         response = await client.get(
             "/",
@@ -179,12 +196,17 @@ class TestAutoCrudAdminAPI:
             name="Client F for Unit Testings", key="F"
         )
 
+        category = await sync_to_async(Category.objects.create)(
+            title="Category for Unit Testings", status=2
+        )
+
         new_data = dict(
             id=event.pk,
             title=f"{object_data['title']}_patch",
             start_date=str((datetime.now() + timedelta(days=10)).date()),
             end_date=str((datetime.now() + timedelta(days=20)).date()),
             owner=[client_e.pk, client_f.pk],
+            category=category.pk,
         )
 
         response = await client.patch(
@@ -205,48 +227,27 @@ class TestAutoCrudAdminAPI:
             f"/{event.pk}",
         )
         assert response.status_code == 200
-        assert response.json().get("data")["title"] == "AsyncAdminAPIEvent_patch"
-        assert response.json().get("data")["start_date"] == str(
-            (datetime.now() + timedelta(days=10)).date()
-        )
-        assert response.json().get("data")["end_date"] == str(
-            (datetime.now() + timedelta(days=20)).date()
-        )
+        data = response.json().get("data")
+        print("======> Auto join - data/ data owner /data lead_owner")
+        print(data)
+        assert len(data["owner"]) == 2
+        assert len(data["lead_owner"]) == 0
+        assert data["owner"][0]["name"] == "Client E for Unit Testings"
+        assert data["owner"][1]["name"] == "Client F for Unit Testings"
 
-    async def test_default_filter(self, transactional_db, easy_api_client):
-        object_data = dummy_data.copy()
-        object_data.update(title=f"{object_data['title']}_filter")
+        assert data["title"] == "AsyncAdminAPIEvent_patch"
+        assert data["start_date"] == str((datetime.now() + timedelta(days=10)).date())
+        assert data["end_date"] == str((datetime.now() + timedelta(days=20)).date())
 
-        event = await sync_to_async(Event.objects.create)(**object_data)
+        client = easy_api_client(AutoGenCrudNoJoinAPIController)
 
-        client = easy_api_client(AutoGenCrudAPIController)
-
+        # No auto join
         response = await client.get(
-            "/filter/", query=dict(filters=json.dumps(dict(id__gte=1)))
+            f"/{event.pk}",
         )
         assert response.status_code == 200
-
+        print("======> data/ data owner /data lead_owner")
         data = response.json().get("data")
-        assert data[0]["title"] == "AsyncAdminAPIEvent_filter"
-
-        event_schema = json.loads(EventSchema.from_orm(event).json())
-        assert event_schema["end_date"] == data[0]["end_date"]
-
-    async def test_crud_filter_exclude(self, transactional_db, easy_api_client):
-        object_data = dummy_data.copy()
-        object_data.update(title=f"{object_data['title']}_exclude")
-
-        event = await sync_to_async(Event.objects.create)(**object_data)
-
-        client = easy_api_client(AutoGenCrudAPIController)
-
-        response = await client.get(
-            "/filter_exclude/", query=dict(filters=json.dumps(dict(id__lt=1)))
-        )
-        assert response.status_code == 200
-
-        data = response.json().get("data")
-        assert data[0]["title"] == "AsyncAdminAPIEvent_exclude"
-
-        event_schema = json.loads(EventSchema.from_orm(event).json())
-        assert event_schema["end_date"] == data[0]["end_date"]
+        print(data)
+        print(data["owner"])
+        assert data["owner"] == [8, 9]
