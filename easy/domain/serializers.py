@@ -119,7 +119,7 @@ class DjangoSerializer(object):
             return {}
         return {field.name: getattr(obj, field.name)}
 
-    def serialize_django_native_data(self, data: Any) -> Any:
+    def serialize_data(self, data: Any) -> Any:
         out = data
         # Queryset
         if self.is_queryset(data):
@@ -131,3 +131,6 @@ class DjangoSerializer(object):
         elif self.is_paginated(data):
             out = self.serialize_queryset(data.get("items"))
         return out
+
+
+django_serializer = DjangoSerializer()
