@@ -6,7 +6,6 @@ from django.db.models.query import QuerySet
 from ninja_extra.shortcuts import get_object_or_none
 
 from easy.exception import BaseAPIException
-from easy.response import BaseApiResponse
 
 logger = logging.getLogger(__name__)
 
@@ -37,37 +36,35 @@ class CrudModel(object):
         return local_fields, m2m_fields
 
     @staticmethod
-    def _crud_set_m2m_obj(obj: models.Model, m2m_fields: Dict) -> bool:
+    def _crud_set_m2m_obj(obj: models.Model, m2m_fields: Dict) -> None:
         if obj and m2m_fields:
             for _field, _value in m2m_fields.items():
                 if _value and isinstance(_value, List):
                     m2m_f = getattr(obj, _field)
                     m2m_f.set(_value)
-        return True
 
     # Define BASE CRUD
     @transaction.atomic()
     def _crud_add_obj(self, **payload: Dict) -> Any:
         local_f_payload, m2m_f_payload = self._separate_payload(payload)
 
-        # Create obj with local_fields payload
-        obj = self.model.objects.create(**local_f_payload)
-
-        # Save obj with m2m_fields payload
-        set_m2m_status = self._crud_set_m2m_obj(obj, m2m_f_payload)
-
-        if obj and set_m2m_status:
+        try:
+            # Create obj with local_fields payload
+            obj = self.model.objects.create(**local_f_payload)
+            # Save obj with m2m_fields payload
+            self._crud_set_m2m_obj(obj, m2m_f_payload)
+        except Exception as e:  # pragma: no cover
+            raise BaseAPIException(f"Create Error - {e}")
+        if obj:
             return obj.id
-        else:
-            return None
 
-    def _crud_del_obj(self, pk: int) -> "BaseApiResponse":
+    def _crud_del_obj(self, pk: int) -> bool:
         obj = get_object_or_none(self.model, pk=pk)
         if obj:
             self.model.objects.filter(pk=pk).delete()
-            return BaseApiResponse("Deleted.", errno=204)
+            return True
         else:
-            return BaseApiResponse("Not Found.", errno=404)
+            return False
 
     @transaction.atomic()
     def _crud_update_obj(self, pk: int, payload: Dict) -> bool:
@@ -76,11 +73,10 @@ class CrudModel(object):
             return False
         try:
             obj, _ = self.model.objects.update_or_create(pk=pk, defaults=local_fields)
+            self._crud_set_m2m_obj(obj, m2m_fields)
         except Exception as e:  # pragma: no cover
             raise BaseAPIException(f"Update Error - {e}")
-
-        set_m2m_status = self._crud_set_m2m_obj(obj, m2m_fields)
-        return bool(set_m2m_status and obj)
+        return bool(obj)
 
     def _crud_get_obj(self, pk: int) -> Any:
         if self.m2m_fields_list:

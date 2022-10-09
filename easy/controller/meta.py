@@ -48,7 +48,10 @@ class CrudAPI(CrudModel):
         DELETE /{id}
         Delete a single Object
         """
-        return await self.service.del_obj(id)
+        if await self.service.del_obj(id):
+            return BaseApiResponse("Deleted.", errno=204)
+        else:
+            return BaseApiResponse("Not Found.", errno=404)
 
     @paginate
     async def get_objs(
@@ -153,7 +156,7 @@ class CrudApiMetaclass(ABCMeta):
                 if obj_id:
                     return BaseApiResponse({"id": obj_id}, errno=201)
                 else:
-                    return BaseApiResponse("Update failed", errno=204)
+                    return BaseApiResponse("Add failed", errno=204)  # pragma: no cover
 
             async def patch_obj(  # type: ignore
                 self, request: HttpRequest, id: int, data: DataSchema
