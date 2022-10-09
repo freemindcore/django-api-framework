@@ -31,6 +31,39 @@ class AutoGenCrudAPIController(CrudAPIController):
     class Meta:
         model = Event
         model_fields = "__all__"
+        model_join = True
+
+
+@api_controller("unittest", permissions=[BaseApiPermission])
+class RecursiveAPIController(AutoGenCrudAPIController):
+    """
+    For unit testings of no recursive configuration
+    """
+
+    class Meta:
+        model = Event
+        model_fields = "__all__"
+        model_join = True
+        model_recursive = True
+
+
+@api_controller("unittest", permissions=[BaseApiPermission])
+class AutoGenCrudNoJoinAPIController(CrudAPIController):
+    """
+    For unit testings of the following auto generated APIs:
+        get/create/patch/delete/filter/filter_exclude
+    """
+
+    def __init__(self, service: EventService):
+        super().__init__(service)
+        self.service = service
+
+    class Meta:
+        model = Event
+        model_fields = "__all__"
+        model_join = False
+        model_recursive = True
+        sensitive_fields = ["password", "sensitive_info"]
 
 
 @api_controller("unittest", permissions=[BaseApiPermission])

@@ -72,9 +72,9 @@ def serialize_foreign_key(
     except Exception as exc:  # pragma: no cover
         logger.error(f"serialize_foreign_key error - {obj}", exc_info=exc)
         return {field.name: None}
+    if hasattr(obj, "Meta") and getattr(obj.Meta, "model_recursive", False):
+        return {field.name: serialize_model_instance(related_instance, referrers)}
     return {field.name: field_value}
-    # TODO: recursive
-    # return {field.name: serialize_model_instance(related_instance, referrers)}
 
 
 def serialize_many_relationship(
@@ -90,8 +90,10 @@ def serialize_many_relationship(
         for k, v in obj._prefetched_objects_cache.items():  # type: ignore
             field_name = k if hasattr(obj, k) else k + "_set"
             if v:
-                # TODO: configurable recursive for m2m output
-                out[field_name] = serialize_queryset(v, referrers + (obj,))
+                if hasattr(obj, "Meta") and getattr(obj.Meta, "model_join", True):
+                    out[field_name] = serialize_queryset(v, referrers + (obj,))
+                else:
+                    out[field_name] = [o.pk for o in v]
             else:
                 out[field_name] = []
     except Exception as exc:  # pragma: no cover
@@ -101,15 +103,21 @@ def serialize_many_relationship(
 
 def serialize_value_field(obj: models.Model, field: Any) -> Dict[Any, Any]:
     """Serializes regular 'jsonable' field (Char, Int, etc.) of Django model instance"""
-    # TODO: configurable sensitive fields
-    if field.name in ["password"]:
+    sensitive_list: List = [
+        "password",
+    ]
+    if hasattr(obj, "Meta"):
+        sensitive_fields = getattr(obj.Meta, "sensitive_fields", None)
+        if sensitive_fields:
+            sensitive_list.extend(sensitive_fields)
+        sensitive_list = list(set(sensitive_list))
+    if field.name in sensitive_list:
         return {}
     return {field.name: getattr(obj, field.name)}
 
 
 def serialize_django_native_data(data: Any) -> Any:
     out = data
-    # TODO: need to protect sensitive fields
     # Queryset
     if is_queryset(data):
         out = serialize_queryset(data)
