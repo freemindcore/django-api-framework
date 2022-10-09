@@ -65,24 +65,6 @@ class CrudAPI(CrudModel):
             return await self.service.get_objs(maximum, **json.loads(filters))
         return await self.service.get_objs(maximum)
 
-    @paginate
-    async def filter_objs(
-        self, request: HttpRequest, filters: Union[str, bytes]
-    ) -> Any:
-        """
-        GET /filter/?filters={filters_dict}
-        Filter Objects with Django-ORM filter dict
-        """
-        return await self.service.filter_objs(**json.loads(filters))
-
-    @paginate
-    async def filter_exclude_objs(self, filters: Union[str, bytes]) -> Any:
-        """
-        GET /filter_exclude/?filters={filters_dict}
-        Filter exclude Objects with Django-ORM filter dict
-        """
-        return await self.service.filter_exclude_objs(**json.loads(filters))
-
     # async def bulk_create_objs(self, request):
     #     """
     #     POST /bulk_create
@@ -120,14 +102,6 @@ class CrudApiMetaclass(ABCMeta):
             ),
             "get_all": http_get("/", summary="Get multiple objects")(
                 copy_func(CrudAPI.get_objs)  # type: ignore
-            ),
-            "filter_objs": http_get("/filter/", summary="Filter")(
-                copy_func(CrudAPI.filter_objs)  # type: ignore
-            ),
-            "filter_exclude_objs": http_get(
-                "/filter_exclude/", summary="Filter exclude"
-            )(
-                copy_func(CrudAPI.filter_exclude_objs)  # type: ignore
             ),
         }
 

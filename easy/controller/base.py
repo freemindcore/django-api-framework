@@ -16,11 +16,6 @@ class CrudAPIController(ControllerBase, CrudAPI, metaclass=CrudApiMetaclass):
     PATCH /{id}     - Update fields for an Object
     DELETE /{id}    - Delete a single Object
     GET /           - Retrieve multiple Object, paginated
-    GET /filter/?filters={filters_dict}
-                        - Filter Objects with django-orm filter dict, paginated
-    GET /filter_exclude/?filters={filters_dict}
-                        - Filter exclude Objects with Django-ORM filter dict, paginated
-
     """
 
     ...
