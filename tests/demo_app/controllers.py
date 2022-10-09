@@ -51,7 +51,7 @@ class RecursiveAPIController(AutoGenCrudAPIController):
 class AutoGenCrudNoJoinAPIController(CrudAPIController):
     """
     For unit testings of the following auto generated APIs:
-        get/create/patch/delete/filter/filter_exclude
+        get/create/patch/delete
     """
 
     def __init__(self, service: EventService):
