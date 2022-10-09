@@ -12,7 +12,7 @@ from ninja.types import TCallable
 from ninja_extra import NinjaExtraAPI
 
 from easy.controller.admin_auto_api import create_admin_controller
-from easy.domain.serializers import serialize_django_native_data
+from easy.domain.serializers import DjangoSerializer
 from easy.renderer.json import EasyJSONRenderer
 from easy.response import BaseApiResponse
 
@@ -123,7 +123,8 @@ class EasyAPI(NinjaExtraAPI):
     ) -> HttpResponse:
         if self.easy_extra:
             try:
-                data = serialize_django_native_data(data)
+                serializer = DjangoSerializer()
+                data = serializer.serialize_django_native_data(data)
             except Exception as e:  # pragma: no cover
                 logger.error(f"Creat Response Error - {e}", exc_info=True)
                 return BaseApiResponse(str(e), errno=500)
