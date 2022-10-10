@@ -25,7 +25,6 @@ class AutoGenCrudAPIController(CrudAPIController):
     """
 
     def __init__(self, service: EventService):
-        super().__init__(service)
         self.service = service
 
     class Meta:
@@ -38,6 +37,7 @@ class AutoGenCrudAPIController(CrudAPIController):
 class RecursiveAPIController(AutoGenCrudAPIController):
     """
     For unit testings of no recursive configuration
+    TODO: need make class RecursiveAPIController(AutoGenCrudAPIController) work
     """
 
     class Meta:
@@ -82,7 +82,6 @@ class EasyCrudAPIController(CrudAPIController):
     """
 
     def __init__(self, service: EventService):
-        super().__init__(service)
         self.service = service
 
     class Meta:

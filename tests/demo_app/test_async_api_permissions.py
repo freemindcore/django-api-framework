@@ -124,9 +124,11 @@ class TestPermissionController:
 
         # Super users
         client = easy_api_client(AutoGenCrudAPIController, is_superuser=True)
-        await client.delete(
+        response = await client.delete(
             f"/{event.id}",
         )
+
+        assert response.status_code == 200
 
         response = await client.get(
             f"/{event.id}",
