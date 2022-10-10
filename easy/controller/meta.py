@@ -115,7 +115,19 @@ class CrudApiMetaclass(ABCMeta):
         )
         base_cls_attrs: dict = {}
         base_cls_attrs.update(parent_attrs)
-
+        base_cls_attrs.update(
+            {
+                "get_obj": http_get("/{id}", summary="Get a single object")(
+                    copy_func(CrudAPI.get_obj)  # type: ignore
+                ),
+                "del_obj": http_delete("/{id}", summary="Delete a single object")(
+                    copy_func(CrudAPI.del_obj)  # type: ignore
+                ),
+                "get_objs": http_get("/", summary="Get multiple objects")(
+                    copy_func(CrudAPI.get_objs)  # type: ignore
+                ),
+            }
+        )
         if opts_model:
 
             class DataSchema(ModelSchema):
@@ -163,30 +175,14 @@ class CrudApiMetaclass(ABCMeta):
 
             base_cls_attrs.update(
                 {
-                    "patch_obj_api": http_patch(
-                        "/{id}", summary="Patch a single object"
-                    )(
+                    "patch_obj": http_patch("/{id}", summary="Patch a single object")(
                         copy_func(CrudAPI.patch_obj)  # type: ignore
                     ),
-                    "add_obj_api": http_put("/", summary="Create")(
+                    "add_obj": http_put("/", summary="Create")(
                         copy_func(CrudAPI.add_obj)  # type: ignore
                     ),
                 }
             )
-
-        base_cls_attrs.update(
-            {
-                "get_obj_api": http_get("/{id}", summary="Get a single object")(
-                    copy_func(CrudAPI.get_obj)  # type: ignore
-                ),
-                "del_obj_api": http_delete("/{id}", summary="Delete a single object")(
-                    copy_func(CrudAPI.del_obj)  # type: ignore
-                ),
-                "get_objs_api": http_get("/", summary="Get multiple objects")(
-                    copy_func(CrudAPI.get_objs)  # type: ignore
-                ),
-            }
-        )
 
         new_cls: Type = super().__new__(
             mcs,
