@@ -9,7 +9,8 @@ if TYPE_CHECKING:
 
 class BaseApiPermission(permissions.BasePermission):
     """
-    Base permission class, only active user will have access
+    Base permission class that all Permission Class should inherit from.
+    This will call service.check_permission for extra check.
     """
 
     def has_permission(
