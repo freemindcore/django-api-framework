@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 class CrudAPIController(ControllerBase, CrudAPI, metaclass=CrudApiMetaclass):
     """
     Base APIController for auto creating CRUD APIs, configurable via Meta class
-    APIs auto genrated:
+    APIs auto generated:
         Creat
             PUT /{id}       - Create a single Object
 
