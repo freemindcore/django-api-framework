@@ -77,6 +77,8 @@ class CrudApiMetaclass(ABCMeta):
                 for base in bases
             ]
         )
+        base_cls_attrs: dict = {}
+        base_cls_attrs.update(parent_attrs)
 
         # Define Controller APIs for auto generation
         async def get_obj(self, request: HttpRequest, id: int) -> Any:  # type: ignore
@@ -115,12 +117,6 @@ class CrudApiMetaclass(ABCMeta):
             if filters:
                 return await self.service.get_objs(**json.loads(filters))
             return await self.service.get_objs()
-
-        # setattr(CrudAPI, "get_obj", classmethod(get_obj))
-        # setattr(CrudAPI, "del_obj", classmethod(del_obj))
-        # setattr(CrudAPI, "get_objs", classmethod(get_objs))
-
-        base_cls_attrs = {}
 
         if opts_model:
 
@@ -163,9 +159,6 @@ class CrudApiMetaclass(ABCMeta):
             DataSchema.__name__ = (
                 f"{opts_model.__name__}__AutoSchema({str(uuid.uuid4())[:4]})"
             )
-
-            # setattr(CrudAPI, "add_obj", classmethod(add_obj))
-            # setattr(CrudAPI, "patch_obj", classmethod(patch_obj))
 
             base_cls_attrs.update(
                 {
