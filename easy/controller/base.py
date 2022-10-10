@@ -1,13 +1,11 @@
 import logging
 
-from ninja_extra import ControllerBase
-
 from easy.controller.meta import CrudAPI, CrudApiMetaclass
 
 logger = logging.getLogger(__name__)
 
 
-class CrudAPIController(ControllerBase, CrudAPI, metaclass=CrudApiMetaclass):
+class CrudAPIController(CrudAPI, metaclass=CrudApiMetaclass):
     """
     Base APIController for auto creating CRUD APIs, configurable via Meta class
     APIs auto generated:

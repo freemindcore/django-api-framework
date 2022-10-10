@@ -18,6 +18,12 @@ from easy.utils import copy_func
 logger = logging.getLogger(__name__)
 
 
+class APIControllerBase(ControllerBase):
+    """Reserved for customization"""
+
+    ...
+
+
 class CrudAPI(CrudModel):
     # Never add type note to service, it will cause injection error
     def __init__(self, service=None):  # type: ignore
@@ -80,6 +86,7 @@ class CrudAPI(CrudModel):
     #     Recover one Object
     #     """
     #     return await self.service.recover_obj()
+    #
 
 
 class CrudApiMetaclass(ABCMeta):
@@ -167,7 +174,7 @@ class CrudApiMetaclass(ABCMeta):
             )
 
         new_base: Type = type.__new__(
-            type, name, (ControllerBase, CrudAPI), base_cls_attrs
+            type, name, (APIControllerBase, CrudAPI), base_cls_attrs
         )
         new_cls: Type = super(CrudApiMetaclass, mcs).__new__(
             mcs, name, (new_base,), attrs
