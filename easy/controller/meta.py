@@ -29,30 +29,28 @@ class APIControllerBase(ControllerBase):
 class CrudAPI(CrudModel):
     # Never add type note to service, it will cause injection error
     def __init__(self, service=None):  # type: ignore
+        # Critical to set __Meta
+        self.service = service
+        if self.service:
+            self.model = self.service.model
+        _meta = getattr(self, "Meta", None)
+        if self.model and _meta:
+            setattr(
+                self.model,
+                "__Meta",
+                {
+                    "model_exclude": getattr(_meta, "model_exclude", None),
+                    "model_fields": getattr(_meta, "model_fields", "__all__"),
+                    "model_recursive": getattr(_meta, "model_recursive", False),
+                    "model_join": getattr(_meta, "model_join", True),
+                    "sensitive_fields": getattr(
+                        _meta, "model_sensitive_fields", ["password", "token"]
+                    ),
+                },
+            )
         if not service:
             self.service = BaseService(model=self.model)
-        else:
-            self.service = service
         super().__init__(model=self.model)
-
-        # Critical to set Meta
-        if hasattr(self, "Meta"):
-            self.model.Meta = self.Meta  # type: ignore
-
-    # async def bulk_create_objs(self, request):
-    #     """
-    #     POST /bulk_create
-    #     Create multiple Object
-    #     """
-    #     return await self.service.bulk_create_objs()
-    #
-    # async def recover_obj(self, request):
-    #     """
-    #     PATCH /{id}/recover
-    #     Recover one Object
-    #     """
-    #     return await self.service.recover_obj()
-    #
 
 
 class CrudApiMetaclass(ABCMeta):
@@ -208,12 +206,17 @@ class CrudApiMetaclass(ABCMeta):
         )
 
         if opts_model:
-            if hasattr(opts_model, "Meta"):
-                setattr(opts_model.Meta, "model_exclude", opts_fields_exclude)
-                setattr(opts_model.Meta, "model_fields", opts_fields)
-                setattr(opts_model.Meta, "model_recursive", opts_recursive)
-                setattr(opts_model.Meta, "model_join", opts_join)
-                setattr(opts_model.Meta, "sensitive_fields", opts_sensitive_fields)
+            setattr(
+                opts_model,
+                "__Meta",
+                {
+                    "model_exclude": opts_fields_exclude,
+                    "model_fields": opts_fields,
+                    "model_recursive": opts_recursive,
+                    "model_join": opts_join,
+                    "sensitive_fields": opts_sensitive_fields,
+                },
+            )
             setattr(new_cls, "model", opts_model)
 
         return new_cls

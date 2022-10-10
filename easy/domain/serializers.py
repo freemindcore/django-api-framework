@@ -73,7 +73,9 @@ class DjangoSerializer(object):
         except Exception as exc:  # pragma: no cover
             logger.error(f"serialize_foreign_key error - {obj}", exc_info=exc)
             return {field.name: None}
-        if hasattr(obj, "Meta") and getattr(obj.Meta, "model_recursive", False):
+        if hasattr(obj, "__Meta") and getattr(obj, "__Meta").get(
+            "model_recursive", False
+        ):
             return {
                 field.name: self.serialize_model_instance(related_instance, referrers)
             }
@@ -92,7 +94,9 @@ class DjangoSerializer(object):
             for k, v in obj._prefetched_objects_cache.items():  # type: ignore
                 field_name = k if hasattr(obj, k) else k + "_set"
                 if v:
-                    if hasattr(obj, "Meta") and getattr(obj.Meta, "model_join", True):
+                    if hasattr(obj, "__Meta") and getattr(obj, "__Meta").get(
+                        "model_join", True
+                    ):
                         out[field_name] = self.serialize_queryset(v, referrers + (obj,))
                     else:
                         out[field_name] = [o.pk for o in v]
@@ -110,8 +114,8 @@ class DjangoSerializer(object):
         sensitive_list: List = [
             "password",
         ]
-        if hasattr(obj, "Meta"):
-            sensitive_fields = getattr(obj.Meta, "sensitive_fields", None)
+        if hasattr(obj, "__Meta"):
+            sensitive_fields = getattr(obj, "__Meta").get("sensitive_fields", None)
             if sensitive_fields:
                 sensitive_list.extend(sensitive_fields)
             sensitive_list = list(set(sensitive_list))
