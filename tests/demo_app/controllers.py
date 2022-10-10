@@ -50,8 +50,7 @@ class RecursiveAPIController(AutoGenCrudAPIController):
 @api_controller("unittest", permissions=[BaseApiPermission])
 class AutoGenCrudNoJoinAPIController(CrudAPIController):
     """
-    For unit testings of the following auto generated APIs:
-        get/create/patch/delete
+    For unit testings of mo model_join and sensitive_fields configuration
     """
 
     def __init__(self, service: EventService):
@@ -122,6 +121,10 @@ class EasyCrudAPIController(CrudAPIController):
 
 @api_controller("unittest")
 class PermissionAPIController(CrudAPIController):
+    """
+    For unit testings of permissions class
+    """
+
     def __init__(self, service: EventService):
         super().__init__(service)
         self.service = service
