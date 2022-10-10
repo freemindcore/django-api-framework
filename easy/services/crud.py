@@ -17,8 +17,8 @@ class CrudService(CrudModel):
     async def get_obj(self, id: int) -> Any:
         return await sync_to_async(self._crud_get_obj)(id)
 
-    async def get_objs(self, maximum: int = None, **filters: Any) -> Any:
-        return await sync_to_async(self._crud_get_objs_all)(maximum, **filters)
+    async def get_objs(self, **filters: Any) -> Any:
+        return await sync_to_async(self._crud_get_objs_all)(**filters)
 
     async def patch_obj(self, id: int, payload: Any) -> Any:
         return await sync_to_async(self._crud_update_obj)(id, payload)

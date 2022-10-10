@@ -98,7 +98,7 @@ class CrudModel(object):
         if qs:
             return qs.first()
 
-    def _crud_get_objs_all(self, maximum: int = None, **filters: Any) -> Any:
+    def _crud_get_objs_all(self, **filters: Any) -> Any:
         """
         CRUD: get maximum amount of records, with filters support
         Args:
@@ -114,8 +114,6 @@ class CrudModel(object):
                 qs = self.model.objects.filter(**filters)
             except Exception as e:  # pragma: no cover
                 logger.error(e)
-        elif maximum:
-            qs = self.model.objects.all()[:maximum]
         else:
             qs = self.model.objects.all()
         # If there are 2m2_fields
