@@ -11,10 +11,6 @@ from easy.permissions import AdminSitePermission, BaseApiPermission
 logger = logging.getLogger(__name__)
 
 
-class ApiControllerBase(object):
-    auto_import = True
-
-
 def create_api_controller(
     model: models.Model,
     app_name: str,
@@ -40,10 +36,7 @@ def create_api_controller(
     auto_cls = type.__new__(
         type,
         class_name,
-        (
-            CrudAPIController,
-            ApiControllerBase,
-        ),
+        (CrudAPIController,),
         {
             "Meta": Meta,
         },
