@@ -23,7 +23,7 @@ class EventService(BaseService):
 
     async def get_event_objs_demo(self):
         """Demo API for unit testing"""
-        return await self.get_objs(maximum=10)
+        return await self.get_objs()
 
     async def get_identity_demo(self, word):
         """Demo API for unit testing"""

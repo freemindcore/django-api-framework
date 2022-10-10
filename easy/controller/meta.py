@@ -58,16 +58,14 @@ class CrudAPI(CrudModel):
             return BaseApiResponse("Not Found.", errno=404)
 
     @paginate
-    async def get_objs(
-        self, request: HttpRequest, maximum: int = None, filters: str = None
-    ) -> Any:
+    async def get_objs(self, request: HttpRequest, filters: str = None) -> Any:
         """
         GET /?maximum={int}&filters={filters_dict}
         Retrieve multiple Object (optional: maximum # and filters)
         """
         if filters:
-            return await self.service.get_objs(maximum, **json.loads(filters))
-        return await self.service.get_objs(maximum)
+            return await self.service.get_objs(**json.loads(filters))
+        return await self.service.get_objs()
 
     # async def bulk_create_objs(self, request):
     #     """
