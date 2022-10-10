@@ -26,7 +26,6 @@ class AutoGenCrudAPIController(CrudAPIController):
 
     def __init__(self, service: EventService):
         super().__init__(service)
-        self.service = service
 
     class Meta:
         model = Event
@@ -35,10 +34,29 @@ class AutoGenCrudAPIController(CrudAPIController):
 
 
 @api_controller("unittest", permissions=[BaseApiPermission])
-class RecursiveAPIController(AutoGenCrudAPIController):
+class RecursiveAPIController(CrudAPIController):
     """
     For unit testings of no recursive configuration
     """
+
+    def __init__(self, service: EventService):
+        super().__init__(service)
+
+    class Meta:
+        model = Event
+        model_fields = "__all__"
+        model_join = True
+        model_recursive = True
+
+
+@api_controller("unittest", permissions=[BaseApiPermission])
+class InheritedRecursiveAPIController(AutoGenCrudAPIController):
+    """
+    For unit testings of no recursive configuration
+    """
+
+    def __init__(self, service: EventService):
+        super().__init__(service)
 
     class Meta:
         model = Event
@@ -55,7 +73,6 @@ class AutoGenCrudNoJoinAPIController(CrudAPIController):
 
     def __init__(self, service: EventService):
         super().__init__(service)
-        self.service = service
 
     class Meta:
         model = Event
@@ -83,7 +100,6 @@ class EasyCrudAPIController(CrudAPIController):
 
     def __init__(self, service: EventService):
         super().__init__(service)
-        self.service = service
 
     class Meta:
         model = Event

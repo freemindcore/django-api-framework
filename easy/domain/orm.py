@@ -19,14 +19,6 @@ class CrudModel(object):
             if isinstance(_field, models.ManyToManyField)
         )
 
-    # @property
-    # def model_join(self):
-    #     """If configured to retrieve m2m by join"""
-    #     if hasattr(self.model, "Meta"):
-    #         return getattr(self.model.Meta, "model_join", True)
-    #     else:
-    #         return True
-
     def _separate_payload(self, payload: Dict) -> Tuple[Dict, Dict]:
         m2m_fields = {}
         local_fields = {}

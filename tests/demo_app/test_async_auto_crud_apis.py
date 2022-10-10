@@ -10,6 +10,7 @@ from tests.demo_app.controllers import (
     AutoGenCrudNoJoinAPIController,
     AutoGenCrudSomeFieldsAPIController,
     EventSchema,
+    InheritedRecursiveAPIController,
     RecursiveAPIController,
 )
 from tests.demo_app.models import Category, Client, Event, Type
@@ -58,7 +59,7 @@ class TestAutoCrudAdminAPI:
         event_schema = json.loads(EventSchema.from_orm(event).json())
         assert event_schema["start_date"] == data[0]["start_date"]
 
-        # Recursive = False
+        # Recursive = True
         client = easy_api_client(RecursiveAPIController)
         response = await client.get(
             "/", query=dict(maximum=100, filters=json.dumps(dict(id__gte=1)))
@@ -67,6 +68,20 @@ class TestAutoCrudAdminAPI:
 
         data = response.json().get("data")
         assert data[0]["title"] == "AsyncAdminAPIEvent_get_all"
+
+        assert data[0]["type"]["id"] == type.id
+        assert data[0]["category"]["status"] == 1
+
+        # Recursive = True, inherited class
+        client = easy_api_client(InheritedRecursiveAPIController)
+        response = await client.get(
+            "/", query=dict(maximum=100, filters=json.dumps(dict(id__gte=1)))
+        )
+        assert response.status_code == 200
+
+        data = response.json().get("data")
+        assert data[0]["title"] == "AsyncAdminAPIEvent_get_all"
+
         assert data[0]["type"]["id"] == type.id
         assert data[0]["category"]["status"] == 1
 
@@ -155,6 +170,7 @@ class TestAutoCrudAdminAPI:
         response = await client.get(
             f"/{event_id}",
         )
+
         assert response.status_code == 200
         assert response.json().get("data")["title"] == "AsyncAdminAPIEvent_create"
 

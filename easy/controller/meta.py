@@ -1,8 +1,10 @@
 import json
 import logging
+import re
 import uuid
 from abc import ABCMeta
-from typing import Any, List, Optional, Tuple, Type, Union
+from collections import ChainMap
+from typing import Any, List, Match, Optional, Tuple, Type, Union
 
 from django.db import models
 from django.http import HttpRequest
@@ -27,15 +29,28 @@ class APIControllerBase(ControllerBase):
 class CrudAPI(CrudModel):
     # Never add type note to service, it will cause injection error
     def __init__(self, service=None):  # type: ignore
+        # Critical to set __Meta
+        self.service = service
+        if self.service:
+            self.model = self.service.model
+        _meta = getattr(self, "Meta", None)
+        if self.model and _meta:
+            setattr(
+                self.model,
+                "__Meta",
+                {
+                    "model_exclude": getattr(_meta, "model_exclude", None),
+                    "model_fields": getattr(_meta, "model_fields", "__all__"),
+                    "model_recursive": getattr(_meta, "model_recursive", False),
+                    "model_join": getattr(_meta, "model_join", True),
+                    "sensitive_fields": getattr(
+                        _meta, "model_sensitive_fields", ["password", "token"]
+                    ),
+                },
+            )
         if not service:
             self.service = BaseService(model=self.model)
-        else:
-            self.service = service
         super().__init__(model=self.model)
-
-        # Critical to set Meta
-        if hasattr(self, "Meta"):
-            self.model.Meta = self.Meta  # type: ignore
 
     # Define Controller APIs for auto generation
     async def get_obj(self, request: HttpRequest, id: int) -> Any:
@@ -73,28 +88,11 @@ class CrudAPI(CrudModel):
             return await self.service.get_objs(**json.loads(filters))
         return await self.service.get_objs()
 
-    # async def bulk_create_objs(self, request):
-    #     """
-    #     POST /bulk_create
-    #     Create multiple Object
-    #     """
-    #     return await self.service.bulk_create_objs()
-    #
-    # async def recover_obj(self, request):
-    #     """
-    #     PATCH /{id}/recover
-    #     Recover one Object
-    #     """
-    #     return await self.service.recover_obj()
-    #
-
 
 class CrudApiMetaclass(ABCMeta):
     def __new__(mcs, name: str, bases: Tuple[Type[Any], ...], attrs: dict) -> Any:
         # Get configs from Meta
-        temp_cls: Type = super(CrudApiMetaclass, mcs).__new__(
-            mcs, name, (object,), attrs
-        )
+        temp_cls: Type = super().__new__(mcs, name, (object,), attrs)
         temp_opts: ModelOptions = ModelOptions(getattr(temp_cls, "Meta", None))
         opts_model: Optional[Type[models.Model]] = temp_opts.model
         opts_fields_exclude: Optional[str] = temp_opts.model_exclude
@@ -105,17 +103,18 @@ class CrudApiMetaclass(ABCMeta):
             Union[str, List[str]]
         ] = temp_opts.sensitive_fields
 
-        base_cls_attrs = {
-            "get_obj": http_get("/{id}", summary="Get a single object")(
-                copy_func(CrudAPI.get_obj)  # type: ignore
-            ),
-            "del_obj": http_delete("/{id}", summary="Delete a single object")(
-                copy_func(CrudAPI.del_obj)  # type: ignore
-            ),
-            "get_all": http_get("/", summary="Get multiple objects")(
-                copy_func(CrudAPI.get_objs)  # type: ignore
-            ),
-        }
+        def is_private_attrs(attr_name: str) -> Optional[Match[str]]:
+            return re.match(r"^__[^\d\W]\w*\Z__$", attr_name, re.UNICODE)
+
+        parent_attrs = ChainMap(
+            *[attrs]
+            + [
+                {k: v for (k, v) in vars(base).items() if not (is_private_attrs(k))}
+                for base in bases
+            ]
+        )
+        base_cls_attrs: dict = {}
+        base_cls_attrs.update(parent_attrs)
 
         if opts_model:
 
@@ -159,35 +158,60 @@ class CrudApiMetaclass(ABCMeta):
                 f"{opts_model.__name__}__AutoSchema({str(uuid.uuid4())[:4]})"
             )
 
-            setattr(CrudAPI, "add_obj", classmethod(add_obj))
-            setattr(CrudAPI, "patch_obj", classmethod(patch_obj))
+            setattr(CrudAPI, "patch_obj", patch_obj)
+            setattr(CrudAPI, "add_obj", add_obj)
 
             base_cls_attrs.update(
                 {
-                    "patch_obj": http_patch("/{id}", summary="Patch a single object")(
+                    "patch_obj_api": http_patch(
+                        "/{id}", summary="Patch a single object"
+                    )(
                         copy_func(CrudAPI.patch_obj)  # type: ignore
                     ),
-                    "add_obj": http_put("/", summary="Create")(
+                    "add_obj_api": http_put("/", summary="Create")(
                         copy_func(CrudAPI.add_obj)  # type: ignore
                     ),
                 }
             )
 
-        new_base: Type = type.__new__(
-            type, name, (APIControllerBase, CrudAPI), base_cls_attrs
+        base_cls_attrs.update(
+            {
+                "get_obj_api": http_get("/{id}", summary="Get a single object")(
+                    copy_func(CrudAPI.get_obj)  # type: ignore
+                ),
+                "del_obj_api": http_delete("/{id}", summary="Delete a single object")(
+                    copy_func(CrudAPI.del_obj)  # type: ignore
+                ),
+                "get_objs_api": http_get("/", summary="Get multiple objects")(
+                    copy_func(CrudAPI.get_objs)  # type: ignore
+                ),
+            }
         )
-        new_cls: Type = super(CrudApiMetaclass, mcs).__new__(
-            mcs, name, (new_base,), attrs
+
+        new_cls: Type = super().__new__(
+            mcs,
+            name,
+            (
+                APIControllerBase,
+                CrudAPI,
+            ),
+            base_cls_attrs,
         )
 
         if opts_model:
-            if hasattr(opts_model, "Meta"):
-                setattr(opts_model.Meta, "model_exclude", opts_fields_exclude)
-                setattr(opts_model.Meta, "model_fields", opts_fields)
-                setattr(opts_model.Meta, "model_recursive", opts_recursive)
-                setattr(opts_model.Meta, "model_join", opts_join)
-                setattr(opts_model.Meta, "sensitive_fields", opts_sensitive_fields)
+            setattr(
+                opts_model,
+                "__Meta",
+                {
+                    "model_exclude": opts_fields_exclude,
+                    "model_fields": opts_fields,
+                    "model_recursive": opts_recursive,
+                    "model_join": opts_join,
+                    "sensitive_fields": opts_sensitive_fields,
+                },
+            )
             setattr(new_cls, "model", opts_model)
+
         return new_cls
 
 
