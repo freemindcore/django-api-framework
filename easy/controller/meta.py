@@ -101,8 +101,14 @@ class CrudApiMetaclass(ABCMeta):
         ] = temp_opts.sensitive_fields
 
         base_cls_attrs = {
+            "get_obj": http_get("/{id}", summary="Get a single object")(
+                copy_func(CrudAPI.get_obj)  # type: ignore
+            ),
             "del_obj": http_delete("/{id}", summary="Delete a single object")(
                 copy_func(CrudAPI.del_obj)  # type: ignore
+            ),
+            "get_all": http_get("/", summary="Get multiple objects")(
+                copy_func(CrudAPI.get_objs)  # type: ignore
             ),
         }
 
@@ -158,16 +164,6 @@ class CrudApiMetaclass(ABCMeta):
                     ),
                     "add_obj": http_put("/", summary="Create")(
                         copy_func(CrudAPI.add_obj)  # type: ignore
-                    ),
-                    "get_obj": http_get(
-                        "/{id}", response=DataSchema, summary="Get a single object"
-                    )(
-                        copy_func(CrudAPI.get_obj)  # type: ignore
-                    ),
-                    "get_all": http_get(
-                        "/", response=DataSchema, summary="Get multiple objects"
-                    )(
-                        copy_func(CrudAPI.get_objs)  # type: ignore
                     ),
                 }
             )
