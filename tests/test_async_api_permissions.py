@@ -98,7 +98,7 @@ class TestPermissionController:
         }
 
         # Staff users
-        client = easy_api_client(PermissionAPIController, is_staff=True)
+        client = easy_api_client(PermissionAPIController, is_staff=True, has_perm=True)
         response = await client.get("/test_perm_admin_site/", query=dict(word="staff"))
         assert response.status_code == 200
         assert response.json()["data"]["says"] == "staff"
