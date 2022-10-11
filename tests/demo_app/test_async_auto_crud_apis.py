@@ -190,9 +190,7 @@ class TestAutoCrudAdminAPI:
         response = await client.get(
             f"/{client_type.id}",
         )
-        from pprint import pprint
 
-        pprint(vars(response))
         assert response.status_code == 200
         assert response.json()["data"]["key"] == "Type"
         with pytest.raises(KeyError):

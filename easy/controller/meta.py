@@ -40,6 +40,7 @@ class CrudAPI(CrudModel):
                 "__Meta",
                 {
                     "generate_crud": getattr(_meta, "generate_crud", True),
+                    "model_exclude": getattr(_meta, "model_exclude", None),
                     "model_fields": getattr(_meta, "model_fields", "__all__"),
                     "model_recursive": getattr(_meta, "model_recursive", False),
                     "model_join": getattr(_meta, "model_join", True),
@@ -242,7 +243,9 @@ class ModelOptions:
         self.model_exclude: Optional[Union[str]] = getattr(
             options, "model_exclude", None
         )
-        self.model_fields: Optional[Union[str]] = getattr(options, "model_fields", None)
+        self.model_fields: Optional[Union[str]] = getattr(
+            options, "model_fields", "__all__"
+        )
         self.model_join: Optional[Union[bool]] = getattr(options, "model_join", True)
         self.model_recursive: Optional[Union[bool]] = getattr(
             options, "model_recursive", False

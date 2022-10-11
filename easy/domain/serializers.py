@@ -61,8 +61,6 @@ class DjangoSerializer(object):
         self, obj: models.Model, field: Any, referrers: Any = tuple()
     ) -> Dict[Any, Any]:
         """Serializes foreign key field of Django model instance"""
-        if not self.show_field(obj, field.name):
-            return {}
         try:
             if not hasattr(obj, field.name):
                 return {field.name: None}  # pragma: no cover
@@ -75,9 +73,8 @@ class DjangoSerializer(object):
         except Exception as exc:  # pragma: no cover
             logger.error(f"serialize_foreign_key error - {obj}", exc_info=exc)
             return {field.name: None}
-        if hasattr(obj, "__Meta") and getattr(obj, "__Meta").get(
-            "model_recursive", False
-        ):
+
+        if self.get_configuration(obj, "model_recursive", default=False):
             return {
                 field.name: self.serialize_model_instance(related_instance, referrers)
             }
@@ -96,9 +93,7 @@ class DjangoSerializer(object):
             for k, v in obj._prefetched_objects_cache.items():  # type: ignore
                 field_name = k if hasattr(obj, k) else k + "_set"
                 if v:
-                    if hasattr(obj, "__Meta") and getattr(obj, "__Meta").get(
-                        "model_join", True
-                    ):
+                    if self.get_configuration(obj, "model_join", default=True):
                         out[field_name] = self.serialize_queryset(v, referrers + (obj,))
                     else:
                         out[field_name] = [o.pk for o in v]
@@ -109,16 +104,14 @@ class DjangoSerializer(object):
         return out
 
     @staticmethod
-    def get_configuration(obj: models.Model, _name: str) -> Any:
-        _value = None
+    def get_configuration(obj: models.Model, _name: str, default: Any = None) -> Any:
+        _value = default if default else None
         if hasattr(obj, "__Meta"):
             _value = getattr(obj, "__Meta").get(_name, None)
         return _value
 
     def get_model_fields_list(self, obj: models.Model) -> Any:
         model_fields = self.get_configuration(obj, "model_fields")
-        if not model_fields:
-            model_fields = "__all__"
         return model_fields
 
     def get_model_exclude_list(self, obj: models.Model) -> Any:

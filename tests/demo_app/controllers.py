@@ -29,7 +29,6 @@ class AutoGenCrudAPIController(CrudAPIController):
 
     class Meta:
         model = Event
-        model_fields = "__all__"
         model_join = True
 
 
