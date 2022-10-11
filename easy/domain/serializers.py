@@ -41,14 +41,19 @@ class DjangoSerializer(object):
         """Serializes Django model instance to dictionary"""
         out = {}
         for field in obj._meta.get_fields():
-            if self.is_one_relationship(field) and self.show_field(obj, field.name):
-                out.update(self.serialize_foreign_key(obj, field, referrers + (obj,)))
+            if self.show_field(obj, field.name):
+                if self.is_one_relationship(field):
+                    out.update(
+                        self.serialize_foreign_key(obj, field, referrers + (obj,))
+                    )
 
-            elif self.is_many_relationship(field) and self.show_field(obj, field.name):
-                out.update(self.serialize_many_relationship(obj, referrers + (obj,)))
+                elif self.is_many_relationship(field):
+                    out.update(
+                        self.serialize_many_relationship(obj, referrers + (obj,))
+                    )
 
-            else:
-                out.update(self.serialize_value_field(obj, field))
+                else:
+                    out.update(self.serialize_value_field(obj, field))
         return out
 
     def serialize_queryset(
@@ -157,8 +162,6 @@ class DjangoSerializer(object):
         """
         Serializes regular 'jsonable' field (Char, Int, etc.) of Django model instance
         """
-        if not self.show_field(obj, field.name):
-            return {}
         return {field.name: getattr(obj, field.name)}
 
     def serialize_data(self, data: Any) -> Any:
