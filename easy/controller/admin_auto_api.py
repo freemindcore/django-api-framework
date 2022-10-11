@@ -24,6 +24,7 @@ def create_api_controller(
         (object,),
         {
             "model": model,
+            "generate_crud": True,
             "model_fields": "__all__",
             "model_recursive": False,
             "model_join": True,

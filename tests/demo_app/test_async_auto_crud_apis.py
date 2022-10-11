@@ -90,9 +90,6 @@ class TestAutoCrudAdminAPI:
 
         response = await client.get(
             "/",
-            query=dict(
-                maximum=100,
-            ),
         )
         assert response.status_code == 200
 
@@ -179,18 +176,28 @@ class TestAutoCrudAdminAPI:
     ):
         client = easy_api_client(AutoGenCrudSomeFieldsAPIController)
 
+        category = await sync_to_async(Category.objects.create)(
+            title="Category for Unit Testings"
+        )
+
         client_type = await sync_to_async(Client.objects.create)(
             name="Client for Unit Testings",
             key="Type",
-            category=None,
+            category=category,
             password="DUMMY_PASSWORD",
         )
 
         response = await client.get(
             f"/{client_type.id}",
         )
+        from pprint import pprint
+
+        pprint(vars(response))
         assert response.status_code == 200
         assert response.json()["data"]["key"] == "Type"
+        with pytest.raises(KeyError):
+            print(response.json()["data"]["password"])
+            print(response.json()["data"]["category"])
 
     async def test_crud_default_patch(self, transactional_db, easy_api_client):
         client = easy_api_client(AutoGenCrudAPIController)
@@ -244,7 +251,9 @@ class TestAutoCrudAdminAPI:
         )
         assert response.status_code == 200
         data = response.json().get("data")
+        from pprint import pprint
 
+        pprint(vars(response))
         assert len(data["owner"]) == 2
         assert len(data["lead_owner"]) == 0
         assert data["owner"][0]["name"] == "Client E for Unit Testings"

@@ -41,10 +41,10 @@ class DjangoSerializer(object):
         """Serializes Django model instance to dictionary"""
         out = {}
         for field in obj._meta.get_fields():
-            if self.is_one_relationship(field):
+            if self.is_one_relationship(field) and self.show_field(obj, field.name):
                 out.update(self.serialize_foreign_key(obj, field, referrers + (obj,)))
 
-            elif self.is_many_relationship(field):
+            elif self.is_many_relationship(field) and self.show_field(obj, field.name):
                 out.update(self.serialize_many_relationship(obj, referrers + (obj,)))
 
             else:
@@ -61,6 +61,8 @@ class DjangoSerializer(object):
         self, obj: models.Model, field: Any, referrers: Any = tuple()
     ) -> Dict[Any, Any]:
         """Serializes foreign key field of Django model instance"""
+        if not self.show_field(obj, field.name):
+            return {}
         try:
             if not hasattr(obj, field.name):
                 return {field.name: None}  # pragma: no cover
@@ -107,19 +109,62 @@ class DjangoSerializer(object):
         return out
 
     @staticmethod
-    def serialize_value_field(obj: models.Model, field: Any) -> Dict[Any, Any]:
+    def get_configuration(obj: models.Model, _name: str) -> Any:
+        _value = None
+        if hasattr(obj, "__Meta"):
+            _value = getattr(obj, "__Meta").get(_name, None)
+        return _value
+
+    def get_model_fields_list(self, obj: models.Model) -> Any:
+        model_fields = self.get_configuration(obj, "model_fields")
+        if not model_fields:
+            model_fields = "__all__"
+        return model_fields
+
+    def get_model_exclude_list(self, obj: models.Model) -> Any:
+        return self.get_configuration(obj, "model_exclude")
+
+    def get_sensitive_list(self, obj: models.Model) -> Any:
+        return self.get_configuration(obj, "sensitive_fields")
+
+    def get_final_excluded_list(self, obj: models.Model) -> Any:
+        total_excluded_list = []
+        sensitive_list: List = ["password", "token"]
+        excluded_list = []
+
+        sensitive_fields = self.get_sensitive_list(obj)
+        if sensitive_fields:
+            sensitive_list.extend(sensitive_fields)
+        sensitive_list = list(set(sensitive_list))
+
+        excluded_fields = self.get_model_exclude_list(obj)
+        if excluded_fields:
+            excluded_list.extend(excluded_fields)
+        excluded_list = list(set(excluded_list))
+
+        total_excluded_list.extend(sensitive_list)
+        total_excluded_list.extend(excluded_list)
+        return list(set(total_excluded_list))
+
+    def show_field(self, obj: models.Model, field_name: str) -> bool:
+        model_exclude_list = self.get_model_exclude_list(obj)
+        if model_exclude_list:
+            if field_name in self.get_final_excluded_list(obj):
+                return False
+        else:
+            if field_name in self.get_final_excluded_list(obj):
+                return False
+            model_fields_list = self.get_model_fields_list(obj)
+            if model_fields_list != "__all__":
+                if field_name not in model_fields_list:
+                    return False
+        return True
+
+    def serialize_value_field(self, obj: models.Model, field: Any) -> Dict[Any, Any]:
         """
         Serializes regular 'jsonable' field (Char, Int, etc.) of Django model instance
         """
-        sensitive_list: List = [
-            "password",
-        ]
-        if hasattr(obj, "__Meta"):
-            sensitive_fields = getattr(obj, "__Meta").get("sensitive_fields", None)
-            if sensitive_fields:
-                sensitive_list.extend(sensitive_fields)
-            sensitive_list = list(set(sensitive_list))
-        if field.name in sensitive_list:
+        if not self.show_field(obj, field.name):
             return {}
         return {field.name: getattr(obj, field.name)}
 

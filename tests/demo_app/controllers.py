@@ -90,6 +90,10 @@ class AutoGenCrudSomeFieldsAPIController(CrudAPIController):
 
     class Meta:
         model = Client
+        model_fields = [
+            "key",
+            "name",
+        ]
 
 
 @api_controller("unittest")

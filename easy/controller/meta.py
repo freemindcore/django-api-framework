@@ -39,7 +39,7 @@ class CrudAPI(CrudModel):
                 self.model,
                 "__Meta",
                 {
-                    "model_exclude": getattr(_meta, "model_exclude", None),
+                    "generate_crud": getattr(_meta, "generate_crud", True),
                     "model_fields": getattr(_meta, "model_fields", "__all__"),
                     "model_recursive": getattr(_meta, "model_recursive", False),
                     "model_join": getattr(_meta, "model_join", True),
@@ -95,6 +95,7 @@ class CrudApiMetaclass(ABCMeta):
         temp_cls: Type = super().__new__(mcs, name, (object,), attrs)
         temp_opts: ModelOptions = ModelOptions(getattr(temp_cls, "Meta", None))
         opts_model: Optional[Type[models.Model]] = temp_opts.model
+        opts_generate_crud: Optional[bool] = temp_opts.generate_crud
         opts_fields_exclude: Optional[str] = temp_opts.model_exclude
         opts_fields: Optional[str] = temp_opts.model_fields
         opts_recursive: Optional[bool] = temp_opts.model_recursive
@@ -115,20 +116,21 @@ class CrudApiMetaclass(ABCMeta):
         )
         base_cls_attrs: dict = {}
         base_cls_attrs.update(parent_attrs)
-        base_cls_attrs.update(
-            {
-                "get_obj": http_get("/{id}", summary="Get a single object")(
-                    copy_func(CrudAPI.get_obj)  # type: ignore
-                ),
-                "del_obj": http_delete("/{id}", summary="Delete a single object")(
-                    copy_func(CrudAPI.del_obj)  # type: ignore
-                ),
-                "get_objs": http_get("/", summary="Get multiple objects")(
-                    copy_func(CrudAPI.get_objs)  # type: ignore
-                ),
-            }
-        )
-        if opts_model:
+        if opts_generate_crud:
+            base_cls_attrs.update(
+                {
+                    "get_obj": http_get("/{id}", summary="Get a single object")(
+                        copy_func(CrudAPI.get_obj)  # type: ignore
+                    ),
+                    "del_obj": http_delete("/{id}", summary="Delete a single object")(
+                        copy_func(CrudAPI.del_obj)  # type: ignore
+                    ),
+                    "get_objs": http_get("/", summary="Get multiple objects")(
+                        copy_func(CrudAPI.get_objs)  # type: ignore
+                    ),
+                }
+            )
+        if opts_generate_crud and opts_model:
 
             class DataSchema(ModelSchema):
                 class Config:
@@ -199,6 +201,7 @@ class CrudApiMetaclass(ABCMeta):
                 opts_model,
                 "__Meta",
                 {
+                    "generate_crud": opts_generate_crud,
                     "model_exclude": opts_fields_exclude,
                     "model_fields": opts_fields,
                     "model_recursive": opts_recursive,
@@ -216,17 +219,30 @@ class ModelOptions:
         """
         Configuration:
             model:              django model
+            generate_crud:      whether to create crud api, default to True
+            model_exclude:      fields to be excluded in Schema, it will ignore model_fields
             model_fields:       fields to be included in Schema, default to "__all__"
-            model_exclude:      fields to be excluded in Schema
             model_join:         retrieve all m2m fields, default to True
             model_recursive:    recursively retrieve FK/OneToOne models, default to False
             sensitive_fields:   fields to be ignored
+        Example:
+            class Meta
+                model = Event
+                generate_crud = False
+                model_exclude = ["field1", "field2"]
+                model_fields = ["field1", "field2"]
+                model_join = False
+                model_recursive = True
+                sensitive_fields = ["token", "money"]
         """
         self.model: Optional[Type[models.Model]] = getattr(options, "model", None)
-        self.model_fields: Optional[Union[str]] = getattr(options, "model_fields", None)
+        self.generate_crud: Optional[Union[bool]] = getattr(
+            options, "generate_crud", True
+        )
         self.model_exclude: Optional[Union[str]] = getattr(
             options, "model_exclude", None
         )
+        self.model_fields: Optional[Union[str]] = getattr(options, "model_fields", None)
         self.model_join: Optional[Union[bool]] = getattr(options, "model_join", True)
         self.model_recursive: Optional[Union[bool]] = getattr(
             options, "model_recursive", False
