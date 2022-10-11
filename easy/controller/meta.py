@@ -218,23 +218,7 @@ class CrudApiMetaclass(ABCMeta):
 class ModelOptions:
     def __init__(self, options: object = None):
         """
-        Configuration:
-            model:              django model
-            generate_crud:      whether to create crud api, default to True
-            model_exclude:      fields to be excluded in Schema, it will ignore model_fields
-            model_fields:       fields to be included in Schema, default to "__all__"
-            model_join:         retrieve all m2m fields, default to True
-            model_recursive:    recursively retrieve FK/OneToOne models, default to False
-            sensitive_fields:   fields to be ignored
-        Example:
-            class Meta
-                model = Event
-                generate_crud = False
-                model_exclude = ["field1", "field2"]
-                model_fields = ["field1", "field2"]
-                model_join = False
-                model_recursive = True
-                sensitive_fields = ["token", "money"]
+        Configuration reader
         """
         self.model: Optional[Type[models.Model]] = getattr(options, "model", None)
         self.generate_crud: Optional[Union[bool]] = getattr(
