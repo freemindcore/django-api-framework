@@ -53,58 +53,9 @@ class CrudAPI(CrudModel):
             self.service = BaseService(model=self.model)
         super().__init__(model=self.model)
 
-    # Define Controller APIs for auto generation
-    async def get_obj(self, request: HttpRequest, id: int) -> Any:
-        """
-        GET /{id}
-        Retrieve a single Object
-        """
-        try:
-            qs = await self.service.get_obj(id)
-        except Exception as e:  # pragma: no cover
-            logger.error(f"Get Error - {e}", exc_info=True)
-            return BaseApiResponse(str(e), message="Get Failed", errno=500)
-        if qs:
-            return qs
-        else:
-            return BaseApiResponse(message="Not Found", errno=404)
-
-    async def del_obj(self, request: HttpRequest, id: int) -> Any:
-        """
-        DELETE /{id}
-        Delete a single Object
-        """
-        if await self.service.del_obj(id):
-            return BaseApiResponse("Deleted.", errno=204)
-        else:
-            return BaseApiResponse("Not Found.", errno=404)
-
-    @paginate
-    async def get_objs(self, request: HttpRequest, filters: str = None) -> Any:
-        """
-        GET /?maximum={int}&filters={filters_dict}
-        Retrieve multiple Object (optional: maximum # and filters)
-        """
-        if filters:
-            return await self.service.get_objs(**json.loads(filters))
-        return await self.service.get_objs()
-
 
 class CrudApiMetaclass(ABCMeta):
     def __new__(mcs, name: str, bases: Tuple[Type[Any], ...], attrs: dict) -> Any:
-        # Get configs from Meta
-        temp_cls: Type = super().__new__(mcs, name, (object,), attrs)
-        temp_opts: ModelOptions = ModelOptions(getattr(temp_cls, "Meta", None))
-        opts_model: Optional[Type[models.Model]] = temp_opts.model
-        opts_generate_crud: Optional[bool] = temp_opts.generate_crud
-        opts_fields_exclude: Optional[str] = temp_opts.model_exclude
-        opts_fields: Optional[str] = temp_opts.model_fields
-        opts_recursive: Optional[bool] = temp_opts.model_recursive
-        opts_join: Optional[bool] = temp_opts.model_join
-        opts_sensitive_fields: Optional[
-            Union[str, List[str]]
-        ] = temp_opts.sensitive_fields
-
         def is_private_attrs(attr_name: str) -> Optional[Match[str]]:
             return re.match(r"^__[^\d\W]\w*\Z__$", attr_name, re.UNICODE)
 
@@ -117,21 +68,70 @@ class CrudApiMetaclass(ABCMeta):
         )
         base_cls_attrs: dict = {}
         base_cls_attrs.update(parent_attrs)
-        if opts_generate_crud:
+
+        # Get configs from Meta
+        temp_cls: Type = super().__new__(mcs, name, (object,), base_cls_attrs)
+        temp_opts: ModelOptions = ModelOptions(getattr(temp_cls, "Meta", None))
+        opts_model: Optional[Type[models.Model]] = temp_opts.model
+        opts_generate_crud: Optional[bool] = temp_opts.generate_crud
+        opts_fields_exclude: Optional[str] = temp_opts.model_exclude
+        opts_fields: Optional[str] = temp_opts.model_fields
+        opts_recursive: Optional[bool] = temp_opts.model_recursive
+        opts_join: Optional[bool] = temp_opts.model_join
+        opts_sensitive_fields: Optional[
+            Union[str, List[str]]
+        ] = temp_opts.sensitive_fields
+
+        # Define Controller APIs for auto generation
+        async def get_obj(self, request: HttpRequest, id: int) -> Any:  # type: ignore
+            """
+            GET /{id}
+            Retrieve a single Object
+            """
+            try:
+                qs = await self.service.get_obj(id)
+            except Exception as e:  # pragma: no cover
+                logger.error(f"Get Error - {e}", exc_info=True)
+                return BaseApiResponse(str(e), message="Get Failed", errno=500)
+            if qs:
+                return qs
+            else:
+                return BaseApiResponse(message="Not Found", errno=404)
+
+        async def del_obj(self, request: HttpRequest, id: int) -> Any:  # type: ignore
+            """
+            DELETE /{id}
+            Delete a single Object
+            """
+            if await self.service.del_obj(id):
+                return BaseApiResponse("Deleted.", errno=204)
+            else:
+                return BaseApiResponse("Not Found.", errno=404)
+
+        @paginate
+        async def get_objs(self, request: HttpRequest, filters: str = None) -> Any:  # type: ignore
+            """
+            GET /?maximum={int}&filters={filters_dict}
+            Retrieve multiple Object (optional: maximum # and filters)
+            """
+            if filters:
+                return await self.service.get_objs(**json.loads(filters))
+            return await self.service.get_objs()
+
+        if opts_generate_crud and opts_model:
             base_cls_attrs.update(
                 {
                     "get_obj": http_get("/{id}", summary="Get a single object")(
-                        copy_func(CrudAPI.get_obj)  # type: ignore
+                        copy_func(get_obj)  # type: ignore
                     ),
                     "del_obj": http_delete("/{id}", summary="Delete a single object")(
-                        copy_func(CrudAPI.del_obj)  # type: ignore
+                        copy_func(del_obj)  # type: ignore
                     ),
                     "get_objs": http_get("/", summary="Get multiple objects")(
-                        copy_func(CrudAPI.get_objs)  # type: ignore
+                        copy_func(get_objs)  # type: ignore
                     ),
                 }
             )
-        if opts_generate_crud and opts_model:
 
             class DataSchema(ModelSchema):
                 class Config:
@@ -173,16 +173,13 @@ class CrudApiMetaclass(ABCMeta):
                 f"{opts_model.__name__}__AutoSchema({str(uuid.uuid4())[:4]})"
             )
 
-            setattr(CrudAPI, "patch_obj", patch_obj)
-            setattr(CrudAPI, "add_obj", add_obj)
-
             base_cls_attrs.update(
                 {
                     "patch_obj": http_patch("/{id}", summary="Patch a single object")(
-                        copy_func(CrudAPI.patch_obj)  # type: ignore
+                        copy_func(patch_obj)  # type: ignore
                     ),
                     "add_obj": http_put("/", summary="Create")(
-                        copy_func(CrudAPI.add_obj)  # type: ignore
+                        copy_func(add_obj)  # type: ignore
                     ),
                 }
             )

@@ -37,12 +37,7 @@ async def test_auto_apis(transactional_db, easy_api_client):
         if not str(controller_class).endswith("ClientAdminAPIController"):
             continue
         client = easy_api_client(controller_class)
-        response = await client.get(
-            "/",
-            query=dict(
-                maximum=100,
-            ),
-        )
+        response = await client.get("/")
         assert response.status_code == 200
         assert response.json()["data"] == []
 

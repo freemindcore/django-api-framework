@@ -28,7 +28,7 @@ def create_api_controller(
             "model_fields": "__all__",
             "model_recursive": False,
             "model_join": True,
-            "sensitive_fields": ["password"],
+            "sensitive_fields": ["password", "token"],
         },
     )
 

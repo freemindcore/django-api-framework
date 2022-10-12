@@ -11,6 +11,7 @@ from tests.demo_app.controllers import (
     AutoGenCrudSomeFieldsAPIController,
     EventSchema,
     InheritedRecursiveAPIController,
+    NoCrudAPIController,
     RecursiveAPIController,
 )
 from tests.demo_app.models import Category, Client, Event, Type
@@ -25,6 +26,19 @@ dummy_data = dict(
 @pytest.mark.skipif(django.VERSION < (3, 1), reason="requires django 3.1 or higher")
 @pytest.mark.django_db
 class TestAutoCrudAdminAPI:
+    async def test_crud_generate_or_not(self, transactional_db, easy_api_client):
+        client = easy_api_client(NoCrudAPIController)
+
+        object_data = dummy_data.copy()
+        object_data.update(title=f"{object_data['title']}_get")
+
+        event = await sync_to_async(Event.objects.create)(**object_data)
+
+        with pytest.raises(Exception):
+            await client.get(
+                f"/{event.id}",
+            )
+
     async def test_crud_default_get_all(self, transactional_db, easy_api_client):
         client = easy_api_client(AutoGenCrudAPIController)
 
