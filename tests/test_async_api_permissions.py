@@ -4,13 +4,13 @@ import django
 import pytest
 from asgiref.sync import sync_to_async
 
-from tests.demo_app.controllers import (
+from .easy_app.controllers import (
     AdminSitePermissionAPIController,
     AutoGenCrudAPIController,
     PermissionAPIController,
 )
-from tests.demo_app.models import Client, Event
-from tests.test_async_other_apis import dummy_data
+from .easy_app.models import Client, Event
+from .test_async_other_apis import dummy_data
 
 
 @pytest.mark.skipif(django.VERSION < (3, 1), reason="requires django 3.1 or higher")

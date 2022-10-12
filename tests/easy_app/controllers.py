@@ -12,9 +12,10 @@ from easy.permissions import (
     IsSuperUser,
 )
 from easy.response import BaseApiResponse
-from tests.demo_app.models import Client, Event
-from tests.demo_app.schema import EventSchema
-from tests.demo_app.services import EventService
+
+from .models import Client, Event
+from .schema import EventSchema
+from .services import EventService
 
 
 @api_controller("unittest", permissions=[BaseApiPermission])

@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Any
 
 from django.http import HttpRequest
 
-from tests.demo_app.domain import EventBiz
+from .domain import EventBiz
 
 if TYPE_CHECKING:
     from ninja_extra.controllers.base import ControllerBase  # pragma: no cover

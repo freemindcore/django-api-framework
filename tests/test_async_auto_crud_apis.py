@@ -5,7 +5,7 @@ import django
 import pytest
 from asgiref.sync import sync_to_async
 
-from tests.demo_app.controllers import (
+from .easy_app.controllers import (
     AutoGenCrudAPIController,
     AutoGenCrudNoJoinAPIController,
     AutoGenCrudSomeFieldsAPIController,
@@ -14,7 +14,7 @@ from tests.demo_app.controllers import (
     NoCrudAPIController,
     RecursiveAPIController,
 )
-from tests.demo_app.models import Category, Client, Event, Type
+from .easy_app.models import Category, Client, Event, Type
 
 dummy_data = dict(
     title="AsyncAdminAPIEvent",

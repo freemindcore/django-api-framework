@@ -1,5 +1,6 @@
 from easy.domain import BaseDomain
-from tests.demo_app.models import Event
+
+from .models import Event
 
 
 class EventDomain(BaseDomain):

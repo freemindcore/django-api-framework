@@ -5,8 +5,9 @@ from django.contrib.auth import get_user_model
 
 from easy.controller.base import CrudAPIController
 from easy.testing import EasyTestClient
-from tests.demo_app.auth import JWTAuthAsync, jwt_auth_async
-from tests.demo_app.factories import UserFactory
+
+from .easy_app.auth import JWTAuthAsync, jwt_auth_async
+from .easy_app.factories import UserFactory
 
 User = get_user_model()
 

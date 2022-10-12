@@ -1,6 +1,7 @@
 from easy.main import EasyAPI
-from tests.demo_app.auth import jwt_auth_async
-from tests.demo_app.controllers import (
+
+from .auth import jwt_auth_async
+from .controllers import (
     AutoGenCrudAPIController,
     EasyCrudAPIController,
     PermissionAPIController,

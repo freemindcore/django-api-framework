@@ -3,7 +3,6 @@ from django.db import models
 
 class TestBaseModel(models.Model):
     class Meta:
-        app_label = "demo_app"
         abstract = True
 
 

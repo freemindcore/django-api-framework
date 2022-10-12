@@ -16,7 +16,7 @@ INSTALLED_APPS = (
     "django.contrib.sites",
     "django.contrib.staticfiles",
     "ninja_extra",
-    "tests.demo_app",
+    "tests.easy_app",
     "easy",
 )
 
@@ -35,7 +35,7 @@ USE_TZ = True
 LANGUAGE_CODE = "en-us"
 
 STATIC_URL = "/static/"
-ROOT_URLCONF = "tests.demo_app.urls"
+ROOT_URLCONF = "tests.easy_app.urls"
 
 AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
