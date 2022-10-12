@@ -249,9 +249,7 @@ class TestAutoCrudAdminAPI:
         )
         assert response.status_code == 200
         data = response.json().get("data")
-        from pprint import pprint
 
-        pprint(vars(response))
         assert len(data["owner"]) == 2
         assert len(data["lead_owner"]) == 0
         assert data["owner"][0]["name"] == "Client E for Unit Testings"
