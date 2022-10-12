@@ -11,7 +11,7 @@ from ninja import ModelSchema
 from ninja_extra import ControllerBase, http_delete, http_get, http_patch, http_put
 from ninja_extra.pagination import paginate
 
-from easy.controller.meta_conf import ModelOptions
+from easy.controller.meta_conf import MODEL_FIELDS_ATTR_DEFAULT, ModelOptions
 from easy.domain.orm import CrudModel
 from easy.response import BaseApiResponse
 from easy.services import BaseService
@@ -113,13 +113,13 @@ class CrudApiMetaclass(ABCMeta):
                     if model_opts.model_exclude:
                         model_exclude = model_opts.model_exclude
                     else:
-                        if model_opts.model_fields == "__all__":
-                            model_fields = "__all__"
+                        if model_opts.model_fields == MODEL_FIELDS_ATTR_DEFAULT:
+                            model_fields = MODEL_FIELDS_ATTR_DEFAULT
                         else:
                             model_fields = (
-                                model_opts.model_fields
+                                model_opts.model_fields  # type: ignore
                                 if model_opts.model_fields
-                                else "__all__"
+                                else MODEL_FIELDS_ATTR_DEFAULT
                             )
 
             async def add_obj(  # type: ignore

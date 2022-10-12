@@ -30,19 +30,19 @@ class ModelOptions:
         """
         self.model: Optional[Type[models.Model]] = getattr(options, "model", None)
         self.generate_crud: Optional[Union[bool]] = getattr(
-            options, GENERATE_CRUD_ATTR, True
+            options, GENERATE_CRUD_ATTR, GENERATE_CRUD_ATTR_DEFAULT
         )
-        self.model_exclude: Optional[Union[str]] = getattr(
-            options, MODEL_EXCLUDE_ATTR, None
+        self.model_exclude: Union[Union[str], List[Any]] = getattr(
+            options, MODEL_EXCLUDE_ATTR, MODEL_EXCLUDE_ATTR_DEFAULT
         )
-        self.model_fields: Optional[Union[str]] = getattr(
-            options, MODEL_FIELDS_ATTR, "__all__"
+        self.model_fields: Union[Union[str], List[Any]] = getattr(
+            options, MODEL_FIELDS_ATTR, MODEL_FIELDS_ATTR_DEFAULT
         )
         self.model_join: Optional[Union[bool]] = getattr(
-            options, MODEL_JOIN_ATTR, False
+            options, MODEL_JOIN_ATTR, MODEL_JOIN_ATTR_DEFAULT
         )
         self.model_recursive: Optional[Union[bool]] = getattr(
-            options, MODEL_RECURSIVE_ATTR, False
+            options, MODEL_RECURSIVE_ATTR, MODEL_RECURSIVE_ATTR_DEFAULT
         )
         self.sensitive_fields: Optional[Union[str, List[str]]] = getattr(
             options, SENSITIVE_FIELDS_ATTR, list(SENSITIVE_FIELDS_ATTR_DEFAULT)
