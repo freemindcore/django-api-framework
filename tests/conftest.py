@@ -1,62 +1,45 @@
-import django
+import copy
+
+import pytest
+from django.contrib.auth import get_user_model
+
+from easy.controller.base import CrudAPIController
+from easy.testing import EasyTestClient
+from tests.demo_app.auth import JWTAuthAsync, jwt_auth_async
+from tests.demo_app.factories import UserFactory
+
+User = get_user_model()
 
 
-def pytest_configure(config):
-    from django.conf import settings
+@pytest.fixture(autouse=True)
+def media_storage(settings, tmpdir):
+    settings.MEDIA_ROOT = tmpdir.strpath
 
-    settings.configure(
-        ALLOWED_HOSTS=["*"],
-        DEBUG_PROPAGATE_EXCEPTIONS=True,
-        DATABASES={
-            "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
-        },
-        SITE_ID=1,
-        SECRET_KEY="not very secret in tests",
-        USE_I18N=True,
-        STATIC_URL="/static/",
-        ROOT_URLCONF="tests.demo_app.urls",
-        TEMPLATES=[
-            {
-                "BACKEND": "django.template.backends.django.DjangoTemplates",
-                "DIRS": [],
-                "APP_DIRS": True,
-                "OPTIONS": {
-                    "context_processors": [
-                        "django.template.context_processors.debug",
-                        "django.template.context_processors.request",
-                        "django.contrib.auth.context_processors.auth",
-                        "django.contrib.messages.context_processors.messages",
-                    ],
-                },
-            },
-        ],
-        MIDDLEWARE=(
-            "django.middleware.security.SecurityMiddleware",
-            "django.contrib.sessions.middleware.SessionMiddleware",
-            "django.middleware.common.CommonMiddleware",
-            "django.middleware.csrf.CsrfViewMiddleware",
-            "django.contrib.auth.middleware.AuthenticationMiddleware",
-            "django.contrib.messages.middleware.MessageMiddleware",
-            "django.middleware.clickjacking.XFrameOptionsMiddleware",
-        ),
-        INSTALLED_APPS=(
-            "django.contrib.admin",
-            "django.contrib.auth",
-            "django.contrib.contenttypes",
-            "django.contrib.sessions",
-            "django.contrib.sites",
-            "django.contrib.staticfiles",
-            "ninja_extra",
-            "tests.demo_app",
-            "easy",
-        ),
-        PASSWORD_HASHERS=("django.contrib.auth.hashers.MD5PasswordHasher",),
-        AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
-        LANGUAGE_CODE="en-us",
-        TIME_ZONE="UTC",
-        AUTO_ADMIN_ENABLED_ALL_APPS=True,
-        AUTO_ADMIN_INCLUDE_APPS=[],
-        AUTO_ADMIN_EXCLUDE_APPS=[],
-    )
 
-    django.setup()
+@pytest.fixture
+def user(db) -> User:
+    return UserFactory()
+
+
+@pytest.fixture
+def easy_api_client(user) -> EasyTestClient:
+    orig_func = copy.deepcopy(JWTAuthAsync.__call__)
+
+    async def mock_func(self, request):
+        setattr(request, "user", user)
+        return True
+
+    setattr(JWTAuthAsync, "__call__", mock_func)
+
+    def create_client(
+        api: CrudAPIController,
+        is_staff: bool = False,
+        is_superuser: bool = False,
+    ):
+        setattr(user, "is_staff", is_staff)
+        setattr(user, "is_superuser", is_superuser)
+        client = EasyTestClient(api, auth=jwt_auth_async)
+        return client
+
+    yield create_client
+    setattr(JWTAuthAsync, "__call__", orig_func)

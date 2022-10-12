@@ -10,7 +10,7 @@ from tests.demo_app.controllers import (
     PermissionAPIController,
 )
 from tests.demo_app.models import Client, Event
-from tests.demo_app.test_async_other_apis import dummy_data
+from tests.test_async_other_apis import dummy_data
 
 
 @pytest.mark.skipif(django.VERSION < (3, 1), reason="requires django 3.1 or higher")
