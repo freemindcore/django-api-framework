@@ -4,26 +4,20 @@ import re
 import uuid
 from abc import ABCMeta
 from collections import ChainMap
-from typing import Any, List, Match, Optional, Tuple, Type, Union
+from typing import Any, Match, Optional, Tuple, Type
 
-from django.db import models
 from django.http import HttpRequest
 from ninja import ModelSchema
 from ninja_extra import ControllerBase, http_delete, http_get, http_patch, http_put
 from ninja_extra.pagination import paginate
 
+from easy.controller.meta_conf import ModelOptions
 from easy.domain.orm import CrudModel
 from easy.response import BaseApiResponse
 from easy.services import BaseService
 from easy.utils import copy_func
 
 logger = logging.getLogger(__name__)
-
-
-class APIControllerBase(ControllerBase):
-    """Reserved for customization"""
-
-    ...
 
 
 class CrudAPI(CrudModel):
@@ -33,22 +27,11 @@ class CrudAPI(CrudModel):
         self.service = service
         if self.service:
             self.model = self.service.model
-        _meta = getattr(self, "Meta", None)
-        if self.model and _meta:
-            setattr(
-                self.model,
-                "__Meta",
-                {
-                    "generate_crud": getattr(_meta, "generate_crud", True),
-                    "model_exclude": getattr(_meta, "model_exclude", None),
-                    "model_fields": getattr(_meta, "model_fields", "__all__"),
-                    "model_recursive": getattr(_meta, "model_recursive", False),
-                    "model_join": getattr(_meta, "model_join", True),
-                    "sensitive_fields": getattr(
-                        _meta, "model_sensitive_fields", ["password", "token"]
-                    ),
-                },
-            )
+
+        _model_opts: ModelOptions = ModelOptions.get_model_options(self.__class__)
+        if self.model and _model_opts:
+            ModelOptions.set_model_meta(self.model, _model_opts)
+
         if not service:
             self.service = BaseService(model=self.model)
         super().__init__(model=self.model)
@@ -70,17 +53,8 @@ class CrudApiMetaclass(ABCMeta):
         base_cls_attrs.update(parent_attrs)
 
         # Get configs from Meta
-        temp_cls: Type = super().__new__(mcs, name, (object,), base_cls_attrs)
-        temp_opts: ModelOptions = ModelOptions(getattr(temp_cls, "Meta", None))
-        opts_model: Optional[Type[models.Model]] = temp_opts.model
-        opts_generate_crud: Optional[bool] = temp_opts.generate_crud
-        opts_fields_exclude: Optional[str] = temp_opts.model_exclude
-        opts_fields: Optional[str] = temp_opts.model_fields
-        opts_recursive: Optional[bool] = temp_opts.model_recursive
-        opts_join: Optional[bool] = temp_opts.model_join
-        opts_sensitive_fields: Optional[
-            Union[str, List[str]]
-        ] = temp_opts.sensitive_fields
+        _temp_cls: Type = super().__new__(mcs, name, (object,), base_cls_attrs)
+        model_opts: ModelOptions = ModelOptions.get_model_options(_temp_cls)
 
         # Define Controller APIs for auto generation
         async def get_obj(self, request: HttpRequest, id: int) -> Any:  # type: ignore
@@ -118,7 +92,7 @@ class CrudApiMetaclass(ABCMeta):
                 return await self.service.get_objs(**json.loads(filters))
             return await self.service.get_objs()
 
-        if opts_generate_crud and opts_model:
+        if model_opts.generate_crud and model_opts.model:
             base_cls_attrs.update(
                 {
                     "get_obj": http_get("/{id}", summary="Get a single object")(
@@ -135,14 +109,18 @@ class CrudApiMetaclass(ABCMeta):
 
             class DataSchema(ModelSchema):
                 class Config:
-                    model = opts_model
-                    if opts_fields_exclude:
-                        model_exclude = opts_fields_exclude
+                    model = model_opts.model
+                    if model_opts.model_exclude:
+                        model_exclude = model_opts.model_exclude
                     else:
-                        if opts_fields == "__all__":
+                        if model_opts.model_fields == "__all__":
                             model_fields = "__all__"
                         else:
-                            model_fields = opts_fields if opts_fields else "__all__"
+                            model_fields = (
+                                model_opts.model_fields
+                                if model_opts.model_fields
+                                else "__all__"
+                            )
 
             async def add_obj(  # type: ignore
                 self, request: HttpRequest, data: DataSchema
@@ -170,7 +148,7 @@ class CrudApiMetaclass(ABCMeta):
                     return BaseApiResponse("Update Failed", errno=400)
 
             DataSchema.__name__ = (
-                f"{opts_model.__name__}__AutoSchema({str(uuid.uuid4())[:4]})"
+                f"{model_opts.model.__name__}__AutoSchema({str(uuid.uuid4())[:4]})"
             )
 
             base_cls_attrs.update(
@@ -188,49 +166,14 @@ class CrudApiMetaclass(ABCMeta):
             mcs,
             name,
             (
-                APIControllerBase,
+                ControllerBase,
                 CrudAPI,
             ),
             base_cls_attrs,
         )
 
-        if opts_model:
-            setattr(
-                opts_model,
-                "__Meta",
-                {
-                    "generate_crud": opts_generate_crud,
-                    "model_exclude": opts_fields_exclude,
-                    "model_fields": opts_fields,
-                    "model_recursive": opts_recursive,
-                    "model_join": opts_join,
-                    "sensitive_fields": opts_sensitive_fields,
-                },
-            )
-            setattr(new_cls, "model", opts_model)
+        if model_opts.model:
+            ModelOptions.set_model_meta(model_opts.model, model_opts)
+            setattr(new_cls, "model", model_opts.model)
 
         return new_cls
-
-
-class ModelOptions:
-    def __init__(self, options: object = None):
-        """
-        Configuration reader
-        """
-        self.model: Optional[Type[models.Model]] = getattr(options, "model", None)
-        self.generate_crud: Optional[Union[bool]] = getattr(
-            options, "generate_crud", True
-        )
-        self.model_exclude: Optional[Union[str]] = getattr(
-            options, "model_exclude", None
-        )
-        self.model_fields: Optional[Union[str]] = getattr(
-            options, "model_fields", "__all__"
-        )
-        self.model_join: Optional[Union[bool]] = getattr(options, "model_join", True)
-        self.model_recursive: Optional[Union[bool]] = getattr(
-            options, "model_recursive", False
-        )
-        self.sensitive_fields: Optional[Union[str, List[str]]] = getattr(
-            options, "sensitive_fields", ["token", "password"]
-        )
