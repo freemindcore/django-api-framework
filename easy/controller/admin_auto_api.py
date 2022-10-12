@@ -6,6 +6,13 @@ from ninja_extra import ControllerBase, api_controller
 from ninja_extra.permissions import BasePermission
 
 from easy.controller.base import CrudAPIController
+from easy.controller.meta_conf import (
+    GENERATE_CRUD_ATTR_DEFAULT,
+    MODEL_FIELDS_ATTR_DEFAULT,
+    MODEL_JOIN_ATTR_DEFAULT,
+    MODEL_RECURSIVE_ATTR_DEFAULT,
+    SENSITIVE_FIELDS_ATTR_DEFAULT,
+)
 from easy.permissions import AdminSitePermission, BaseApiPermission
 
 logger = logging.getLogger(__name__)
@@ -24,11 +31,11 @@ def create_api_controller(
         (object,),
         {
             "model": model,
-            "generate_crud": True,
-            "model_fields": "__all__",
-            "model_recursive": False,
-            "model_join": True,
-            "sensitive_fields": ["password"],
+            "generate_crud": GENERATE_CRUD_ATTR_DEFAULT,
+            "model_fields": MODEL_FIELDS_ATTR_DEFAULT,
+            "model_recursive": MODEL_RECURSIVE_ATTR_DEFAULT,
+            "model_join": MODEL_JOIN_ATTR_DEFAULT,
+            "sensitive_fields": SENSITIVE_FIELDS_ATTR_DEFAULT,
         },
     )
 
