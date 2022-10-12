@@ -39,6 +39,7 @@ class CrudAPI(CrudModel):
                 self.model,
                 "__Meta",
                 {
+                    "generate_crud": getattr(_meta, "generate_crud", True),
                     "model_exclude": getattr(_meta, "model_exclude", None),
                     "model_fields": getattr(_meta, "model_fields", "__all__"),
                     "model_recursive": getattr(_meta, "model_recursive", False),
@@ -95,6 +96,7 @@ class CrudApiMetaclass(ABCMeta):
         temp_cls: Type = super().__new__(mcs, name, (object,), attrs)
         temp_opts: ModelOptions = ModelOptions(getattr(temp_cls, "Meta", None))
         opts_model: Optional[Type[models.Model]] = temp_opts.model
+        opts_generate_crud: Optional[bool] = temp_opts.generate_crud
         opts_fields_exclude: Optional[str] = temp_opts.model_exclude
         opts_fields: Optional[str] = temp_opts.model_fields
         opts_recursive: Optional[bool] = temp_opts.model_recursive
@@ -115,8 +117,21 @@ class CrudApiMetaclass(ABCMeta):
         )
         base_cls_attrs: dict = {}
         base_cls_attrs.update(parent_attrs)
-
-        if opts_model:
+        if opts_generate_crud:
+            base_cls_attrs.update(
+                {
+                    "get_obj": http_get("/{id}", summary="Get a single object")(
+                        copy_func(CrudAPI.get_obj)  # type: ignore
+                    ),
+                    "del_obj": http_delete("/{id}", summary="Delete a single object")(
+                        copy_func(CrudAPI.del_obj)  # type: ignore
+                    ),
+                    "get_objs": http_get("/", summary="Get multiple objects")(
+                        copy_func(CrudAPI.get_objs)  # type: ignore
+                    ),
+                }
+            )
+        if opts_generate_crud and opts_model:
 
             class DataSchema(ModelSchema):
                 class Config:
@@ -163,30 +178,14 @@ class CrudApiMetaclass(ABCMeta):
 
             base_cls_attrs.update(
                 {
-                    "patch_obj_api": http_patch(
-                        "/{id}", summary="Patch a single object"
-                    )(
+                    "patch_obj": http_patch("/{id}", summary="Patch a single object")(
                         copy_func(CrudAPI.patch_obj)  # type: ignore
                     ),
-                    "add_obj_api": http_put("/", summary="Create")(
+                    "add_obj": http_put("/", summary="Create")(
                         copy_func(CrudAPI.add_obj)  # type: ignore
                     ),
                 }
             )
-
-        base_cls_attrs.update(
-            {
-                "get_obj_api": http_get("/{id}", summary="Get a single object")(
-                    copy_func(CrudAPI.get_obj)  # type: ignore
-                ),
-                "del_obj_api": http_delete("/{id}", summary="Delete a single object")(
-                    copy_func(CrudAPI.del_obj)  # type: ignore
-                ),
-                "get_objs_api": http_get("/", summary="Get multiple objects")(
-                    copy_func(CrudAPI.get_objs)  # type: ignore
-                ),
-            }
-        )
 
         new_cls: Type = super().__new__(
             mcs,
@@ -203,6 +202,7 @@ class CrudApiMetaclass(ABCMeta):
                 opts_model,
                 "__Meta",
                 {
+                    "generate_crud": opts_generate_crud,
                     "model_exclude": opts_fields_exclude,
                     "model_fields": opts_fields,
                     "model_recursive": opts_recursive,
@@ -218,18 +218,17 @@ class CrudApiMetaclass(ABCMeta):
 class ModelOptions:
     def __init__(self, options: object = None):
         """
-        Configuration:
-            model:              django model
-            model_fields:       fields to be included in Schema, default to "__all__"
-            model_exclude:      fields to be excluded in Schema
-            model_join:         retrieve all m2m fields, default to True
-            model_recursive:    recursively retrieve FK/OneToOne models, default to False
-            sensitive_fields:   fields to be ignored
+        Configuration reader
         """
         self.model: Optional[Type[models.Model]] = getattr(options, "model", None)
-        self.model_fields: Optional[Union[str]] = getattr(options, "model_fields", None)
+        self.generate_crud: Optional[Union[bool]] = getattr(
+            options, "generate_crud", True
+        )
         self.model_exclude: Optional[Union[str]] = getattr(
             options, "model_exclude", None
+        )
+        self.model_fields: Optional[Union[str]] = getattr(
+            options, "model_fields", "__all__"
         )
         self.model_join: Optional[Union[bool]] = getattr(options, "model_join", True)
         self.model_recursive: Optional[Union[bool]] = getattr(

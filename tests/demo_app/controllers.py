@@ -29,7 +29,6 @@ class AutoGenCrudAPIController(CrudAPIController):
 
     class Meta:
         model = Event
-        model_fields = "__all__"
         model_join = True
 
 
@@ -90,6 +89,10 @@ class AutoGenCrudSomeFieldsAPIController(CrudAPIController):
 
     class Meta:
         model = Client
+        model_fields = [
+            "key",
+            "name",
+        ]
 
 
 @api_controller("unittest")
