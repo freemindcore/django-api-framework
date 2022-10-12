@@ -84,6 +84,3 @@ doc = [
 DJANGO_SETTINGS_MODULE = "tests.config.settings"
 asyncio_mode = "auto"
 addopts = "--nomigrations"
-filterwarnings = [
-    "ignore::django.utils.deprecation.RemovedInDjango50Warning",
-]
