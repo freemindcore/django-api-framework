@@ -21,10 +21,10 @@ for path, rtr in api_admin_v1._routers:
 
 def test_auto_generate_admin_api():
     assert len(api_admin_v1._routers) == 5  # default + 3 models
-    assert "/demo_app/category" in path_names
-    assert "/demo_app/client" in path_names
-    assert "/demo_app/event" in path_names
-    assert "/demo_app/type" in path_names
+    assert "/easy_app/category" in path_names
+    assert "/easy_app/client" in path_names
+    assert "/easy_app/event" in path_names
+    assert "/easy_app/type" in path_names
 
     assert "CategoryAdminAPIController" in controller_names
     assert "EventAdminAPIController" in controller_names
@@ -47,7 +47,7 @@ async def test_auto_apis(transactional_db, easy_api_client):
 
 
 async def test_auto_generation_settings(settings):
-    settings.AUTO_ADMIN_EXCLUDE_APPS = ["tests.demo_app"]
+    settings.AUTO_ADMIN_EXCLUDE_APPS = ["tests.easy_app"]
     api_admin_v2 = EasyAPI()
     api_admin_v2.auto_create_admin_controllers()
     assert len(api_admin_v2._routers) == 1

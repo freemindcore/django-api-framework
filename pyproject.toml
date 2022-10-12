@@ -79,3 +79,8 @@ doc = [
     "mkdocs-markdownextradata-plugin >=0.1.7,<0.3.0",
     "markdown-include"
 ]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.config.settings"
+asyncio_mode = "auto"
+addopts = "--nomigrations"

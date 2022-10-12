@@ -5,10 +5,10 @@ import django
 import pytest
 from asgiref.sync import sync_to_async
 
-from tests.demo_app.controllers import EasyCrudAPIController
-from tests.demo_app.models import Event, Type
-from tests.demo_app.schema import EventSchema
-from tests.demo_app.services import EventService
+from .easy_app.controllers import EasyCrudAPIController
+from .easy_app.models import Event, Type
+from .easy_app.schema import EventSchema
+from .easy_app.services import EventService
 
 dummy_data = dict(
     title="AsyncAPIEvent",

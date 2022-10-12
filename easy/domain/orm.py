@@ -92,11 +92,9 @@ class CrudModel(object):
 
     def _crud_get_objs_all(self, **filters: Any) -> Any:
         """
-        CRUD: get maximum amount of records, with filters support
+        CRUD: get multiple objects, with django orm filters support
         Args:
-            maximum:
             filters: {"field_name__lte", 1}
-
         Returns: qs
 
         """
