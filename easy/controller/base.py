@@ -27,8 +27,8 @@ class CrudAPIController(metaclass=CrudApiMetaclass):
         generate_crud:      whether to create crud api, default to True
         model_exclude:      fields to be excluded in Schema, it will ignore model_fields
         model_fields:       fields to be included in Schema, default to "__all__"
-        model_join:         retrieve all m2m fields, default to True
-        model_recursive:    recursively retrieve FK/OneToOne models, default to False
+        model_join:         prefetch and retrieve all m2m fields, default to False
+        model_recursive:    recursively retrieve FK/OneToOne fields, default to False
         sensitive_fields:   fields to be ignored
 
     Example:

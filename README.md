@@ -49,9 +49,12 @@ Then add "easy" to your django INSTALLED_APPS:
 ]
 ```
 
-
-Get your admin api up and running:
+### Usage
+#### Get all your Django app CRUD APIs up and running
+In your Django project next to urls.py create new apis.py file:
 ```
+from easy.main import EasyAPI
+
 api_admin_v1 = EasyAPI(
     urls_namespace="admin_api",
     version="v1.0.0",
@@ -60,16 +63,58 @@ api_admin_v1 = EasyAPI(
 # Automatic Admin API generation
 api_admin_v1.auto_create_admin_controllers()
 ```
+Now go to urls.py and add the following:
+```
+from django.urls import path
+from .apis import apis
 
-Please check tests/demo_app for more.
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("api_admin/v1/", apis.urls),  # <---------- !
+]
+```
+#### Interactive API docs
+Now go to http://127.0.0.1:8000/api_admin/v1/docs
+
+You will see the automatic interactive API documentation (provided by Swagger UI).
+![Auto generated APIs List](https://github.com/freemindcore/django-api-framework/blob/fae8209a8d08c55daf75ac3a4619fe62b8ef3af6/docs/images/admin_apis_list.png)
+
+#### Adding CRUD APIs to a specific API Controller
+
+By inheriting CrudAPIController class, CRUD APIs will be added to your API controller.
+Configuration is available via Meta class:
+- `model_exclude`:      fields to be excluded in Schema
+- `model_fields`:       fields to be included in Schema, default to `"__all__"`
+- `model_join`:         prefetch and retrieve all m2m fields, default to False
+- `model_recursive`:    recursively retrieve FK/OneToOne fields, default to False
+- `sensitive_fields`:   fields to be ignored
+
+
+Example:
+```
+@api_controller("even_api", permissions=[AdminSitePermission])
+class EventAPIController(CrudAPIController):
+    def __init__(self, service: EventService):
+        super().__init__(service)
+
+    class Meta:
+        model = Event # django model
+        generate_crud = True # whether to create crud api, default to True
+        model_fields = ["field_1", "field_2",] # if not configured default to "__all__"
+        model_join = True
+        model_recursive = True
+        sensitive_fields = ["password", "sensitive_info"]
+
+```
+Please check tests/demo_app for more examples.
 
 
 ### Boilerplate Django project
-A boilerplate Django project for quickly getting started:
+A boilerplate Django project for quickly getting started, production ready easy-apis wiht 100% test coverage ready:
 https://github.com/freemindcore/django-easy-api
 
-![Auto generated APIs List](https://github.com/freemindcore/django-api-framework/blob/fae8209a8d08c55daf75ac3a4619fe62b8ef3af6/docs/images/admin_apis_list.png)
 ![Auto generated APIs - Users](https://github.com/freemindcore/django-api-framework/blob/9aa26e92b6fd79f4d9db422ec450fe62d4cd97b9/docs/images/user_admin_api.png)
 ![Auto generated APIs - Schema](https://github.com/freemindcore/django-api-framework/blob/9aa26e92b6fd79f4d9db422ec450fe62d4cd97b9/docs/images/auto_api_demo_2.png)
 
-_Note: this project is still in early stage, comments and advices are highly appreciated._
+### Thanks to your help
+**_If you find this project useful, please give your stars to support this open-source project. :) Thank you !_**

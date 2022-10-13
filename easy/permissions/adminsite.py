@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class AdminSitePermission(IsAdminUser):
     """
-    Allows delete only to super user, and change to only staff/super users.
+    Only staff users with the right permission can modify objects.
     """
 
     def has_permission(
