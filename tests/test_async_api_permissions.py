@@ -9,7 +9,7 @@ from .easy_app.controllers import (
     AutoGenCrudAPIController,
     PermissionAPIController,
 )
-from .easy_app.models import Client, Event
+from .easy_app.models import Client, Event, Type
 from .test_async_other_apis import dummy_data
 
 
@@ -98,11 +98,15 @@ class TestPermissionController:
         }
 
         # Staff users
-        client = easy_api_client(PermissionAPIController, is_staff=True)
+        client = easy_api_client(PermissionAPIController, is_staff=True, has_perm=True)
         response = await client.get("/test_perm_admin_site/", query=dict(word="staff"))
         assert response.status_code == 200
         assert response.json()["data"]["says"] == "staff"
 
+
+@pytest.mark.skipif(django.VERSION < (3, 1), reason="requires django 3.1 or higher")
+@pytest.mark.django_db
+class TestAdminSitePermissionController:
     async def test_perm_auto_apis_delete(self, transactional_db, easy_api_client):
         client = easy_api_client(AdminSitePermissionAPIController)
         # Test delete
@@ -201,3 +205,23 @@ class TestPermissionController:
         assert response.json().get("data")["end_date"] == str(
             (datetime.now() + timedelta(days=20)).date()
         )
+
+    async def test_perm_auto_apis_add(self, transactional_db, easy_api_client):
+        client = easy_api_client(AdminSitePermissionAPIController)
+        type = await sync_to_async(Type.objects.create)(name="TypeForCreating")
+
+        object_data = dummy_data.copy()
+        object_data.update(title=f"{object_data['title']}_create")
+        object_data.update(type_id=type.id)
+
+        response = await client.put(
+            "/", json=object_data, content_type="application/json"
+        )
+        assert response.status_code == 403
+
+        client = easy_api_client(AdminSitePermissionAPIController, is_superuser=True)
+
+        response = await client.put(
+            "/", json=object_data, content_type="application/json"
+        )
+        assert response.status_code == 200

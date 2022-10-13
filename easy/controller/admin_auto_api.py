@@ -7,10 +7,15 @@ from ninja_extra.permissions import BasePermission
 
 from easy.controller.base import CrudAPIController
 from easy.controller.meta_conf import (
+    GENERATE_CRUD_ATTR,
     GENERATE_CRUD_ATTR_DEFAULT,
+    MODEL_FIELDS_ATTR,
     MODEL_FIELDS_ATTR_DEFAULT,
+    MODEL_JOIN_ATTR,
     MODEL_JOIN_ATTR_DEFAULT,
+    MODEL_RECURSIVE_ATTR,
     MODEL_RECURSIVE_ATTR_DEFAULT,
+    SENSITIVE_FIELDS_ATTR,
     SENSITIVE_FIELDS_ATTR_DEFAULT,
 )
 from easy.permissions import AdminSitePermission, BaseApiPermission
@@ -31,11 +36,11 @@ def create_api_controller(
         (object,),
         {
             "model": model,
-            "generate_crud": GENERATE_CRUD_ATTR_DEFAULT,
-            "model_fields": MODEL_FIELDS_ATTR_DEFAULT,
-            "model_recursive": MODEL_RECURSIVE_ATTR_DEFAULT,
-            "model_join": MODEL_JOIN_ATTR_DEFAULT,
-            "sensitive_fields": SENSITIVE_FIELDS_ATTR_DEFAULT,
+            GENERATE_CRUD_ATTR: GENERATE_CRUD_ATTR_DEFAULT,
+            MODEL_FIELDS_ATTR: MODEL_FIELDS_ATTR_DEFAULT,
+            MODEL_RECURSIVE_ATTR: MODEL_RECURSIVE_ATTR_DEFAULT,
+            MODEL_JOIN_ATTR: MODEL_JOIN_ATTR_DEFAULT,
+            SENSITIVE_FIELDS_ATTR: SENSITIVE_FIELDS_ATTR_DEFAULT,
         },
     )
 
