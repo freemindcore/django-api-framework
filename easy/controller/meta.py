@@ -57,10 +57,6 @@ class CrudApiMetaclass(ABCMeta):
         base_cls_attrs: dict = {}
         base_cls_attrs.update(parent_attrs)
 
-        # Get configs from Meta
-        _temp_cls: Type = super().__new__(mcs, name, (object,), base_cls_attrs)
-        model_opts: ModelOptions = ModelOptions.get_model_options(_temp_cls)
-
         # Define Controller APIs for auto generation
         async def get_obj(self, request: HttpRequest, id: int) -> Any:  # type: ignore
             """
