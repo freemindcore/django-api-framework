@@ -198,3 +198,17 @@ class NoCrudAPIController(CrudAPIController):
     class Meta:
         model = Event
         generate_crud = False
+
+
+@api_controller("unittest", permissions=[AdminSitePermission])
+class NoCrudInheritedAPIController(AdminSitePermissionAPIController):
+    def __init__(self, service: EventService):
+        super().__init__(service)
+        self.service = service
+
+    class Meta:
+        model = Event
+        generate_crud = False
+        model_exclude = [
+            "start_date",
+        ]

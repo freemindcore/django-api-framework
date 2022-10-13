@@ -12,6 +12,7 @@ from .easy_app.controllers import (
     EventSchema,
     InheritedRecursiveAPIController,
     NoCrudAPIController,
+    NoCrudInheritedAPIController,
     RecursiveAPIController,
 )
 from .easy_app.models import Category, Client, Event, Type
@@ -38,6 +39,20 @@ class TestAutoCrudAdminAPI:
             await client.get(
                 f"/{event.id}",
             )
+
+        client = easy_api_client(NoCrudInheritedAPIController, is_superuser=True)
+
+        object_data = dummy_data.copy()
+        object_data.update(title=f"{object_data['title']}_get")
+
+        event = await sync_to_async(Event.objects.create)(**object_data)
+
+        response = await client.get(
+            f"/{event.id}",
+        )
+        assert response.status_code == 200
+        with pytest.raises(Exception):
+            print(response.json()["data"]["start_date"])
 
     async def test_crud_default_get_all(self, transactional_db, easy_api_client):
         client = easy_api_client(AutoGenCrudAPIController)

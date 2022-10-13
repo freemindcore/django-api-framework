@@ -39,6 +39,11 @@ class CrudAPI(CrudModel):
 
 class CrudApiMetaclass(ABCMeta):
     def __new__(mcs, name: str, bases: Tuple[Type[Any], ...], attrs: dict) -> Any:
+        # Get configs from Meta
+        _temp_cls: Type = super().__new__(mcs, name, (object,), attrs)
+        model_opts: ModelOptions = ModelOptions.get_model_options(_temp_cls)
+
+        # Get all attrs from parents excluding private ones
         def is_private_attrs(attr_name: str) -> Optional[Match[str]]:
             return re.match(r"^__[^\d\W]\w*\Z__$", attr_name, re.UNICODE)
 
