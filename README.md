@@ -66,11 +66,11 @@ api_admin_v1.auto_create_admin_controllers()
 Now go to urls.py and add the following:
 ```
 from django.urls import path
-from .apis import apis
+from .apis import api_admin_v1
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api_admin/v1/", apis.urls),  # <---------- !
+    path("api_admin/v1/", api_admin_v1.urls),  # <---------- !
 ]
 ```
 Now go to http://127.0.0.1:8000/api_admin/v1/docs
