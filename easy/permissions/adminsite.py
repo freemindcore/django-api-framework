@@ -41,33 +41,3 @@ class AdminSitePermission(IsAdminUser):
             and has_perm
             and super().has_permission(request, controller)
         )
-
-    # async def has_permission(
-    #     self, request: HttpRequest, controller: "ControllerBase"
-    # ) -> bool:
-    #     """
-    #     Return `True` if permission is granted, `False` otherwise.
-    #     """
-    #     user = request.user
-    #     has_perm = False
-    #     if hasattr(controller, "model"):
-    #         model = controller.model
-    #         app = model._meta.app_label
-    #         has_perm = await sync_to_async(user.has_perm)(
-    #             f"{app}.view_{model.__name__}"
-    #         )
-    #         if request.method in ("PUT",):
-    #             has_perm = await sync_to_async(user.has_perm)(
-    #                 f"{app}.add_{model.__name__}"
-    #             )
-    #         if request.method in ("PATCH", "POST"):
-    #             has_perm = await sync_to_async(user.has_perm)(
-    #                 f"{app}.change_{model.__name__}"
-    #             )
-    #         if request.method in ("DELETE",):
-    #             has_perm = await sync_to_async(user.has_perm)(
-    #                 f"{app}.delete_{model.__name__}"
-    #             )
-    #     if user.is_superuser:
-    #         has_perm = True
-    #     return bool(user and user.is_authenticated and user.is_active and has_perm)

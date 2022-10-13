@@ -103,6 +103,10 @@ class TestPermissionController:
         assert response.status_code == 200
         assert response.json()["data"]["says"] == "staff"
 
+
+@pytest.mark.skipif(django.VERSION < (3, 1), reason="requires django 3.1 or higher")
+@pytest.mark.django_db
+class TestAdminSitePermissionController:
     async def test_perm_auto_apis_delete(self, transactional_db, easy_api_client):
         client = easy_api_client(AdminSitePermissionAPIController)
         # Test delete
