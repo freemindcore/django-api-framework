@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path
-from ninja_extra import NinjaExtraAPI
+
+from easy import EasyAPI
 
 from .controllers import (
     AutoGenCrudAPIController,
@@ -8,7 +9,7 @@ from .controllers import (
     PermissionAPIController,
 )
 
-api = NinjaExtraAPI()
+api = EasyAPI()
 api.register_controllers(EasyCrudAPIController)
 api.register_controllers(PermissionAPIController)
 api.register_controllers(AutoGenCrudAPIController)
