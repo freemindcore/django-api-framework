@@ -8,15 +8,15 @@
 
 # Django Easy API Framework
 
-###  Easy and Fast Django REST framework based on Django-ninja-extra
+###  Easy and Fast Django REST framework based on Django-Ninja-Extra
 
-- Auto CRUD Async API generation for all django models, configurable via Meta class
-- Domain/Service/Controller base structure for better code organization
-- Base Permission/Response/Exception classes and more to come
-- Pure class based [Django-Ninja](https://github.com/vitalik/django-ninja) APIs, based on [Django-Ninja-extra](https://github.com/eadwinCode/django-ninja-extra)
+- CRUD Async API Generation: Automatic and configurable, inspired by [NextJs-Crud](https://github.com/nestjsx/crud).
+- Domain/Service/Controller Base Structure: for better code organization.
+- Base Permission/Response/Exception Classes: and many handy features to help your API coding easier
+- Pure class based [Django-Ninja](https://github.com/vitalik/django-ninja) APIs: thanks to [Django-Ninja-Extra](https://github.com/eadwinCode/django-ninja-extra)
 
 ```
-Django-Ninja features :
+Django-Ninja features:
 
   Easy: Designed to be easy to use and intuitive.
   FAST execution: Very high performance thanks to Pydantic and async support.
@@ -73,7 +73,6 @@ urlpatterns = [
     path("api_admin/v1/", apis.urls),  # <---------- !
 ]
 ```
-#### Interactive API docs
 Now go to http://127.0.0.1:8000/api_admin/v1/docs
 
 You will see the automatic interactive API documentation (provided by Swagger UI).
