@@ -151,6 +151,10 @@ class TestAutoCrudAdminAPI:
         assert response.status_code == 200
         assert response.json().get("code") == 404
 
+        response = await client.delete("/20000")
+        assert response.status_code == 200
+        assert response.json().get("data") == "Not Found."
+
     async def test_crud_default_create(self, transactional_db, easy_api_client):
         client = easy_api_client(AutoGenCrudAPIController)
 

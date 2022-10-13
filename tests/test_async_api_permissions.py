@@ -9,7 +9,7 @@ from .easy_app.controllers import (
     AutoGenCrudAPIController,
     PermissionAPIController,
 )
-from .easy_app.models import Client, Event
+from .easy_app.models import Client, Event, Type
 from .test_async_other_apis import dummy_data
 
 
@@ -205,3 +205,23 @@ class TestAdminSitePermissionController:
         assert response.json().get("data")["end_date"] == str(
             (datetime.now() + timedelta(days=20)).date()
         )
+
+    async def test_perm_auto_apis_add(self, transactional_db, easy_api_client):
+        client = easy_api_client(AdminSitePermissionAPIController)
+        type = await sync_to_async(Type.objects.create)(name="TypeForCreating")
+
+        object_data = dummy_data.copy()
+        object_data.update(title=f"{object_data['title']}_create")
+        object_data.update(type_id=type.id)
+
+        response = await client.put(
+            "/", json=object_data, content_type="application/json"
+        )
+        assert response.status_code == 403
+
+        client = easy_api_client(AdminSitePermissionAPIController, is_superuser=True)
+
+        response = await client.put(
+            "/", json=object_data, content_type="application/json"
+        )
+        assert response.status_code == 200

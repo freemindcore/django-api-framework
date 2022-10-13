@@ -48,6 +48,8 @@ def easy_api_client(user) -> EasyTestClient:
     ):
         setattr(user, "is_staff", is_staff)
         setattr(user, "is_superuser", is_superuser)
+        if is_superuser:
+            setattr(user, "is_staff", True)
         if has_perm:
             setattr(user, "has_perm", mock_has_perm_true)
         else:
