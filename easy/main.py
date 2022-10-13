@@ -126,7 +126,7 @@ class EasyAPI(NinjaExtraAPI):
                 data = django_serializer.serialize_data(data)
             except Exception as e:  # pragma: no cover
                 logger.error(f"Creat Response Error - {e}", exc_info=True)
-                return BaseApiResponse(str(e), errno=500)
+                return BaseApiResponse(str(e), code=500)
 
         if self.easy_output:
             if temporal_response:

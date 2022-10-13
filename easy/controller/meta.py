@@ -66,11 +66,11 @@ class CrudApiMetaclass(ABCMeta):
                 qs = await self.service.get_obj(id)
             except Exception as e:  # pragma: no cover
                 logger.error(f"Get Error - {e}", exc_info=True)
-                return BaseApiResponse(str(e), message="Get Failed", errno=500)
+                return BaseApiResponse(str(e), message="Get Failed", code=500)
             if qs:
                 return qs
             else:
-                return BaseApiResponse(message="Not Found", errno=404)
+                return BaseApiResponse(message="Not Found", code=404)
 
         async def del_obj(self, request: HttpRequest, id: int) -> Any:  # type: ignore
             """
@@ -78,9 +78,9 @@ class CrudApiMetaclass(ABCMeta):
             Delete a single Object
             """
             if await self.service.del_obj(id):
-                return BaseApiResponse("Deleted.", errno=204)
+                return BaseApiResponse("Deleted.", code=204)
             else:
-                return BaseApiResponse("Not Found.", errno=404)
+                return BaseApiResponse("Not Found.", code=404)
 
         @paginate
         async def get_objs(self, request: HttpRequest, filters: str = None) -> Any:  # type: ignore
@@ -131,9 +131,9 @@ class CrudApiMetaclass(ABCMeta):
                 """
                 obj_id = await self.service.add_obj(**data.dict())
                 if obj_id:
-                    return BaseApiResponse({"id": obj_id}, errno=201)
+                    return BaseApiResponse({"id": obj_id}, code=201)
                 else:
-                    return BaseApiResponse("Add failed", errno=204)  # pragma: no cover
+                    return BaseApiResponse("Add failed", code=204)  # pragma: no cover
 
             async def patch_obj(  # type: ignore
                 self, request: HttpRequest, id: int, data: DataSchema
@@ -145,7 +145,7 @@ class CrudApiMetaclass(ABCMeta):
                 if await self.service.patch_obj(id=id, payload=data.dict()):
                     return BaseApiResponse("Updated.")
                 else:
-                    return BaseApiResponse("Update Failed", errno=400)
+                    return BaseApiResponse("Update Failed", code=400)
 
             DataSchema.__name__ = (
                 f"{model_opts.model.__name__}__AutoSchema({str(uuid.uuid4())[:4]})"

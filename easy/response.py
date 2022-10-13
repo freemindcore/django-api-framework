@@ -18,18 +18,18 @@ class BaseApiResponse(JsonResponse):
     def __init__(
         self,
         data: Union[Dict, str] = None,
-        errno: int = None,
+        code: int = None,
         message: str = None,
         **kwargs: Any
     ):
-        if errno:
+        if code:
             message = message or UNKNOWN_ERROR_MSG
         else:
             message = SUCCESS_MESSAGE
-            errno = ERRNO_SUCCESS
+            code = ERRNO_SUCCESS
 
         _data: Union[Dict, str] = {
-            "code": errno,
+            "code": code,
             "message": message,
             "data": data if data is not None else {},
         }

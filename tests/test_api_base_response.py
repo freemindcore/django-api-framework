@@ -32,7 +32,7 @@ def test_base_api_result_dict():
 
 def test_base_api_result_message():
     assert (
-        BaseApiResponse(errno=-1, message="error test").json_data["message"]
+        BaseApiResponse(code=-1, message="error test").json_data["message"]
         == "error test"
     )
     assert BaseApiResponse().json_data["message"]
@@ -41,7 +41,7 @@ def test_base_api_result_message():
 def test_base_api_edit():
     orig_resp = BaseApiResponse(
         {"item_id": 2, "im": 14},
-        errno=0,
+        code=0,
     )
 
     with pytest.raises(KeyError):
