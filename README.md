@@ -91,7 +91,7 @@ Configuration is available via Meta class:
 
 Example:
 ```
-@api_controller("even_api", permissions=[AdminSitePermission])
+@api_controller("event_api", permissions=[AdminSitePermission])
 class EventAPIController(CrudAPIController):
     def __init__(self, service: EventService):
         super().__init__(service)
@@ -109,7 +109,7 @@ Please check tests/demo_app for more examples.
 
 
 ### Boilerplate Django project
-A boilerplate Django project for quickly getting started, production ready easy-apis wiht 100% test coverage ready:
+A boilerplate Django project for quickly getting started, and get production ready easy-apis with 100% test coverage UP and running:
 https://github.com/freemindcore/django-easy-api
 
 ![Auto generated APIs - Users](https://github.com/freemindcore/django-api-framework/blob/9aa26e92b6fd79f4d9db422ec450fe62d4cd97b9/docs/images/user_admin_api.png)
