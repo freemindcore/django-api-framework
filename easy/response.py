@@ -1,6 +1,7 @@
 import json
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union
 
+from django.db.models import QuerySet
 from django.http.response import JsonResponse
 
 from easy.renderer.json import EasyJSONEncoder
@@ -17,7 +18,7 @@ class BaseApiResponse(JsonResponse):
 
     def __init__(
         self,
-        data: Union[Dict, str] = None,
+        data: Union[Dict, str, bool, List[Any], QuerySet] = None,
         code: int = None,
         message: str = None,
         **kwargs: Any

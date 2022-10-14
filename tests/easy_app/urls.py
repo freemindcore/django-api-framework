@@ -1,21 +1,9 @@
 from django.contrib import admin
 from django.urls import path
 
-from easy import EasyAPI
-
-from .controllers import (
-    AutoGenCrudAPIController,
-    EasyCrudAPIController,
-    PermissionAPIController,
-)
-
-api = EasyAPI()
-api.register_controllers(EasyCrudAPIController)
-api.register_controllers(PermissionAPIController)
-api.register_controllers(AutoGenCrudAPIController)
-
+from .apis import api_unittest
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", api.urls),
+    path("api/", api_unittest.urls),
 ]

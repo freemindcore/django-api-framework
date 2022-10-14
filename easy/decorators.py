@@ -54,7 +54,7 @@ def docs_permission_required(
     member, redirecting to the login page if necessary.
     """
     actual_decorator = request_passes_test(
-        lambda r: ((r.user.is_active and r.user.is_staff)),
+        lambda r: (r.user.is_active and r.user.is_staff),
         login_url=login_url,
         redirect_field_name=redirect_field_name,
     )

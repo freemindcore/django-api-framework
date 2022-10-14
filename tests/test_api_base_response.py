@@ -45,7 +45,7 @@ def test_base_api_edit():
     )
 
     with pytest.raises(KeyError):
-        orig_resp.json_data["detail"]
+        print(orig_resp.json_data["detail"])
 
     data = orig_resp.json_data
 

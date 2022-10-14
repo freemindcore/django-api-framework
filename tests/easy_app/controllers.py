@@ -22,7 +22,7 @@ from .services import EventService
 class AutoGenCrudAPIController(CrudAPIController):
     """
     For unit testings of the following auto generated APIs:
-        get/create/patch/delete/filter/filter_exclude
+        get/create/patch/delete
     """
 
     def __init__(self, service: EventService):
@@ -36,7 +36,7 @@ class AutoGenCrudAPIController(CrudAPIController):
 @api_controller("unittest", permissions=[BaseApiPermission])
 class RecursiveAPIController(CrudAPIController):
     """
-    For unit testings of no recursive configuration
+    For unit testings of recursive configuration
     """
 
     def __init__(self, service: EventService):
@@ -52,7 +52,7 @@ class RecursiveAPIController(CrudAPIController):
 @api_controller("unittest", permissions=[BaseApiPermission])
 class InheritedRecursiveAPIController(AutoGenCrudAPIController):
     """
-    For unit testings of no recursive configuration
+    For unit testings of inherited recursive configuration
     """
 
     def __init__(self, service: EventService):
@@ -181,6 +181,10 @@ class PermissionAPIController(CrudAPIController):
 
 @api_controller("unittest", permissions=[AdminSitePermission])
 class AdminSitePermissionAPIController(CrudAPIController):
+    """
+    For unit testings of AdminSite permissions class
+    """
+
     def __init__(self, service: EventService):
         super().__init__(service)
         self.service = service
@@ -191,6 +195,10 @@ class AdminSitePermissionAPIController(CrudAPIController):
 
 @api_controller("unittest", permissions=[AdminSitePermission])
 class NoCrudAPIController(CrudAPIController):
+    """
+    For unit testings of no crud configuration
+    """
+
     def __init__(self, service: EventService):
         super().__init__(service)
         self.service = service
@@ -202,6 +210,10 @@ class NoCrudAPIController(CrudAPIController):
 
 @api_controller("unittest", permissions=[AdminSitePermission])
 class NoCrudInheritedAPIController(AdminSitePermissionAPIController):
+    """
+    For unit testings of no crud configuration (Inherited Class)
+    """
+
     def __init__(self, service: EventService):
         super().__init__(service)
         self.service = service

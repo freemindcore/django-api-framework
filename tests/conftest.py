@@ -1,9 +1,11 @@
 import copy
+from typing import Callable, Type, Union
 
 import pytest
 from django.contrib.auth import get_user_model
+from ninja_extra import ControllerBase, Router
 
-from easy.controller.base import CrudAPIController
+from easy import EasyAPI
 from easy.testing import EasyTestClient
 
 from .easy_app.auth import JWTAuthAsync, jwt_auth_async
@@ -23,7 +25,7 @@ def user(db) -> User:
 
 
 @pytest.fixture
-def easy_api_client(user) -> EasyTestClient:
+def easy_api_client(user) -> Callable:
     orig_func = copy.deepcopy(JWTAuthAsync.__call__)
 
     orig_has_perm_fuc = copy.deepcopy(user.has_perm)
@@ -41,11 +43,11 @@ def easy_api_client(user) -> EasyTestClient:
     setattr(JWTAuthAsync, "__call__", mock_func)
 
     def create_client(
-        api: CrudAPIController,
+        api: Union[EasyAPI, Router, Type[ControllerBase]],
         is_staff: bool = False,
         is_superuser: bool = False,
         has_perm: bool = False,
-    ):
+    ) -> "EasyTestClient":
         setattr(user, "is_staff", is_staff)
         setattr(user, "is_superuser", is_superuser)
         if is_superuser:
