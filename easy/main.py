@@ -11,7 +11,7 @@ from ninja.renderers import BaseRenderer
 from ninja.types import TCallable
 from ninja_extra import NinjaExtraAPI
 
-from easy.controller.admin_auto_api import create_admin_controller
+from easy.controller.auto_api import create_admin_controller
 from easy.domain.serializers import django_serializer
 from easy.renderer.json import EasyJSONRenderer
 from easy.response import BaseApiResponse

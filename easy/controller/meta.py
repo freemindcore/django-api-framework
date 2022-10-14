@@ -2,7 +2,7 @@ import json
 import logging
 import re
 import uuid
-from abc import ABCMeta
+from abc import ABC, ABCMeta
 from collections import ChainMap
 from typing import Any, Match, Optional, Tuple, Type
 
@@ -20,7 +20,7 @@ from easy.utils import copy_func
 logger = logging.getLogger(__name__)
 
 
-class CrudAPI(CrudModel):
+class CrudAPI(CrudModel, ABC):
     # Never add type note to service, it will cause injection error
     def __init__(self, service=None):  # type: ignore
         # Critical to set __Meta

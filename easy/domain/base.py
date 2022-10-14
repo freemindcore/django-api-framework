@@ -1,5 +1,5 @@
-from easy.domain.orm import BaseOrm
+from easy.domain.orm import DjangoOrmModel
 
 
-class BaseDomain(BaseOrm):
+class BaseDomain(DjangoOrmModel):
     pass

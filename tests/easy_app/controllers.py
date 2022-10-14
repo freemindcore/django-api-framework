@@ -132,7 +132,7 @@ class EasyCrudAPIController(CrudAPIController):
         "/qs/",
     )
     async def list_events(self):
-        qs = await sync_to_async(self.model.objects.all)()
+        qs = await sync_to_async(self.service.crud_get_objs_all)(maximum=10)
         await sync_to_async(list)(qs)
         if qs:
             return qs

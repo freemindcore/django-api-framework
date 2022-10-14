@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Dict, List, Tuple, Type
+from abc import abstractmethod
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 from django.db import models, transaction
 from django.db.models.query import QuerySet
@@ -11,6 +12,39 @@ logger = logging.getLogger(__name__)
 
 
 class CrudModel(object):
+    def __init__(self, model: Any):
+        self.model = model
+
+    @abstractmethod
+    def crud_add_obj(self, **payload: Dict) -> Any:
+        raise NotImplementedError
+
+    @abstractmethod
+    def crud_del_obj(self, pk: int) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
+    def crud_update_obj(self, pk: int, payload: Dict) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
+    def crud_get_obj(self, pk: int) -> Any:
+        raise NotImplementedError
+
+    @abstractmethod
+    def crud_get_objs_all(self, maximum: Optional[int] = None, **filters: Any) -> Any:
+        raise NotImplementedError
+
+    @abstractmethod
+    def crud_filter(self, **kwargs: Any) -> QuerySet:
+        raise NotImplementedError
+
+    @abstractmethod
+    def crud_filter_exclude(self, **kwargs: Any) -> QuerySet:
+        raise NotImplementedError
+
+
+class DjangoOrmModel(CrudModel):
     def __init__(self, model: Type[models.Model]):
         self.model = model
         self.m2m_fields_list: List = list(
@@ -18,6 +52,7 @@ class CrudModel(object):
             for _field in self.model._meta.get_fields(include_hidden=True)
             if isinstance(_field, models.ManyToManyField)
         )
+        super().__init__(model)
 
     def _separate_payload(self, payload: Dict) -> Tuple[Dict, Dict]:
         m2m_fields = {}
@@ -45,7 +80,7 @@ class CrudModel(object):
 
     # Define BASE CRUD
     @transaction.atomic()
-    def _crud_add_obj(self, **payload: Dict) -> Any:
+    def crud_add_obj(self, **payload: Dict) -> Any:
         local_f_payload, m2m_f_payload = self._separate_payload(payload)
 
         try:
@@ -58,7 +93,7 @@ class CrudModel(object):
         if obj:
             return obj.id
 
-    def _crud_del_obj(self, pk: int) -> bool:
+    def crud_del_obj(self, pk: int) -> bool:
         obj = get_object_or_none(self.model, pk=pk)
         if obj:
             self.model.objects.filter(pk=pk).delete()
@@ -67,7 +102,7 @@ class CrudModel(object):
             return False
 
     @transaction.atomic()
-    def _crud_update_obj(self, pk: int, payload: Dict) -> bool:
+    def crud_update_obj(self, pk: int, payload: Dict) -> bool:
         local_fields, m2m_fields = self._separate_payload(payload)
         if not self.model.objects.filter(pk=pk).exists():
             return False
@@ -78,7 +113,7 @@ class CrudModel(object):
             raise BaseAPIException(f"Update Error - {e}")
         return bool(obj)
 
-    def _crud_get_obj(self, pk: int) -> Any:
+    def crud_get_obj(self, pk: int) -> Any:
         if self.m2m_fields_list:
             qs = self.model.objects.filter(pk=pk).prefetch_related(
                 self.m2m_fields_list[0].name
@@ -90,10 +125,11 @@ class CrudModel(object):
         if qs:
             return qs.first()
 
-    def _crud_get_objs_all(self, **filters: Any) -> Any:
+    def crud_get_objs_all(self, maximum: Optional[int] = None, **filters: Any) -> Any:
         """
         CRUD: get multiple objects, with django orm filters support
         Args:
+            maximum: {int}
             filters: {"field_name__lte", 1}
         Returns: qs
 
@@ -104,6 +140,8 @@ class CrudModel(object):
                 qs = self.model.objects.filter(**filters)
             except Exception as e:  # pragma: no cover
                 logger.error(e)
+        elif maximum:
+            qs = self.model.objects.all()[:maximum]
         else:
             qs = self.model.objects.all()
         # If there are 2m2_fields
@@ -113,12 +151,8 @@ class CrudModel(object):
                 qs = qs.prefetch_related(f.name)
         return qs
 
-    def _crud_filter(self, **kwargs: Any) -> QuerySet:
+    def crud_filter(self, **kwargs: Any) -> Any:
         return self.model.objects.filter(**kwargs)  # pragma: no cover
 
-    def _crud_filter_exclude(self, **kwargs: Any) -> QuerySet:
+    def crud_filter_exclude(self, **kwargs: Any) -> Any:
         return self.model.objects.all().exclude(**kwargs)
-
-
-class BaseOrm(CrudModel):
-    ...
