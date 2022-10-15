@@ -6,6 +6,7 @@ from django.db import models, transaction
 from django.db.models.query import QuerySet
 from ninja_extra.shortcuts import get_object_or_none
 
+from easy.controller.meta_conf import ModelMetaConfig
 from easy.exception import BaseAPIException
 
 logger = logging.getLogger(__name__)
@@ -47,10 +48,15 @@ class CrudModel(object):
 class DjangoOrmModel(CrudModel):
     def __init__(self, model: Type[models.Model]):
         self.model = model
+        config = ModelMetaConfig()
+        exclude_list = config.get_final_excluded_list(self.model())
         self.m2m_fields_list: List = list(
             _field
             for _field in self.model._meta.get_fields(include_hidden=True)
-            if isinstance(_field, models.ManyToManyField)
+            if (
+                isinstance(_field, models.ManyToManyField)
+                and ((_field not in exclude_list) if exclude_list else True)
+            )
         )
         super().__init__(model)
 
