@@ -8,6 +8,7 @@ from ninja_extra.permissions import BasePermission
 from easy.controller.base import CrudAPIController
 from easy.controller.meta_conf import (
     GENERATE_CRUD_ATTR,
+    MODEL_EXCLUDE_ATTR,
     MODEL_FIELDS_ATTR,
     MODEL_JOIN_ATTR,
     MODEL_RECURSIVE_ATTR,
@@ -38,6 +39,7 @@ def create_api_controller(
         {
             "model": model,
             GENERATE_CRUD_ATTR: model_opts.generate_crud,
+            MODEL_EXCLUDE_ATTR: model_opts.model_exclude,
             MODEL_FIELDS_ATTR: model_opts.model_fields,
             MODEL_RECURSIVE_ATTR: model_opts.model_recursive,
             MODEL_JOIN_ATTR: model_opts.model_join,
