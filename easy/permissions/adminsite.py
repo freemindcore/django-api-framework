@@ -24,16 +24,22 @@ class AdminSitePermission(IsAdminUser):
         model: models.Model = cast(models.Model, getattr(controller, "model", None))
         if model:
             app: str = model._meta.app_label
+            model_name = model.__name__.lower()
             if request.method in ("GET", "OPTIONS"):
-                has_perm = user.has_perm(f"{app}.view{model.__name__}")  # type: ignore
+                has_perm = user.has_perm(f"{app}.view_{model_name}")  # type: ignore
+
             elif request.method in ("PUT", "POST"):
-                has_perm = user.has_perm(f"{app}.add_{model.__name__}")  # type: ignore
+                has_perm = user.has_perm(f"{app}.add_{model_name}")  # type: ignore
+
             elif request.method in ("PUT", "PATCH", "POST"):
-                has_perm = user.has_perm(f"{app}.change_{model.__name__}")  # type: ignore
+                has_perm = user.has_perm(f"{app}.change_{model_name}")  # type: ignore
+
             elif request.method in ("DELETE",):
-                has_perm = user.has_perm(f"{app}.delete_{model.__name__}")  # type: ignore
+                has_perm = user.has_perm(f"{app}.delete_{model_name}")  # type: ignore
+
         if user.is_superuser:  # type: ignore
             has_perm = True
+
         return bool(
             user
             and user.is_authenticated
