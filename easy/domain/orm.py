@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 class CrudModel(object):
+    Meta: Dict = {}
+
     def __init__(self, model: Any):
         self.model = model
 
@@ -58,7 +60,7 @@ class DjangoOrmModel(CrudModel):
                 and ((_field not in exclude_list) if exclude_list else True)
             )
         )
-        super().__init__(model)
+        super().__init__(self.model)
 
     def _separate_payload(self, payload: Dict) -> Tuple[Dict, Dict]:
         m2m_fields = {}

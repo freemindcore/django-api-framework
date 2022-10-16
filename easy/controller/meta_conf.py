@@ -1,8 +1,8 @@
-from typing import Any, List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from django.db import models
 
-META_ATTRIBUTE_NAME: str = "__EASY_API_META__"
+META_ATTRIBUTE_NAME: str = "_easy_api_meta_"
 
 GENERATE_CRUD_ATTR: str = "generate_crud"
 GENERATE_CRUD_ATTR_DEFAULT = True
@@ -24,7 +24,7 @@ SENSITIVE_FIELDS_ATTR_DEFAULT: List = ["password", "token"]
 
 
 class ModelOptions:
-    def __init__(self, options: object = None):
+    def __init__(self, options: Dict = None):
         """
         Configuration reader
         """
@@ -49,8 +49,8 @@ class ModelOptions:
         )
 
     @classmethod
-    def get_model_options(cls, klass: Type) -> Any:
-        return ModelOptions(getattr(klass, "Meta", None))
+    def get_model_options(cls, meta: Dict) -> Any:
+        return ModelOptions(meta)
 
     @classmethod
     def set_model_meta(

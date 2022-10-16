@@ -24,7 +24,7 @@ class AdminSitePermission(IsAdminUser):
         model: models.Model = cast(models.Model, getattr(controller, "model", None))
         if model:
             app: str = model._meta.app_label
-            model_name = model.__name__.lower()
+            model_name = model._meta.model_name
             if request.method in ("GET", "OPTIONS"):
                 has_perm = user.has_perm(f"{app}.view_{model_name}")  # type: ignore
 
