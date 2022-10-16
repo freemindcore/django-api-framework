@@ -84,8 +84,8 @@ class CrudApiMetaclass(ABCMeta):
         @paginate
         async def get_objs(self, request: HttpRequest, filters: str = None) -> Any:  # type: ignore
             """
-            GET /?maximum={int}&filters={filters_dict}
-            Retrieve multiple Object (optional: maximum # and filters)
+            GET /?filters={filters_dict}
+            Retrieve multiple Object (optional: django filters)
             """
             if filters:
                 return await self.service.get_objs(**json.loads(filters))
