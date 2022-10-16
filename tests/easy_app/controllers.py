@@ -90,9 +90,8 @@ class AutoGenCrudSomeFieldsAPIController(CrudAPIController):
 
     class Meta:
         model = Client
-        model_fields = [
-            "key",
-            "name",
+        model_exclude = [
+            "category",
         ]
 
 
