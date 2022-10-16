@@ -228,6 +228,7 @@ class TestAutoCrudAdminAPI:
         assert response.json()["data"]["key"] == "Type"
         with pytest.raises(KeyError):
             print(response.json()["data"]["password"])
+        with pytest.raises(KeyError):
             print(response.json()["data"]["category"])
 
     async def test_crud_default_patch(self, transactional_db, easy_api_client):

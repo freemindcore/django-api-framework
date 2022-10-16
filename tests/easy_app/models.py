@@ -10,6 +10,9 @@ class Category(TestBaseModel):
     title = models.CharField(max_length=100)
     status = models.PositiveSmallIntegerField(default=1, null=True)
 
+    class ApiMeta:
+        generate_crud = False
+
 
 class Client(TestBaseModel):
     key = models.CharField(max_length=20, unique=True)

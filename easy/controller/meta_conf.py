@@ -49,7 +49,7 @@ class ModelOptions:
         )
 
     @classmethod
-    def get_model_options(cls, meta: Dict) -> Any:
+    def get_model_options(cls, meta: Optional[Any]) -> "ModelOptions":
         return ModelOptions(meta)
 
     @classmethod
