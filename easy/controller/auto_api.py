@@ -8,15 +8,11 @@ from ninja_extra.permissions import BasePermission
 from easy.controller.base import CrudAPIController
 from easy.controller.meta_conf import (
     GENERATE_CRUD_ATTR,
-    GENERATE_CRUD_ATTR_DEFAULT,
     MODEL_FIELDS_ATTR,
-    MODEL_FIELDS_ATTR_DEFAULT,
     MODEL_JOIN_ATTR,
-    MODEL_JOIN_ATTR_DEFAULT,
     MODEL_RECURSIVE_ATTR,
-    MODEL_RECURSIVE_ATTR_DEFAULT,
     SENSITIVE_FIELDS_ATTR,
-    SENSITIVE_FIELDS_ATTR_DEFAULT,
+    ModelOptions,
 )
 from easy.permissions import AdminSitePermission, BaseApiPermission
 
@@ -31,16 +27,21 @@ def create_api_controller(
 ) -> Union[Type[ControllerBase], Type]:
     """Create APIController class dynamically, with specified permission class"""
     model_name = model.__name__  # type:ignore
+
+    model_opts: ModelOptions = ModelOptions.get_model_options(
+        getattr(model, "ApiMeta", None)
+    )
+
     Meta = type(
         "Meta",
         (object,),
         {
             "model": model,
-            GENERATE_CRUD_ATTR: GENERATE_CRUD_ATTR_DEFAULT,
-            MODEL_FIELDS_ATTR: MODEL_FIELDS_ATTR_DEFAULT,
-            MODEL_RECURSIVE_ATTR: MODEL_RECURSIVE_ATTR_DEFAULT,
-            MODEL_JOIN_ATTR: MODEL_JOIN_ATTR_DEFAULT,
-            SENSITIVE_FIELDS_ATTR: SENSITIVE_FIELDS_ATTR_DEFAULT,
+            GENERATE_CRUD_ATTR: model_opts.generate_crud,
+            MODEL_FIELDS_ATTR: model_opts.model_fields,
+            MODEL_RECURSIVE_ATTR: model_opts.model_recursive,
+            MODEL_JOIN_ATTR: model_opts.model_join,
+            SENSITIVE_FIELDS_ATTR: model_opts.model_fields,
         },
     )
 

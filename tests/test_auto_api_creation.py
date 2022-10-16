@@ -1,3 +1,4 @@
+import pytest
 from ninja_extra.operation import AsyncOperation
 
 from easy import EasyAPI
@@ -34,31 +35,34 @@ def test_auto_generate_admin_api():
 
 async def test_auto_apis(transactional_db, user, easy_api_client):
     for controller_class in controllers:
-        if not str(controller_class).endswith("ClientAdminAPIController"):
-            continue
-        client = easy_api_client(controller_class, api_user=user, has_perm=True)
-        response = await client.get("/", data={}, json={}, user=user)
-        assert response.status_code == 403
+        if str(controller_class).endswith("ClientAdminAPIController"):
+            client = easy_api_client(controller_class, api_user=user, has_perm=True)
+            response = await client.get("/", data={}, json={}, user=user)
+            assert response.status_code == 403
 
-        client = easy_api_client(
-            controller_class, api_user=user, has_perm=True, is_staff=True
-        )
-        response = await client.get("/", data={}, json={}, user=user)
-        assert response.status_code == 200
-        assert response.json()["data"] == []
+            client = easy_api_client(
+                controller_class, api_user=user, has_perm=True, is_staff=True
+            )
+            response = await client.get("/", data={}, json={}, user=user)
+            assert response.status_code == 200
+            assert response.json()["data"] == []
 
-        client = easy_api_client(
-            controller_class, api_user=user, has_perm=True, is_staff=True
-        )
-        response = await client.delete("/20000")
-        assert response.status_code == 403
+            client = easy_api_client(
+                controller_class, api_user=user, has_perm=True, is_staff=True
+            )
+            response = await client.delete("/20000")
+            assert response.status_code == 403
 
-        client = easy_api_client(
-            controller_class, api_user=user, has_perm=True, is_staff=True
-        )
-        response = await client.delete("/20000", data={}, json={}, user=user)
-        assert response.status_code == 200
-        assert response.json()["code"] == 404
+            client = easy_api_client(
+                controller_class, api_user=user, has_perm=True, is_staff=True
+            )
+            response = await client.delete("/20000", data={}, json={}, user=user)
+            assert response.status_code == 200
+            assert response.json()["code"] == 404
+        elif str(controller_class).endswith("CategoryAdminAPIController"):
+            client = easy_api_client(controller_class, api_user=user, has_perm=True)
+            with pytest.raises(Exception):
+                await client.get("/", data={}, json={}, user=user)
 
 
 async def test_auto_generation_settings(settings):
