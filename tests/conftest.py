@@ -28,37 +28,38 @@ def user(db) -> User:
 def easy_api_client(user) -> Callable:
     orig_func = copy.deepcopy(JWTAuthAsync.__call__)
 
-    orig_has_perm_fuc = copy.deepcopy(user.has_perm)
-
-    def mock_has_perm_true(*args, **kwargs):
-        return True
-
-    def mock_has_perm_false(*args, **kwargs):
-        return False
-
-    async def mock_func(self, request):
-        setattr(request, "user", user)
-        return True
-
-    setattr(JWTAuthAsync, "__call__", mock_func)
-
     def create_client(
         api: Union[EasyAPI, Router, Type[ControllerBase]],
+        api_user=None,  # type: ignore
         is_staff: bool = False,
         is_superuser: bool = False,
         has_perm: bool = False,
     ) -> "EasyTestClient":
-        setattr(user, "is_staff", is_staff)
-        setattr(user, "is_superuser", is_superuser)
+        if api_user is None:
+            api_user = user
+        setattr(api_user, "is_staff", is_staff)
+        setattr(api_user, "is_superuser", is_superuser)
+
+        def mock_has_perm_true(*args, **kwargs):
+            return True
+
+        def mock_has_perm_false(*args, **kwargs):
+            return False
+
+        async def mock_func(self, request):
+            setattr(request, "user", api_user)
+            return True
+
+        setattr(JWTAuthAsync, "__call__", mock_func)
+
         if is_superuser:
-            setattr(user, "is_staff", True)
+            setattr(api_user, "is_staff", True)
         if has_perm:
-            setattr(user, "has_perm", mock_has_perm_true)
+            setattr(api_user, "has_perm", mock_has_perm_true)
         else:
-            setattr(user, "has_perm", mock_has_perm_false)
+            setattr(api_user, "has_perm", mock_has_perm_false)
         client = EasyTestClient(api, auth=jwt_auth_async)
         return client
 
     yield create_client
     setattr(JWTAuthAsync, "__call__", orig_func)
-    setattr(user, "has_perm", orig_has_perm_fuc)

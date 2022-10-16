@@ -32,21 +32,33 @@ def test_auto_generate_admin_api():
     assert "TypeAdminAPIController" in controller_names
 
 
-async def test_auto_apis(transactional_db, easy_api_client):
+async def test_auto_apis(transactional_db, user, easy_api_client):
     for controller_class in controllers:
         if not str(controller_class).endswith("ClientAdminAPIController"):
             continue
-
-        client = easy_api_client(controller_class)
-        response = await client.get("/")
-        # TODO: figure out why user.is_authenticated is False in auto created API
-
+        client = easy_api_client(controller_class, api_user=user, has_perm=True)
+        response = await client.get("/", data={}, json={}, user=user)
         assert response.status_code == 403
-        # assert response.json()["data"] == []
 
+        client = easy_api_client(
+            controller_class, api_user=user, has_perm=True, is_staff=True
+        )
+        response = await client.get("/", data={}, json={}, user=user)
+        assert response.status_code == 200
+        assert response.json()["data"] == []
+
+        client = easy_api_client(
+            controller_class, api_user=user, has_perm=True, is_staff=True
+        )
         response = await client.delete("/20000")
         assert response.status_code == 403
-        # assert response.json()["code"] == 404
+
+        client = easy_api_client(
+            controller_class, api_user=user, has_perm=True, is_staff=True
+        )
+        response = await client.delete("/20000", data={}, json={}, user=user)
+        assert response.status_code == 200
+        assert response.json()["code"] == 404
 
 
 async def test_auto_generation_settings(settings):
