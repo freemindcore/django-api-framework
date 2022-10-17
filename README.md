@@ -79,10 +79,10 @@ You will see the automatic interactive API documentation (provided by Swagger UI
 ![Auto generated APIs List](https://github.com/freemindcore/django-api-framework/blob/fae8209a8d08c55daf75ac3a4619fe62b8ef3af6/docs/images/admin_apis_list.png)
 
 #### Auto generation configuration
-If AUTO_ADMIN_ENABLED_ALL_APPS is set to True (default), all app models CRUD apis will be generated.
-Apps in the AUTO_ADMIN_EXCLUDE_APPS list, will be always excluded.
+If `AUTO_ADMIN_ENABLED_ALL_APPS` is set to True (default), all app models CRUD apis will be generated.
+Apps in the `AUTO_ADMIN_EXCLUDE_APPS` list, will be always excluded.
 
-If AUTO_ADMIN_ENABLED_ALL_APPS is set to False, only apps in the AUTO_ADMIN_INCLUDE_APPS list will have CRUD apis generated.
+If `AUTO_ADMIN_ENABLED_ALL_APPS` is set to False, only apps in the `AUTO_ADMIN_INCLUDE_APPS` list will have CRUD apis generated.
 
 Also, configuration is possible for each model, via ApiMeta class:
 - `generate_crud`:      whether to create crud api, default to True
@@ -92,9 +92,8 @@ Also, configuration is possible for each model, via ApiMeta class:
 - `model_recursive`:    recursively retrieve FK/OneToOne fields, default to False
 - `sensitive_fields`:   fields to be ignored
 
-```
-
 Example:
+```
 class Category(TestBaseModel):
     title = models.CharField(max_length=100)
     status = models.PositiveSmallIntegerField(default=1, null=True)
@@ -108,10 +107,11 @@ class Category(TestBaseModel):
 ```
 
 ### Adding CRUD APIs to a specific API Controller
-By inheriting CrudAPIController class, CRUD APIs can be added to any API controller.
-Configuration is available via Meta inner class in your Controller, same as the above ApiMeta inner class defined in your Django models.
+By inheriting `CrudAPIController` class, CRUD APIs can be added to any API controller.
+Configuration is available via `Meta` inner class in your Controller, same as the above `ApiMeta` inner class defined in your Django models.
 
 Example:
+
 ```
 @api_controller("event_api", permissions=[AdminSitePermission])
 class EventAPIController(CrudAPIController):
