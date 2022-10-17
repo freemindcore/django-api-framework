@@ -50,7 +50,7 @@ Then add "easy" to your django INSTALLED_APPS:
 ```
 
 ### Usage
-#### Get all your Django app CRUD APIs up and running
+#### Get all your Django app CRUD APIs up and running in < 1 min
 In your Django project next to urls.py create new apis.py file:
 ```
 from easy.main import EasyAPI
@@ -93,6 +93,8 @@ Also, configuration is possible for each model, via ApiMeta class:
 - `sensitive_fields`:   fields to be ignored
 
 ```
+
+Example:
 class Category(TestBaseModel):
     title = models.CharField(max_length=100)
     status = models.PositiveSmallIntegerField(default=1, null=True)
