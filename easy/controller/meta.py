@@ -82,13 +82,18 @@ class CrudApiMetaclass(ABCMeta):
                 return BaseApiResponse("Not Found.", code=404)
 
         @paginate
-        async def get_objs(self, request: HttpRequest, filters: str = None) -> Any:  # type: ignore
+        async def get_objs(self, request: HttpRequest, filters: Optional[str] = None) -> Any:  # type: ignore
             """
             GET /?filters={filters_dict}
             Retrieve multiple Object (optional: django filters)
             """
             if filters:
-                return await self.service.get_objs(**json.loads(filters))
+                try:
+                    _filters = json.loads(filters)
+                except Exception as exc:  # pragma: no cover
+                    logger.warning(str(exc), exc_info=True)
+                    return []
+                return await self.service.get_objs(**_filters)
             return await self.service.get_objs()
 
         if model_opts.generate_crud and model_opts.model:
