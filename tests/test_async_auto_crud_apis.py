@@ -193,8 +193,9 @@ class TestAutoCrudAdminAPI:
             "/", json=object_data, content_type="application/json"
         )
         assert response.status_code == 200
-
         assert response.json().get("code") == 201
+        assert response.json().get("message") == "Created."
+
         event_id = response.json().get("data")["id"]
 
         response = await client.get(
@@ -276,7 +277,7 @@ class TestAutoCrudAdminAPI:
         )
 
         assert response.status_code == 200
-        assert response.json().get("data")
+        assert response.json().get("message") == "Updated."
 
         response = await client.get(
             f"/{event.pk}",

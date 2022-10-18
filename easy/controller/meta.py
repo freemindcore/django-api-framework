@@ -4,7 +4,7 @@ import re
 import uuid
 from abc import ABC, ABCMeta
 from collections import ChainMap
-from typing import Any, Match, Optional, Tuple, Type
+from typing import Any, List, Match, Optional, Tuple, Type
 
 from django.http import HttpRequest
 from ninja import ModelSchema
@@ -109,18 +109,18 @@ class CrudApiMetaclass(ABCMeta):
             class DataSchema(ModelSchema):
                 class Config:
                     model = model_opts.model
-                    model_exclude = []
+                    model_exclude: List = []
                     if model_opts.model_exclude:
                         model_exclude.extend(model_opts.model_exclude)
                         # Remove pk(id) from Create/Update Schema
-                        model_exclude.extend([model._meta.pk.name])
+                        model_exclude.extend([model._meta.pk.name])  # type: ignore
                     else:
                         if model_opts.model_fields == MODEL_FIELDS_ATTR_DEFAULT:
                             # Remove pk(id) from Create/Update Schema
-                            model_exclude.extend([model._meta.pk.name])
+                            model_exclude.extend([model._meta.pk.name])  # type: ignore
                         else:
                             model_fields = (
-                                model_opts.model_fields  # type: ignore
+                                model_opts.model_fields
                                 if model_opts.model_fields
                                 else MODEL_FIELDS_ATTR_DEFAULT
                             )
@@ -134,9 +134,11 @@ class CrudApiMetaclass(ABCMeta):
                 """
                 obj_id = await self.service.add_obj(**data.dict())
                 if obj_id:
-                    return BaseApiResponse({"id": obj_id}, code=201)
+                    return BaseApiResponse({"id": obj_id}, code=201, message="Created.")
                 else:
-                    return BaseApiResponse("Add failed", code=204)  # pragma: no cover
+                    return BaseApiResponse(
+                        code=204, message="Add failed."
+                    )  # pragma: no cover
 
             async def patch_obj(  # type: ignore
                 self, request: HttpRequest, id: int, data: DataSchema
@@ -146,9 +148,9 @@ class CrudApiMetaclass(ABCMeta):
                 Update a single object
                 """
                 if await self.service.patch_obj(id=id, payload=data.dict()):
-                    return BaseApiResponse("Updated.")
+                    return BaseApiResponse(message="Updated.")
                 else:
-                    return BaseApiResponse("Update Failed", code=400)
+                    return BaseApiResponse(code=400, message="Updated Failed")
 
             DataSchema.__name__ = (
                 f"{model_opts.model.__name__}__AutoSchema({str(uuid.uuid4())[:4]})"
