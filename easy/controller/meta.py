@@ -9,6 +9,7 @@ from typing import Any, List, Match, Optional, Tuple, Type
 from django.http import HttpRequest
 from ninja import ModelSchema
 from ninja_extra import ControllerBase, http_delete, http_get, http_patch, http_put
+from ninja_extra.exceptions import ValidationError
 from ninja_extra.pagination import paginate
 
 from easy.controller.meta_conf import MODEL_FIELDS_ATTR_DEFAULT, ModelOptions
@@ -91,8 +92,10 @@ class CrudApiMetaclass(ABCMeta):
                 try:
                     _filters = json.loads(filters)
                 except Exception as exc:  # pragma: no cover
-                    logger.warning(str(exc), exc_info=True)
-                    return []
+                    raise ValidationError(
+                        detail=f"Bad filter, please check carefully. {exc}",
+                        code=402,
+                    )
                 return await self.service.get_objs(**_filters)
             return await self.service.get_objs()
 
