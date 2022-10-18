@@ -109,11 +109,15 @@ class CrudApiMetaclass(ABCMeta):
             class DataSchema(ModelSchema):
                 class Config:
                     model = model_opts.model
+                    model_exclude = []
                     if model_opts.model_exclude:
-                        model_exclude = model_opts.model_exclude
+                        model_exclude.extend(model_opts.model_exclude)
+                        # Remove pk(id) from Create/Update Schema
+                        model_exclude.extend([model._meta.pk.name])
                     else:
                         if model_opts.model_fields == MODEL_FIELDS_ATTR_DEFAULT:
-                            model_fields = MODEL_FIELDS_ATTR_DEFAULT
+                            # Remove pk(id) from Create/Update Schema
+                            model_exclude.extend([model._meta.pk.name])
                         else:
                             model_fields = (
                                 model_opts.model_fields  # type: ignore
