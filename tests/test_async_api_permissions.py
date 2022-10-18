@@ -192,7 +192,7 @@ class TestAdminSitePermissionController:
         response = await client.patch(
             f"/{event.id}", json=new_data, content_type="application/json"
         )
-        assert response.json().get("data")
+        assert response.json().get("message") == "Updated."
 
         response = await client.get(
             f"/{event.id}",

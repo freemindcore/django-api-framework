@@ -6,9 +6,8 @@ from django.http.response import JsonResponse
 
 from easy.renderer.json import EasyJSONEncoder
 
-ERRNO_SUCCESS = 0
+CODE_SUCCESS = 0
 SUCCESS_MESSAGE = "success"
-UNKNOWN_ERROR_MSG = "system error"
 
 
 class BaseApiResponse(JsonResponse):
@@ -24,10 +23,10 @@ class BaseApiResponse(JsonResponse):
         **kwargs: Any
     ):
         if code:
-            message = message or UNKNOWN_ERROR_MSG
+            message = message or str(code)
         else:
-            message = SUCCESS_MESSAGE
-            code = ERRNO_SUCCESS
+            message = message or SUCCESS_MESSAGE
+            code = CODE_SUCCESS
 
         _data: Union[Dict, str] = {
             "code": code,
