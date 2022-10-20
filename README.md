@@ -11,10 +11,10 @@
 ###  Easy and Fast Django REST framework based on Django-Ninja-Extra
 
 - CRUD API Generation: Automatic and configurable, inspired by [NextJs-Crud](https://github.com/nestjsx/crud).
-  - Zero coding needed to get all your django app's async CRUD API up and running, with Django RBAC security protection
-  - Prefetch and retrieve all m2m fields if needed
-  - Recursively retrieve all FK/OneToOne fields if needed
-  - Excluding fields you do not want
+  - Async CRUD API with Django RBAC security protection
+  - Prefetch and retrieve all m2m fields if configured
+  - Recursively retrieve all FK/OneToOne fields if configured
+  - Excluding fields you do not want, or define a list sensitive fields of your choice
 - Domain/Service/Controller Base Structure: for better code organization.
 - Base Permission/Response/Exception Classes: and some handy features to help your API coding easier.
 - Pure class based [Django-Ninja](https://github.com/vitalik/django-ninja) APIs: thanks to [Django-Ninja-Extra](https://github.com/eadwinCode/django-ninja-extra)
