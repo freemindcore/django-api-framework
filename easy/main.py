@@ -14,7 +14,7 @@ from ninja_extra import NinjaExtraAPI
 from easy.controller.auto_api import create_admin_controller
 from easy.domain.orm import django_serializer
 from easy.renderer.json import EasyJSONRenderer
-from easy.response import BaseApiResponse
+from easy.response import BaseAPIResponse
 
 logger = logging.getLogger(__name__)
 
@@ -126,14 +126,14 @@ class EasyAPI(NinjaExtraAPI):
                 data = django_serializer.serialize_data(data)
             except Exception as e:  # pragma: no cover
                 logger.error(f"Creat Response Error - {e}", exc_info=True)
-                return BaseApiResponse(str(e), code=500)
+                return BaseAPIResponse(str(e), code=500)
 
         if self.easy_output:
             if temporal_response:
                 status = temporal_response.status_code
             assert status
 
-            _temp = BaseApiResponse(
+            _temp = BaseAPIResponse(
                 data, status=status, content_type=self.get_content_type()
             )
 
@@ -154,6 +154,6 @@ class EasyAPI(NinjaExtraAPI):
 
     def create_temporal_response(self, request: HttpRequest) -> HttpResponse:
         if self.easy_output:
-            return BaseApiResponse("", content_type=self.get_content_type())
+            return BaseAPIResponse("", content_type=self.get_content_type())
         else:
             return super().create_temporal_response(request)

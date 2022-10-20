@@ -10,7 +10,7 @@ CODE_SUCCESS = 0
 SUCCESS_MESSAGE = "success"
 
 
-class BaseApiResponse(JsonResponse):
+class BaseAPIResponse(JsonResponse):
     """
     Base for all API responses
     """

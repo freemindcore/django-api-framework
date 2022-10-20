@@ -14,7 +14,7 @@ from ninja_extra.pagination import paginate
 
 from easy.controller.meta_conf import MODEL_FIELDS_ATTR_DEFAULT, ModelOptions
 from easy.domain.meta import CrudModel
-from easy.response import BaseApiResponse
+from easy.response import BaseAPIResponse
 from easy.services import BaseService
 from easy.utils import copy_func
 
@@ -66,11 +66,11 @@ class CrudAPIMetaclass(ABCMeta):
                 qs = await self.service.get_obj(id)
             except Exception as e:  # pragma: no cover
                 logger.error(f"Get Error - {e}", exc_info=True)
-                return BaseApiResponse(str(e), message="Get Failed", code=500)
+                return BaseAPIResponse(str(e), message="Get Failed", code=500)
             if qs:
                 return qs
             else:
-                return BaseApiResponse(message="Not Found", code=404)
+                return BaseAPIResponse(message="Not Found", code=404)
 
         async def del_obj(self, request: HttpRequest, id: int) -> Any:  # type: ignore
             """
@@ -78,9 +78,9 @@ class CrudAPIMetaclass(ABCMeta):
             Delete a single Object
             """
             if await self.service.del_obj(id):
-                return BaseApiResponse("Deleted.", code=204)
+                return BaseAPIResponse("Deleted.", code=204)
             else:
-                return BaseApiResponse("Not Found.", code=404)
+                return BaseAPIResponse("Not Found.", code=404)
 
         @paginate
         async def get_objs(self, request: HttpRequest, filters: Optional[str] = None) -> Any:  # type: ignore
@@ -142,9 +142,9 @@ class CrudAPIMetaclass(ABCMeta):
                 """
                 obj_id = await self.service.add_obj(**data.dict())
                 if obj_id:
-                    return BaseApiResponse({"id": obj_id}, code=201, message="Created.")
+                    return BaseAPIResponse({"id": obj_id}, code=201, message="Created.")
                 else:
-                    return BaseApiResponse(
+                    return BaseAPIResponse(
                         code=204, message="Add failed."
                     )  # pragma: no cover
 
@@ -156,9 +156,9 @@ class CrudAPIMetaclass(ABCMeta):
                 Update a single object
                 """
                 if await self.service.patch_obj(id=id, payload=data.dict()):
-                    return BaseApiResponse(message="Updated.")
+                    return BaseAPIResponse(message="Updated.")
                 else:
-                    return BaseApiResponse(code=400, message="Updated Failed")
+                    return BaseAPIResponse(code=400, message="Updated Failed")
 
             DataSchema.__name__ = (
                 f"{model_opts.model.__name__}__AutoSchema({str(uuid.uuid4())[:4]})"
