@@ -5,6 +5,7 @@ from typing import Any, Callable, Optional, Sequence, Union
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 from django.utils.module_loading import module_has_submodule
+from domain.orm import django_serializer
 from ninja.constants import NOT_SET, NOT_SET_TYPE
 from ninja.parser import Parser
 from ninja.renderers import BaseRenderer
@@ -12,7 +13,6 @@ from ninja.types import TCallable
 from ninja_extra import NinjaExtraAPI
 
 from easy.controller.auto_api import create_admin_controller
-from easy.domain.serializers import django_serializer
 from easy.renderer.json import EasyJSONRenderer
 from easy.response import BaseApiResponse
 

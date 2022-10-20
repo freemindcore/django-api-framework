@@ -13,7 +13,7 @@ from ninja_extra.exceptions import ValidationError
 from ninja_extra.pagination import paginate
 
 from easy.controller.meta_conf import MODEL_FIELDS_ATTR_DEFAULT, ModelOptions
-from easy.domain.orm import CrudModel
+from easy.domain.meta import CrudModel
 from easy.response import BaseApiResponse
 from easy.services import BaseService
 from easy.utils import copy_func
