@@ -5,13 +5,11 @@ from django.test.signals import setting_changed
 
 # AUTO ADMIN API settings
 # If not all
-AUTO_ADMIN_ENABLED_ALL_APPS = getattr(
-    django_settings, "AUTO_ADMIN_ENABLED_ALL_APPS", True
-)
+CRUD_API_ENABLED_ALL_APPS = getattr(django_settings, "CRUD_API_ENABLED_ALL_APPS", True)
 # Only generate for included apps
-AUTO_ADMIN_INCLUDE_APPS = getattr(django_settings, "AUTO_ADMIN_INCLUDE_APPS", [])
+CRUD_API_INCLUDE_APPS = getattr(django_settings, "CRUD_API_INCLUDE_APPS", [])
 # Exclude apps always got excluded
-AUTO_ADMIN_EXCLUDE_APPS = getattr(django_settings, "AUTO_ADMIN_EXCLUDE_APPS", [])
+CRUD_API_EXCLUDE_APPS = getattr(django_settings, "CRUD_API_EXCLUDE_APPS", [])
 
 
 def reload_settings(*args: Any, **kwargs: Any) -> None:  # pragma: no cover

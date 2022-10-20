@@ -66,14 +66,14 @@ async def test_auto_apis(transactional_db, user, easy_api_client):
 
 
 async def test_auto_generation_settings(settings):
-    settings.AUTO_ADMIN_EXCLUDE_APPS = ["tests.easy_app"]
+    settings.CRUD_API_EXCLUDE_APPS = ["tests.easy_app"]
     api_admin_v2 = EasyAPI()
     api_admin_v2.auto_create_admin_controllers()
     assert len(api_admin_v2._routers) == 1
 
-    settings.AUTO_ADMIN_ENABLED_ALL_APPS = False
-    settings.AUTO_ADMIN_EXCLUDE_APPS = []
-    settings.AUTO_ADMIN_INCLUDE_APPS = ["tests.none_existing_app"]
+    settings.CRUD_API_ENABLED_ALL_APPS = False
+    settings.CRUD_API_EXCLUDE_APPS = []
+    settings.CRUD_API_INCLUDE_APPS = ["tests.none_existing_app"]
     api_admin_v3 = EasyAPI()
     api_admin_v3.auto_create_admin_controllers()
     assert len(api_admin_v3._routers) == 1

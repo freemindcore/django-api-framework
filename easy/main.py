@@ -5,7 +5,6 @@ from typing import Any, Callable, Optional, Sequence, Union
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 from django.utils.module_loading import module_has_submodule
-from domain.orm import django_serializer
 from ninja.constants import NOT_SET, NOT_SET_TYPE
 from ninja.parser import Parser
 from ninja.renderers import BaseRenderer
@@ -13,6 +12,7 @@ from ninja.types import TCallable
 from ninja_extra import NinjaExtraAPI
 
 from easy.controller.auto_api import create_admin_controller
+from easy.domain.orm import django_serializer
 from easy.renderer.json import EasyJSONRenderer
 from easy.response import BaseApiResponse
 
@@ -29,9 +29,9 @@ class EasyAPI(NinjaExtraAPI):
             If True, will be encapsulated in BaseAPIResponse
     -renderer, default to EasyJSONRenderer
     -Auto generate AdminAPIs, it will read the following settings:
-        AUTO_ADMIN_ENABLED_ALL_APPS
-        AUTO_ADMIN_EXCLUDE_APPS
-        AUTO_ADMIN_INCLUDE_APPS
+        CRUD_API_ENABLED_ALL_APPS
+        CRUD_API_EXCLUDE_APPS
+        CRUD_API_INCLUDE_APPS
     """
 
     def __init__(
@@ -75,17 +75,17 @@ class EasyAPI(NinjaExtraAPI):
     def auto_create_admin_controllers(self, version: str = None) -> None:
         for app_module in self.get_installed_apps():
             # If not all
-            if not settings.AUTO_ADMIN_ENABLED_ALL_APPS:  # type:ignore
+            if not settings.CRUD_API_ENABLED_ALL_APPS:  # type:ignore
                 # Only generate for this included apps
-                if settings.AUTO_ADMIN_INCLUDE_APPS is not None:  # type:ignore
+                if settings.CRUD_API_INCLUDE_APPS is not None:  # type:ignore
                     if (
                         app_module.name
-                        not in settings.AUTO_ADMIN_INCLUDE_APPS  # type:ignore
+                        not in settings.CRUD_API_INCLUDE_APPS  # type:ignore
                     ):
                         continue
 
             # Exclude list
-            if app_module.name in settings.AUTO_ADMIN_EXCLUDE_APPS:  # type:ignore
+            if app_module.name in settings.CRUD_API_EXCLUDE_APPS:  # type:ignore
                 continue
 
             try:

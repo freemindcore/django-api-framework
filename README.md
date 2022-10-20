@@ -83,10 +83,10 @@ You will see the automatic interactive API documentation (provided by Swagger UI
 ![Auto generated APIs List](https://github.com/freemindcore/django-api-framework/blob/fae8209a8d08c55daf75ac3a4619fe62b8ef3af6/docs/images/admin_apis_list.png)
 
 #### Configuration
-If `AUTO_ADMIN_ENABLED_ALL_APPS` is set to True (default), all app models CRUD apis will be generated.
-Apps in the `AUTO_ADMIN_EXCLUDE_APPS` list, will be always excluded.
+If `CRUD_API_ENABLED_ALL_APPS` is set to True (default), all app models CRUD apis will be generated.
+Apps in the `CRUD_API_EXCLUDE_APPS` list, will be always excluded.
 
-If `AUTO_ADMIN_ENABLED_ALL_APPS` is set to False, only apps in the `AUTO_ADMIN_INCLUDE_APPS` list will have CRUD apis generated.
+If `CRUD_API_ENABLED_ALL_APPS` is set to False, only apps in the `CRUD_API_INCLUDE_APPS` list will have CRUD apis generated.
 
 Also, configuration is possible for each model, via ApiMeta class:
 - `generate_crud`:      whether to create crud api, default to True

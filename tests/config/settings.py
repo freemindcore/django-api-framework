@@ -3,9 +3,9 @@ With these settings, tests run faster.
 """
 
 # Admin API auto-generation settings
-AUTO_ADMIN_ENABLED_ALL_APPS = True
-AUTO_ADMIN_INCLUDE_APPS = []
-AUTO_ADMIN_EXCLUDE_APPS = []
+CRUD_API_ENABLED_ALL_APPS = True
+CRUD_API_INCLUDE_APPS = []
+CRUD_API_EXCLUDE_APPS = []
 
 # Django Settings
 INSTALLED_APPS = (
