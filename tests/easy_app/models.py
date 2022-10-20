@@ -10,7 +10,7 @@ class Category(TestBaseModel):
     title = models.CharField(max_length=100)
     status = models.PositiveSmallIntegerField(default=1, null=True)
 
-    class ApiMeta:
+    class APIMeta:
         generate_crud = False
 
 

@@ -28,7 +28,7 @@ class AutoGenCrudAPIController(CrudAPIController):
     def __init__(self, service: EventService):
         super().__init__(service)
 
-    class Meta:
+    class APIMeta:
         model = Event
         model_join = True
 
@@ -42,7 +42,7 @@ class RecursiveAPIController(CrudAPIController):
     def __init__(self, service: EventService):
         super().__init__(service)
 
-    class Meta:
+    class APIMeta:
         model = Event
         model_fields = "__all__"
         model_join = True
@@ -58,7 +58,7 @@ class InheritedRecursiveAPIController(AutoGenCrudAPIController):
     def __init__(self, service: EventService):
         super().__init__(service)
 
-    class Meta:
+    class APIMeta:
         model = Event
         model_fields = "__all__"
         model_join = True
@@ -74,7 +74,7 @@ class AutoGenCrudNoJoinAPIController(CrudAPIController):
     def __init__(self, service: EventService):
         super().__init__(service)
 
-    class Meta:
+    class APIMeta:
         model = Event
         model_fields = "__all__"
         model_join = False
@@ -88,7 +88,7 @@ class AutoGenCrudSomeFieldsAPIController(CrudAPIController):
     For unit testings of the no-m2m-fields model
     """
 
-    class Meta:
+    class APIMeta:
         model = Client
         model_fields = [
             "key",
@@ -105,7 +105,7 @@ class EasyCrudAPIController(CrudAPIController):
     def __init__(self, service: EventService):
         super().__init__(service)
 
-    class Meta:
+    class APIMeta:
         model = Event
         model_exclude = [
             "category",
@@ -149,7 +149,7 @@ class PermissionAPIController(CrudAPIController):
         super().__init__(service)
         self.service = service
 
-    class Meta:
+    class APIMeta:
         model = Event
 
     @http_get("/must_be_authenticated/", permissions=[IsAuthenticated])
@@ -189,7 +189,7 @@ class AdminSitePermissionAPIController(CrudAPIController):
         super().__init__(service)
         self.service = service
 
-    class Meta:
+    class APIMeta:
         model = Event
 
 
@@ -203,7 +203,7 @@ class NoCrudAPIController(CrudAPIController):
         super().__init__(service)
         self.service = service
 
-    class Meta:
+    class APIMeta:
         model = Event
         generate_crud = False
 
@@ -218,7 +218,7 @@ class NoCrudInheritedAPIController(AdminSitePermissionAPIController):
         super().__init__(service)
         self.service = service
 
-    class Meta:
+    class APIMeta:
         model = Event
         generate_crud = False
         model_exclude = [

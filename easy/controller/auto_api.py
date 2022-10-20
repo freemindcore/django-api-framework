@@ -30,11 +30,11 @@ def create_api_controller(
     model_name = model.__name__  # type:ignore
 
     model_opts: ModelOptions = ModelOptions.get_model_options(
-        getattr(model, "ApiMeta", None)
+        getattr(model, "APIMeta", None)
     )
 
-    Meta = type(
-        "Meta",
+    APIMeta = type(
+        "APIMeta",
         (object,),
         {
             "model": model,
@@ -54,7 +54,7 @@ def create_api_controller(
         class_name,
         (CrudAPIController,),
         {
-            "Meta": Meta,
+            "APIMeta": APIMeta,
         },
     )
 

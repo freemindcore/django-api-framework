@@ -1,13 +1,13 @@
 import logging
 
-from easy.controller.meta import CrudApiMetaclass
+from easy.controller.meta import CrudAPIMetaclass
 
 logger = logging.getLogger(__name__)
 
 
-class CrudAPIController(metaclass=CrudApiMetaclass):
+class CrudAPIController(metaclass=CrudAPIMetaclass):
     """
-    Base APIController for auto creating CRUD APIs, configurable via Meta class
+    Base APIController for auto creating CRUD APIs, configurable via APIMeta class
     APIs auto generated:
         Creat
             PUT /{id}       - Create a single Object
@@ -32,7 +32,7 @@ class CrudAPIController(metaclass=CrudApiMetaclass):
         sensitive_fields:   fields to be ignored
 
     Example:
-        class Meta
+        class APIMeta
             model = Event
             generate_crud = False
             model_exclude = ["field1", "field2"]

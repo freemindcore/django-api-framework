@@ -27,7 +27,7 @@ class CrudAPI(CrudModel, ABC):
         # Critical to set __Meta
         self.service = service
 
-        _model_opts: ModelOptions = ModelOptions.get_model_options(self.Meta)
+        _model_opts: ModelOptions = ModelOptions.get_model_options(self.APIMeta)
         if self.model and _model_opts:
             ModelOptions.set_model_meta(self.model, _model_opts)
 
@@ -36,10 +36,10 @@ class CrudAPI(CrudModel, ABC):
         super().__init__(model=self.model)
 
 
-class CrudApiMetaclass(ABCMeta):
+class CrudAPIMetaclass(ABCMeta):
     def __new__(mcs, name: str, bases: Tuple[Type[Any], ...], attrs: dict) -> Any:
-        # Get configs from Meta
-        attrs_meta = attrs.get("Meta", None)
+        # Get configs from APIMeta
+        attrs_meta = attrs.get("APIMeta", None)
         model_opts: ModelOptions = ModelOptions.get_model_options(attrs_meta)
 
         # Get all attrs from parents excluding private ones

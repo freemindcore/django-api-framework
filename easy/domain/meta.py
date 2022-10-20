@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 
 
 class CrudModel(object):
-    Meta: Dict = {}
+    APIMeta: Dict = {}
 
     def __init__(self, model: Any):
         self.model = model
