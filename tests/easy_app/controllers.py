@@ -11,7 +11,7 @@ from easy.permissions import (
     IsAuthenticated,
     IsSuperUser,
 )
-from easy.response import BaseApiResponse
+from easy.response import BaseAPIResponse
 
 from .models import Client, Event
 from .schema import EventSchema
@@ -113,7 +113,7 @@ class EasyCrudAPIController(CrudAPIController):
 
     @http_get("/base_response/")
     async def generate_base_response(self, request):
-        return BaseApiResponse({"data": "This is a BaseApiResponse."})
+        return BaseAPIResponse({"data": "This is a BaseAPIResponse."})
 
     @http_get("/qs_paginated/", auth=None)
     @paginate
@@ -136,7 +136,7 @@ class EasyCrudAPIController(CrudAPIController):
         await sync_to_async(list)(qs)
         if qs:
             return qs
-        return BaseApiResponse()
+        return BaseAPIResponse()
 
 
 @api_controller("unittest")

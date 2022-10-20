@@ -2,44 +2,44 @@ import json
 
 import pytest
 
-from easy.response import BaseApiResponse
+from easy.response import BaseAPIResponse
 
 
 def test_base_api_result_base():
 
-    assert BaseApiResponse("").json_data["data"] == ""
+    assert BaseAPIResponse("").json_data["data"] == ""
 
-    assert BaseApiResponse("1").json_data["data"] == "1"
+    assert BaseAPIResponse("1").json_data["data"] == "1"
 
-    assert BaseApiResponse("0").json_data["data"] == "0"
-    assert BaseApiResponse().json_data["data"] == {}
-    assert BaseApiResponse([]).json_data["data"] == []
-    assert BaseApiResponse(True).json_data["data"] is True
-    assert BaseApiResponse(False).json_data["data"] is False
-    assert BaseApiResponse([1, 2, 3]).json_data["data"] == [1, 2, 3]
+    assert BaseAPIResponse("0").json_data["data"] == "0"
+    assert BaseAPIResponse().json_data["data"] == {}
+    assert BaseAPIResponse([]).json_data["data"] == []
+    assert BaseAPIResponse(True).json_data["data"] is True
+    assert BaseAPIResponse(False).json_data["data"] is False
+    assert BaseAPIResponse([1, 2, 3]).json_data["data"] == [1, 2, 3]
 
 
 def test_base_api_result_dict():
 
-    assert BaseApiResponse({"a": 1, "b": 2}).json_data["data"] == {
+    assert BaseAPIResponse({"a": 1, "b": 2}).json_data["data"] == {
         "a": 1,
         "b": 2,
     }
 
-    assert (BaseApiResponse({"code": 2, "im": 14})).json_data["data"]["im"] == 14
-    assert (BaseApiResponse({"code": 2, "im": 14})).json_data["data"]["code"] == 2
+    assert (BaseAPIResponse({"code": 2, "im": 14})).json_data["data"]["im"] == 14
+    assert (BaseAPIResponse({"code": 2, "im": 14})).json_data["data"]["code"] == 2
 
 
 def test_base_api_result_message():
     assert (
-        BaseApiResponse(code=-1, message="error test").json_data["message"]
+        BaseAPIResponse(code=-1, message="error test").json_data["message"]
         == "error test"
     )
-    assert BaseApiResponse().json_data["message"]
+    assert BaseAPIResponse().json_data["message"]
 
 
 def test_base_api_edit():
-    orig_resp = BaseApiResponse(
+    orig_resp = BaseAPIResponse(
         {"item_id": 2, "im": 14},
         code=0,
     )

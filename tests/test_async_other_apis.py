@@ -50,7 +50,7 @@ class TestEasyCrudAPIController:
             "/base_response/",
         )
         assert response.status_code == 200
-        assert response.json().get("data")["data"] == "This is a BaseApiResponse."
+        assert response.json().get("data")["data"] == "This is a BaseAPIResponse."
 
     async def test_qs_paginated(self, transactional_db, easy_api_client):
         client = easy_api_client(EasyCrudAPIController)
