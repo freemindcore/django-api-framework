@@ -88,7 +88,7 @@ Apps in the `CRUD_API_EXCLUDE_APPS` list, will be always excluded.
 
 If `CRUD_API_ENABLED_ALL_APPS` is set to False, only apps in the `CRUD_API_INCLUDE_APPS` list will have CRUD apis generated.
 
-Also, configuration is possible for each model, via ApiMeta class:
+Also, configuration is possible for each model, via APIMeta class:
 - `generate_crud`:      whether to create crud api, default to True
 - `model_exclude`:      fields to be excluded in Schema
 - `model_fields`:       fields to be included in Schema, default to `"__all__"`
@@ -102,7 +102,7 @@ class Category(TestBaseModel):
     title = models.CharField(max_length=100)
     status = models.PositiveSmallIntegerField(default=1, null=True)
 
-    class ApiMeta:
+    class APIMeta:
         generate_crud = True
         model_fields = ["field_1", "field_2",] # if not configured default to "__all__"
         model_join = True
@@ -112,7 +112,7 @@ class Category(TestBaseModel):
 
 ### Adding CRUD APIs to a specific API Controller
 By inheriting `CrudAPIController` class, CRUD APIs can be added to any API controller.
-Configuration is available via `Meta` inner class in your Controller, same as the above `ApiMeta` inner class defined in your Django models.
+Configuration is available via `APIMeta` inner class in your Controller, same as the above `APIMeta` inner class defined in your Django models.
 
 Example:
 
@@ -122,7 +122,7 @@ class EventAPIController(CrudAPIController):
     def __init__(self, service: EventService):
         super().__init__(service)
 
-    class Meta:
+    class APIMeta:
         model = Event # django model
         generate_crud = True # whether to create crud api, default to True
         model_fields = ["field_1", "field_2",] # if not configured default to "__all__"
