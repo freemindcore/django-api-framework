@@ -14,7 +14,7 @@
   - Async CRUD API with Django RBAC security protection
   - Prefetch and retrieve all m2m fields if configured
   - Recursively retrieve all FK/OneToOne fields if configured
-  - Excluding fields you do not want, or define a list sensitive fields of your choice
+  - Excluding fields you do not want, or define a list of sensitive fields of your choice
 - Domain/Service/Controller Base Structure: for better code organization.
 - Base Permission/Response/Exception Classes: and some handy features to help your API coding easier.
 - Pure class based [Django-Ninja](https://github.com/vitalik/django-ninja) APIs: thanks to [Django-Ninja-Extra](https://github.com/eadwinCode/django-ninja-extra)
