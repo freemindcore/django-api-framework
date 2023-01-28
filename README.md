@@ -82,7 +82,15 @@ Now go to http://127.0.0.1:8000/api_admin/v1/docs
 You will see the automatic interactive API documentation (provided by Swagger UI).
 ![Auto generated APIs List](https://github.com/freemindcore/django-api-framework/blob/fae8209a8d08c55daf75ac3a4619fe62b8ef3af6/docs/images/admin_apis_list.png)
 
-#### Configuration
+
+### Boilerplate Django project
+A boilerplate Django project for quickly getting started, and get production ready easy-apis with 100% test coverage UP and running:
+https://github.com/freemindcore/django-easy-api
+
+![Auto generated APIs - Users](https://github.com/freemindcore/django-api-framework/blob/9aa26e92b6fd79f4d9db422ec450fe62d4cd97b9/docs/images/user_admin_api.png)
+
+
+### More Configuration
 If `CRUD_API_ENABLED_ALL_APPS` is set to True (default), all app models CRUD apis will be generated.
 Apps in the `CRUD_API_EXCLUDE_APPS` list, will be always excluded.
 
@@ -132,13 +140,6 @@ class EventAPIController(CrudAPIController):
 
 ```
 Please check tests/demo_app for more examples.
-
-
-### Boilerplate Django project
-A boilerplate Django project for quickly getting started, and get production ready easy-apis with 100% test coverage UP and running:
-https://github.com/freemindcore/django-easy-api
-
-![Auto generated APIs - Users](https://github.com/freemindcore/django-api-framework/blob/9aa26e92b6fd79f4d9db422ec450fe62d4cd97b9/docs/images/user_admin_api.png)
 
 
 ### Thanks to your help
