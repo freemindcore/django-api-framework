@@ -10,7 +10,7 @@
 
 ###  Easy and Fast Django REST framework based on Django-Ninja-Extra
 
-- CRUD API Generation: Automatic and configurable, inspired by [NextJs-Crud](https://github.com/nestjsx/crud).
+- Zero code for a full CRUD API: Automatic and configurable, inspired by [NextJs-Crud](https://github.com/nestjsx/crud).
   - Async CRUD API with Django RBAC security protection
   - Prefetch and retrieve all m2m fields if configured
   - Recursively retrieve all FK/OneToOne fields if configured
@@ -92,7 +92,7 @@ https://github.com/freemindcore/django-easy-api
 
 ### More Configuration
 If `CRUD_API_ENABLED_ALL_APPS` is set to True (default), all app models CRUD apis will be generated.
-Apps in the `CRUD_API_EXCLUDE_APPS` list, will be always excluded.
+Apps in the `CRUD_API_EXCLUDE_APPS` list, will always be excluded.
 
 If `CRUD_API_ENABLED_ALL_APPS` is set to False, only apps in the `CRUD_API_INCLUDE_APPS` list will have CRUD apis generated.
 
