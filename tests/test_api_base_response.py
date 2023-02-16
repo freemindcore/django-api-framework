@@ -6,7 +6,6 @@ from easy.response import BaseAPIResponse
 
 
 def test_base_api_result_base():
-
     assert BaseAPIResponse("").json_data["data"] == ""
 
     assert BaseAPIResponse("1").json_data["data"] == "1"
@@ -20,7 +19,6 @@ def test_base_api_result_base():
 
 
 def test_base_api_result_dict():
-
     assert BaseAPIResponse({"a": 1, "b": 2}).json_data["data"] == {
         "a": 1,
         "b": 2,

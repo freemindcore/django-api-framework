@@ -4,7 +4,6 @@ from factory.django import DjangoModelFactory
 
 
 class UserFactory(DjangoModelFactory):
-
     username = Faker("user_name")
     email = Faker("email")
 
