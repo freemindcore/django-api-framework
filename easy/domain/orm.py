@@ -12,19 +12,20 @@ logger = logging.getLogger(__name__)
 
 
 class DjangoOrmModel(CrudModel):
-    def __init__(self, model: Type[models.Model]):
+    def __init__(self, model: Optional[Type[models.Model]] = None) -> None:
         self.model = model
-        config = ModelMetaConfig()
-        exclude_list = config.get_final_excluded_list(self.model())
-        self.m2m_fields_list: List = list(
-            _field
-            for _field in self.model._meta.get_fields(include_hidden=True)
-            if (
-                isinstance(_field, models.ManyToManyField)
-                and ((_field not in exclude_list) if exclude_list else True)
+        if self.model:
+            config = ModelMetaConfig()
+            exclude_list = config.get_final_excluded_list(self.model())
+            self.m2m_fields_list: List = list(
+                _field
+                for _field in self.model._meta.get_fields(include_hidden=True)
+                if (
+                    isinstance(_field, models.ManyToManyField)
+                    and ((_field not in exclude_list) if exclude_list else True)
+                )
             )
-        )
-        super().__init__(self.model)
+            super().__init__(self.model)
 
     def _separate_payload(self, payload: Dict) -> Tuple[Dict, Dict]:
         m2m_fields = {}

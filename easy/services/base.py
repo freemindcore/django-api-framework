@@ -1,5 +1,5 @@
 import logging
-from typing import Type
+from typing import Optional, Type
 
 from django.db import models
 
@@ -10,9 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 class BaseService(CrudService, PermissionService):
-    def __init__(
-        self,
-        model: Type[models.Model],
-    ):
+    def __init__(self, model: Optional[Type[models.Model]] = None):
         self.model = model
         super().__init__(model=self.model)
