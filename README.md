@@ -1,23 +1,24 @@
-![Test](https://github.com/freemindcore/django-api-framework/actions/workflows/test_full.yml/badge.svg)
 [![PyPI version](https://badge.fury.io/py/django-api-framework.svg)](https://badge.fury.io/py/django-api-framework)
 [![PyPI version](https://img.shields.io/pypi/v/django-api-framework.svg)](https://pypi.python.org/pypi/django-api-framework)
-[![PyPI version](https://img.shields.io/pypi/pyversions/django-api-framework.svg)](https://pypi.python.org/pypi/django-api-framework)
-[![PyPI version](https://img.shields.io/pypi/djversions/django-api-framework.svg)](https://pypi.python.org/pypi/django-api-framework)
+
+![Test](https://github.com/freemindcore/django-api-framework/actions/workflows/test_full.yml/badge.svg)
 [![Codecov](https://img.shields.io/codecov/c/gh/freemindcore/django-api-framework)](https://codecov.io/gh/freemindcore/django-api-framework)
 [![Downloads](https://pepy.tech/badge/django-api-framework/month)](https://pepy.tech/project/django-api-framework)
 
-# Django Easy API Framework
+[![PyPI version](https://img.shields.io/pypi/pyversions/django-api-framework.svg)](https://pypi.python.org/pypi/django-api-framework)
+[![PyPI version](https://img.shields.io/pypi/djversions/django-api-framework.svg)](https://pypi.python.org/pypi/django-api-framework)
 
-###  Easy and Fast Django REST framework based on Django-Ninja-Extra
+
+# Easy CRUD API Framework
 
 - Zero code for a full CRUD API: Automatic and configurable, inspired by [NextJs-Crud](https://github.com/nestjsx/crud).
   - Async CRUD API with Django RBAC security protection
   - Prefetch and retrieve all m2m fields if configured
   - Recursively retrieve all FK/OneToOne fields if configured
   - Excluding fields you do not want, or define a list of sensitive fields of your choice
+- Pure class based [Django-Ninja](https://github.com/vitalik/django-ninja) APIs: thanks to [Django-Ninja-Extra](https://github.com/eadwinCode/django-ninja-extra)
 - Domain/Service/Controller Base Structure: for better code organization.
 - Base Permission/Response/Exception Classes: and some handy features to help your API coding easier.
-- Pure class based [Django-Ninja](https://github.com/vitalik/django-ninja) APIs: thanks to [Django-Ninja-Extra](https://github.com/eadwinCode/django-ninja-extra)
 
 ```
 Django-Ninja features:
@@ -34,13 +35,7 @@ Plus Extra:
   Dependency Injection: Controller classes supports dependency injection with python Injector or django_injector. Giving you the ability to inject API dependable services to APIController class and utilizing them where needed
 ```
 
-### Requirements
-- Python >= 3.6
-- Django >= 3.1
-- pydantic >= 1.6
-- Django-Ninja-Extra >= 0.15.0
-
-### Install
+## Install
 `pip install django-api-framework`
 
 Then add "easy" to your django INSTALLED_APPS:
@@ -53,8 +48,8 @@ Then add "easy" to your django INSTALLED_APPS:
 ]
 ```
 
-### Usage
-#### Get all your Django app CRUD APIs up and running in < 1 min
+## Usage
+### Get all your Django app CRUD APIs up and running in < 1 min
 In your Django project next to urls.py create new apis.py file:
 ```
 from easy.main import EasyAPI
@@ -90,7 +85,14 @@ https://github.com/freemindcore/django-easy-api
 ![Auto generated APIs - Users](https://github.com/freemindcore/django-api-framework/blob/9aa26e92b6fd79f4d9db422ec450fe62d4cd97b9/docs/images/user_admin_api.png)
 
 
-### More Configuration
+## Thanks to your help
+**_If you find this project useful, please give your stars to support this open-source project. :) Thank you !_**
+
+
+
+
+
+## Advanced Usage
 If `CRUD_API_ENABLED_ALL_APPS` is set to True (default), all app models CRUD apis will be generated.
 Apps in the `CRUD_API_EXCLUDE_APPS` list, will always be excluded.
 
@@ -140,7 +142,3 @@ class EventAPIController(CrudAPIController):
 
 ```
 Please check tests/demo_app for more examples.
-
-
-### Thanks to your help
-**_If you find this project useful, please give your stars to support this open-source project. :) Thank you !_**
