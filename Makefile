@@ -11,6 +11,7 @@ clean: ## Removing cached python compiled files
 	find . -name __pycache__  | xargs  rm -rfv
 
 install: ## Install dependencies
+	pip install flit
 	make clean
 	flit install --deps develop --symlink
 	pre-commit install
