@@ -58,7 +58,7 @@ def create_api_controller(
         },
     )
 
-    return api_controller(  # type: ignore
+    return api_controller(
         f"/{app_name}/{model_name.lower()}",
         tags=[f"{model_name} {controller_name_prefix}API"],
         permissions=[permission_class],
