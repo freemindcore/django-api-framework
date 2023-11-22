@@ -65,8 +65,8 @@ test = [
     "django-stubs",
     "factory-boy==3.2.1",
     "django_coverage_plugin",
-    "django-ninja-extra >= 0.16.0",
-    "django-ninja-jwt>=5.1.0",
+    "django-ninja-extra >= 0.20.0",
+    "django-ninja-jwt>=5.2.9",
     "Django >= 3.1",
 ]
 dev = [
