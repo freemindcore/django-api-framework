@@ -21,7 +21,7 @@ class BaseApiPermission(permissions.BasePermission):
         """
         has_perm: bool = True
         if hasattr(controller, "service"):
-            has_perm = controller.service.check_permission(request, controller)  # type: ignore
+            has_perm = controller.service.check_permission(request, controller)
         return has_perm
 
     def has_object_permission(
@@ -32,7 +32,7 @@ class BaseApiPermission(permissions.BasePermission):
         """
         has_perm: bool = True
         if hasattr(controller, "service"):
-            has_perm = controller.service.check_object_permission(  # type: ignore
+            has_perm = controller.service.check_object_permission(
                 request, controller, obj
             )
         return has_perm

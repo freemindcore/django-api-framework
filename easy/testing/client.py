@@ -1,5 +1,5 @@
 from json import dumps as json_dumps
-from typing import Any, Callable, Dict, List, Sequence, Type, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Sequence, Type, Union, cast
 from unittest.mock import Mock
 from urllib.parse import urlencode
 
@@ -22,7 +22,7 @@ class EasyAPIClientBase(NinjaClientBase):
     ) -> None:
         if hasattr(router_or_app, "get_api_controller"):
             api = api_cls(auth=auth)
-            controller_ninja_api_controller = router_or_app.get_api_controller()  # type: ignore
+            controller_ninja_api_controller = router_or_app.get_api_controller()
             assert controller_ninja_api_controller
             controller_ninja_api_controller.set_api_instance(api)
             self._urls_cache = list(controller_ninja_api_controller.urls_paths(""))
@@ -33,7 +33,7 @@ class EasyAPIClientBase(NinjaClientBase):
         self,
         method: str,
         path: str,
-        data: Dict = {},
+        data: Optional[Dict] = None,
         json: Any = None,
         **request_params: Any,
     ) -> "NinjaResponse":
@@ -43,7 +43,7 @@ class EasyAPIClientBase(NinjaClientBase):
             query = request_params.pop("query")
             url_encode = urlencode(query)
             path = f"{path}?{url_encode}"
-        func, request, kwargs = self._resolve(method, path, data, request_params)
+        func, request, kwargs = self._resolve(method, path, data, request_params)  # type: ignore
         return self._call(func, request, kwargs)  # type: ignore
 
     @property

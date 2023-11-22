@@ -1,6 +1,6 @@
 from functools import wraps
 from types import FunctionType
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -11,7 +11,7 @@ from django.shortcuts import resolve_url
 
 def request_passes_test(
     test_func: Callable[[Any], Any],
-    login_url: str = None,
+    login_url: Optional[str] = None,
     redirect_field_name: str = REDIRECT_FIELD_NAME,
 ) -> Callable[[FunctionType], Callable[[HttpRequest, Any], Any]]:
     """
@@ -45,7 +45,7 @@ def request_passes_test(
 
 
 def docs_permission_required(
-    view_func: FunctionType = None,
+    view_func: Optional[FunctionType] = None,
     redirect_field_name: str = REDIRECT_FIELD_NAME,
     login_url: str = "admin:login",
 ) -> Any:

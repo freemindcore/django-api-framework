@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, List, Optional, Type, Union
 
 from django.db import models
 
@@ -24,7 +24,7 @@ SENSITIVE_FIELDS_ATTR_DEFAULT: List = ["password", "token"]
 
 
 class ModelOptions:
-    def __init__(self, options: Dict = None):
+    def __init__(self, options: Optional[object] = None):
         """
         Configuration reader
         """

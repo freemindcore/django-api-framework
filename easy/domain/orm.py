@@ -220,7 +220,7 @@ class DjangoSerializer(ModelMetaConfig):
             return {}
         out = {}
         try:
-            for k, v in obj._prefetched_objects_cache.items():  # type: ignore
+            for k, v in obj._prefetched_objects_cache.items():
                 field_name = k if hasattr(obj, k) else k + "_set"
                 if v:
                     if self.get_model_join(obj):
