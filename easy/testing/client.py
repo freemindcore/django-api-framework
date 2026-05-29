@@ -7,6 +7,9 @@ from ninja import NinjaAPI, Router
 from ninja.constants import NOT_SET, NOT_SET_TYPE
 from ninja.testing.client import NinjaClientBase, NinjaResponse
 from ninja_extra import ControllerBase
+from ninja_extra.constants import CONTROLLER_WATERMARK
+from ninja_extra.controllers.utils import get_api_controller
+from ninja_extra.reflect import reflect
 
 from easy.main import EasyAPI
 
@@ -20,9 +23,13 @@ class EasyAPIClientBase(NinjaClientBase):
         ] = NOT_SET,
         api_cls: Union[Type[EasyAPI], Type] = EasyAPI,
     ) -> None:
-        if hasattr(router_or_app, "get_api_controller"):
+        # ninja-extra 0.31 moved `get_api_controller` from a controller method to a
+        # standalone function, and identifies controllers via CONTROLLER_WATERMARK
+        # metadata instead of a `get_api_controller` attribute.
+        if reflect.has_metadata(CONTROLLER_WATERMARK, cast(Any, router_or_app)):
             api = api_cls(auth=auth)
-            controller_ninja_api_controller = router_or_app.get_api_controller()
+            controller_type = cast(Type[ControllerBase], router_or_app)
+            controller_ninja_api_controller = get_api_controller(controller_type)
             assert controller_ninja_api_controller
             controller_ninja_api_controller.set_api_instance(api)
             self._urls_cache = list(controller_ninja_api_controller.urls_paths(""))

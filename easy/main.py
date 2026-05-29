@@ -54,7 +54,13 @@ class EasyAPI(NinjaExtraAPI):
         easy_extra: bool = True,
         easy_output: bool = True,
     ) -> None:
-        super(NinjaExtraAPI, self).__init__(
+        # ninja 1.5+ removed the `csrf` kwarg from NinjaAPI.__init__, and
+        # ninja-extra 0.31+ initializes `_controller_routers` (and related state)
+        # inside NinjaExtraAPI.__init__. Inherit NinjaExtraAPI normally so it
+        # absorbs `csrf` (deprecation warning, no longer forwarded to NinjaAPI)
+        # and sets up the new attributes, instead of skipping it via
+        # super(NinjaExtraAPI, self).
+        super().__init__(
             title=title,
             version=version,
             description=description,
@@ -66,6 +72,7 @@ class EasyAPI(NinjaExtraAPI):
             auth=auth,
             renderer=renderer,
             parser=parser,
+            app_name=app_name,
         )
         self.docs_decorator = docs_decorator
         self.app_name = app_name

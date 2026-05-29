@@ -137,10 +137,7 @@ async def test_bad_request():
 async def test_exception_with_list_details():
     res = await client.get("list_exception")
     assert res.status_code == 500
-    assert res.json()["data"] == {
-        "detail": "[ErrorDetail(string='some error 1', code='error'), "
-        "ErrorDetail(string='some error 2', code='error')]",
-    }
+    assert res.json()["data"] == ["some error 1", "some error 2"]
 
 
 async def test_exception_with_list_full_details():
@@ -155,9 +152,7 @@ async def test_exception_with_list_full_details():
 async def test_exception_with_dict_details():
     res = await client.get("dict_exception")
     assert res.status_code == 500
-    assert res.json()["data"] == {
-        "detail": "{'error': ErrorDetail(string='error 1', code='error')}"
-    }
+    assert res.json()["data"] == {"error": "error 1"}
 
 
 async def test_exception_with_full_details():
@@ -248,7 +243,4 @@ client_default = testing.EasyTestClient(api_default)
 async def test_exception_with_list_details_default():
     res = await client_default.get("list_exception")
     assert res.status_code == 500
-    assert res.json() == {
-        "detail": "[ErrorDetail(string='some error 1', code='error'), "
-        "ErrorDetail(string='some error 2', code='error')]",
-    }
+    assert res.json() == ["some error 1", "some error 2"]

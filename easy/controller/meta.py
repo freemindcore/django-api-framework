@@ -115,19 +115,21 @@ class CrudAPIMetaclass(ABCMeta):
             )
 
             class DataSchema(ModelSchema):
-                class Config:
+                # ninja 1.x ModelSchema requires `Meta` (not `Config`), and
+                # `fields`/`exclude` (not `model_fields`/`model_exclude`).
+                class Meta:
                     model = model_opts.model
-                    model_exclude: List = []
+                    exclude: List = []
                     if model_opts.model_exclude:
-                        model_exclude.extend(model_opts.model_exclude)
+                        exclude.extend(model_opts.model_exclude)
                         # Remove pk(id) from Create/Update Schema
-                        model_exclude.extend([model._meta.pk.name])  # type: ignore
+                        exclude.extend([model._meta.pk.name])  # type: ignore
                     else:
                         if model_opts.model_fields == MODEL_FIELDS_ATTR_DEFAULT:
                             # Remove pk(id) from Create/Update Schema
-                            model_exclude.extend([model._meta.pk.name])  # type: ignore
+                            exclude.extend([model._meta.pk.name])  # type: ignore
                         else:
-                            model_fields = (
+                            fields = (
                                 model_opts.model_fields
                                 if model_opts.model_fields
                                 else MODEL_FIELDS_ATTR_DEFAULT

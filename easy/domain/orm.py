@@ -156,9 +156,14 @@ class DjangoSerializer(ModelMetaConfig):
 
     @staticmethod
     def is_paginated(data: Any) -> bool:
-        return isinstance(data, dict) and isinstance(
-            data.get("items", None), models.query.QuerySet
-        )
+        if not isinstance(data, dict):
+            return False
+        items = data.get("items", None)
+        # ninja-extra < 0.31 paginated to a QuerySet under "items"; 0.31+ returns
+        # a plain list under {"count": int, "items": [...]}.
+        if isinstance(items, models.query.QuerySet):
+            return True
+        return "count" in data and isinstance(items, list)
 
     def serialize_model_instance(
         self, obj: models.Model, referrers: Any = tuple()

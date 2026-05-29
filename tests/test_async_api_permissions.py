@@ -94,7 +94,7 @@ class TestPermissionController:
         )
         assert response.status_code == 403
         assert response.json().get("data") == {
-            "detail": "You do not have permission to perform this action."
+            "detail": "You must be an admin user to access this resource."
         }
 
         # Staff users
@@ -123,7 +123,7 @@ class TestAdminSitePermissionController:
         )
         assert response.status_code == 403
         assert response.json().get("data") == {
-            "detail": "You do not have permission to perform this action."
+            "detail": "You must be an admin user to access this resource."
         }
 
         # Super users
@@ -151,7 +151,7 @@ class TestAdminSitePermissionController:
         )
         assert response.status_code == 403
         assert response.json().get("data") == {
-            "detail": "You do not have permission to perform this action."
+            "detail": "You must be an admin user to access this resource."
         }
 
         # Staff users
@@ -184,7 +184,7 @@ class TestAdminSitePermissionController:
 
         assert response.status_code == 403
         assert response.json().get("data") == {
-            "detail": "You do not have permission to perform this action."
+            "detail": "You must be an admin user to access this resource."
         }
 
         # Super users
